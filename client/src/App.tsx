@@ -1,35 +1,28 @@
-import { useEffect, useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "../../../vite.svg";
-import "./App.css";
+import { useLayoutEffect, useState } from "react";
+import { ThemeContext } from "./components/ThemeContext";
+import { NavBar } from "./components/NavBar";
+import { Theme, readTheme, writeTheme } from "./lib/api";
 
 export default function App() {
-  const [serverData, setServerData] = useState("");
+  const [theme, setTheme] = useState(readTheme());
 
-  useEffect(() => {
-    async function readServerData() {
-      const resp = await fetch("/api/hello");
-      const data = await resp.json();
+  useLayoutEffect(() => {
+    document.documentElement.className = theme;
+    localStorage.theme = theme;
+  }, [theme]);
 
-      console.log("Data from server:", data);
+  function handleSetTheme(theme: Theme): void {
+    setTheme(theme);
+    writeTheme(theme);
+  }
 
-      setServerData(data.message);
-    }
-
-    readServerData();
-  }, []);
+  const contextValue = { theme, handleSetTheme };
 
   return (
-    <>
-      <div className="bg-sky-700 px-4 text-white sm:px-8">
-        <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank" rel="noreferrer">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>{serverData}</h1>
-    </>
+    <ThemeContext.Provider value={contextValue}>
+      <main className="flex h-screen w-screen flex-col items-center bg-white text-black dark:bg-outer-space dark:text-white">
+        <NavBar />
+      </main>
+    </ThemeContext.Provider>
   );
 }

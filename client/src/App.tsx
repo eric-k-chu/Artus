@@ -9,6 +9,7 @@ export default function App() {
   useLayoutEffect(() => {
     document.documentElement.className = theme;
     localStorage.theme = theme;
+    document.title = "Artus";
   }, [theme]);
 
   function handleSetTheme(theme: Theme): void {

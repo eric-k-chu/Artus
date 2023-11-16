@@ -1,29 +1,77 @@
-import { useLayoutEffect, useState } from "react";
-import { ThemeContext } from "./components/ThemeContext";
 import { NavBar } from "./components/NavBar";
-import { Theme, readTheme, writeTheme } from "./lib/api";
+import { HomePage } from "./pages/HomePage";
+import { AuthPage } from "./pages/AuthPage";
+import { AppContext } from "./components/AppContext";
+import { Route, Routes } from "react-router-dom";
+import { useEffect, useLayoutEffect, useState } from "react";
+import {
+  Auth,
+  Theme,
+  User,
+  readTheme,
+  writeTheme,
+  themeKey,
+  tokenKey,
+} from "./lib/api";
 
 export default function App() {
-  const [theme, setTheme] = useState(readTheme());
+  const [user, setUser] = useState<User>();
+  const [token, setToken] = useState<string>();
+  const [theme, setTheme] = useState<Theme>();
 
   useLayoutEffect(() => {
-    document.documentElement.className = theme;
-    localStorage.theme = theme;
-    document.title = "Artus";
+    const th = readTheme();
+    document.documentElement.className = th;
+    localStorage.setItem(themeKey, th);
+    setTheme(th);
   }, [theme]);
+
+  useEffect(() => {
+    const auth = localStorage.getItem(tokenKey);
+    if (auth) {
+      const a = JSON.parse(auth);
+      setUser(a.user);
+      setToken(a.token);
+    }
+  }, []);
+
+  function handleSignIn(auth: Auth): void {
+    localStorage.setItem(tokenKey, JSON.stringify(auth));
+    setUser(auth.user);
+    setToken(auth.token);
+  }
+
+  function handleSignOut(): void {
+    localStorage.removeItem(tokenKey);
+    setUser(undefined);
+    setToken(undefined);
+  }
 
   function handleSetTheme(theme: Theme): void {
     setTheme(theme);
     writeTheme(theme);
   }
 
-  const contextValue = { theme, handleSetTheme };
+  const contextValue = {
+    user,
+    token,
+    theme,
+    handleSignIn,
+    handleSignOut,
+    handleSetTheme,
+  };
 
   return (
-    <ThemeContext.Provider value={contextValue}>
+    <AppContext.Provider value={contextValue}>
       <main className="flex h-screen w-screen flex-col items-center bg-white text-black dark:bg-outer-space dark:text-white">
-        <NavBar />
+        <Routes>
+          <Route path="/" element={<NavBar />}>
+            <Route index element={<HomePage />} />
+          </Route>
+          <Route path="/sign-in" element={<AuthPage action="sign-in" />} />
+          <Route path="/register" element={<AuthPage action="register" />} />
+        </Routes>
       </main>
-    </ThemeContext.Provider>
+    </AppContext.Provider>
   );
 }

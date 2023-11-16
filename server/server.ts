@@ -2,7 +2,23 @@
 import 'dotenv/config';
 import express from 'express';
 import pg from 'pg';
+import argon2 from 'argon2';
+import jwt from 'jsonwebtoken';
 import { ClientError, errorMiddleware } from './lib/index.js';
+
+const hashKey = process.env.TOKEN_SECRET;
+if (!hashKey) throw new Error('TOKEN_SECRET not found in .env');
+
+export type Auth = {
+  username: string;
+  password: string;
+};
+
+export type User = {
+  userId: number;
+  username: string;
+  hashedPassword: string;
+};
 
 const connectionString =
   process.env.DATABASE_URL ||
@@ -25,8 +41,53 @@ app.use(express.static(reactStaticDir));
 app.use(express.static(uploadsStaticDir));
 app.use(express.json());
 
-app.get('/api/hello', (req, res) => {
-  res.json({ message: 'Hello, World!' });
+app.post('/api/auth/register', async (req, res, next) => {
+  try {
+    const { username, password } = req.body as Partial<Auth>;
+    if (!username || !password) {
+      throw new ClientError(400, 'username and password are required fields.');
+    }
+    const hashedPassword = await argon2.hash(password);
+    const sql = `
+      INSERT INTO "users" ("username", "hashedPassword")
+           VALUES ($1, $2)
+           RETURNING "userId", "username"
+    `;
+    const result = await db.query<User>(sql, [username, hashedPassword]);
+    const user = result.rows[0];
+    res.status(201).json(user);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.post('/api/auth/sign-in', async (req, res, next) => {
+  try {
+    const { username, password } = req.body as Partial<Auth>;
+    if (!username || !password) {
+      throw new ClientError(401, 'invalid login');
+    }
+    const sql = `
+      SELECT "userId",
+             "hashedPassword"
+        FROM "users"
+       WHERE "username" = $1
+    `;
+    const result = await db.query<User>(sql, [username]);
+    const user = result.rows[0];
+
+    if (!user) throw new ClientError(401, 'invalid login');
+
+    const { userId, hashedPassword } = user;
+    if (!(await argon2.verify(hashedPassword, password))) {
+      throw new ClientError(401, 'invalid login');
+    }
+    const payload = { userId, username };
+    const token = jwt.sign(payload, hashKey);
+    res.json({ token, user: payload });
+  } catch (err) {
+    next(err);
+  }
 });
 
 /**

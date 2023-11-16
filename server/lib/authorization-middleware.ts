@@ -8,7 +8,7 @@ if (!secret) throw new Error('TOKEN_SECRET not found in env');
 export function authMiddleware(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   // The token will be in the Authorization header with the format `Bearer ${token}`
   const token = req.get('authorization')?.split('Bearer ')[1];

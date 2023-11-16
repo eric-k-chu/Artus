@@ -1,7 +1,7 @@
 import { Logo } from "./Logo";
-import { Outlet } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import { UserAccount } from "./UserAccount";
-import { IoSearchOutline } from "react-icons/io5";
+import { RiVideoUploadFill } from "react-icons/ri";
 
 export function NavBar() {
   const iconHover =
@@ -11,9 +11,12 @@ export function NavBar() {
       <div className="flex w-full basis-1/12 items-center justify-between border-b-thin border-silver px-4 dark:border-gray">
         <Logo />
         <div className="flex basis-1/2 items-center justify-end gap-x-2">
-          <div className={iconHover}>
-            <IoSearchOutline className="text-black dark:text-white" size={24} />
-          </div>
+          <Link to="/upload" className={iconHover}>
+            <RiVideoUploadFill
+              className="text-black dark:text-white"
+              size={24}
+            />
+          </Link>
           <div className={iconHover}>
             <UserAccount />
           </div>

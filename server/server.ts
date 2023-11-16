@@ -4,7 +4,8 @@ import express from 'express';
 import pg from 'pg';
 import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
-import { ClientError, errorMiddleware } from './lib/index.js';
+import { ClientError, authMiddleware, errorMiddleware } from './lib/index.js';
+import { uploadsMiddleware } from './lib/uploads-middleware.js';
 
 const hashKey = process.env.TOKEN_SECRET;
 if (!hashKey) throw new Error('TOKEN_SECRET not found in .env');
@@ -18,6 +19,15 @@ export type User = {
   userId: number;
   username: string;
   hashedPassword: string;
+};
+
+export type Video = {
+  videoId: number;
+  userId: number;
+  likes: number;
+  caption: string;
+  videoUrl: string;
+  thumbnailUrl: string;
 };
 
 const connectionString =
@@ -89,6 +99,31 @@ app.post('/api/auth/sign-in', async (req, res, next) => {
     next(err);
   }
 });
+
+app.get('/api/videos', async (req, res, next) => {
+  try {
+    const sql = 'SELECT * FROM "videos"';
+    const result = await db.query(sql);
+    res.status(201).json(result.rows);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.post(
+  '/api/videos/:userId',
+  authMiddleware,
+  uploadsMiddleware.array('videos'),
+  async (req, res, next) => {
+    try {
+      if (!req.files) throw new ClientError(400, 'no file field in request');
+
+      res.json(req.files);
+    } catch (err) {
+      next(err);
+    }
+  },
+);
 
 /**
  * Serves React's index.html if no api route matches.

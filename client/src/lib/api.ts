@@ -14,6 +14,14 @@ export type Auth = {
   user: User;
   token: string;
 };
+export type Video = {
+  videoId: number;
+  userId: number;
+  likes: number;
+  caption: string;
+  videoUrl: string;
+  thumbnailUrl: string;
+};
 
 export function readTheme(): Theme {
   let theme: Theme;
@@ -53,6 +61,29 @@ async function signUpOrIn(action: Action, username: string, password: string) {
     body: JSON.stringify({ username, password }),
   };
   const res = await fetch(`/api/auth/${action}`, req);
+  if (!res.ok) throw new Error(`Fetch Error ${res.status}`);
+  return await res.json();
+}
+
+export async function getVideos(): Promise<Video[]> {
+  const res = await fetch("/api/videos");
+  if (!res.ok) throw new Error(`Fetch Error ${res.status}`);
+  return await res.json();
+}
+
+export async function uploadVideos(
+  form: FormData,
+  userId: number | undefined,
+  token: string | undefined,
+): Promise<any> {
+  const req = {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: form,
+  };
+  const res = await fetch(`/api/videos/${userId}`, req);
   if (!res.ok) throw new Error(`Fetch Error ${res.status}`);
   return await res.json();
 }

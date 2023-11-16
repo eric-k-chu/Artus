@@ -8,8 +8,8 @@ create schema "public";
 
 CREATE TABLE "public"."users" (
   "userId" serial PRIMARY KEY,
-  "username" integer NOT NULL,
-  "hashedPassword" integer NOT NULL,
+  "username" text NOT NULL,
+  "hashedPassword" text NOT NULL,
   "createdAt" timestamptz(6) NOT NULL DEFAULT (now())
 );
 

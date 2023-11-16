@@ -1,6 +1,6 @@
 import { Logo } from "../components/Logo";
 import { AppContext } from "../components/AppContext";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FormEvent, useContext } from "react";
 import { type Action, signIn, signUp } from "../lib/api";
 
@@ -11,6 +11,8 @@ type Props = {
 export function AuthPage({ action }: Props) {
   const navigate = useNavigate();
   const { handleSignIn } = useContext(AppContext);
+
+  const actionPhrase = action === "sign-in" ? "Sign In" : "Register";
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
@@ -32,15 +34,13 @@ export function AuthPage({ action }: Props) {
   }
 
   return (
-    <div className="container mt-20 flex h-full flex-col items-center gap-y-8 font-poppins">
+    <form
+      className="mt-20 flex h-full w-64 flex-col items-center gap-y-2 font-poppins"
+      onSubmit={handleSubmit}
+    >
       <Logo />
-      <h1 className="text-2xl">
-        {action === "sign-in" ? "Sign In" : "Register"}
-      </h1>
-      <form
-        className="flex h-52 w-64 flex-col justify-around rounded-md bg-white p-4 shadow-2xl dark:bg-void"
-        onSubmit={handleSubmit}
-      >
+      <h1 className="my-4 text-xl">{actionPhrase}</h1>
+      <div className="flex h-36 w-64 flex-col justify-around rounded-md bg-white p-4 shadow-2xl dark:bg-void">
         <label className="font-raleway">
           Username:
           <input
@@ -61,13 +61,21 @@ export function AuthPage({ action }: Props) {
             className="w-full rounded-md bg-silver px-2 dark:bg-black/30"
           />
         </label>
+      </div>
+      <div className="mt-2 flex w-full items-center justify-end gap-x-2">
+        <Link
+          to={action === "sign-in" ? "/register" : "/sign-in"}
+          className="font-raleway"
+        >
+          {action === "sign-in" ? "need an account?" : "sign in"}
+        </Link>
         <button
-          className="mt-2 rounded-md bg-aquamarine text-black"
+          className="rounded-md bg-aquamarine px-2 text-black"
           type="submit"
         >
-          Sign In
+          {actionPhrase}
         </button>
-      </form>
-    </div>
+      </div>
+    </form>
   );
 }

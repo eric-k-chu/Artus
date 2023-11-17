@@ -1,6 +1,6 @@
 import { Logo } from "./Logo";
 import { Link, Outlet } from "react-router-dom";
-import { UserAccount } from "./UserAccount";
+import { AppDrawer } from "./AppDrawer";
 import { RiVideoUploadFill } from "react-icons/ri";
 
 export function NavBar() {
@@ -18,7 +18,7 @@ export function NavBar() {
             />
           </Link>
           <div className={iconHover}>
-            <UserAccount />
+            <AppDrawer />
           </div>
         </div>
       </div>

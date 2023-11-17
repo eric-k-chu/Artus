@@ -11,6 +11,7 @@ export default {
         "tea-rose": "#CEABB1",
         gray: "#616161",
         void: "#333434",
+        cream: "#F5F5F7",
       },
       fontFamily: {
         poppins: ["Poppins", "sans-serif"],

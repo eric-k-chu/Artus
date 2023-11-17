@@ -49,6 +49,15 @@ app.post('/api/auth/register', async (req, res, next) => {
     if (!username || !password) {
       throw new ClientError(400, 'username and password are required fields.');
     }
+    // Checking if username exists
+    const checkSql = `SELECT *
+                        FROM "users"
+                       WHERE "username" = $1`;
+    const userData = await db.query<User>(checkSql, [username]);
+    if (userData.rows[0]) {
+      throw new ClientError(409, 'username already exists.');
+    }
+
     const hashedPassword = await argon2.hash(password);
     const sql = `
       INSERT INTO "users" ("username", "hashedPassword")
@@ -78,7 +87,7 @@ app.post('/api/auth/sign-in', async (req, res, next) => {
     const result = await db.query<User>(sql, [username]);
     const user = result.rows[0];
 
-    if (!user) throw new ClientError(401, 'invalid login');
+    if (!user) throw new ClientError(404, 'User does not exist.');
 
     const { userId, hashedPassword } = user;
     if (!(await argon2.verify(hashedPassword, password))) {

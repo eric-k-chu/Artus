@@ -1,7 +1,7 @@
 import { Logo } from "../components/Logo";
 import { AppContext } from "../components/AppContext";
 import { Link, useNavigate } from "react-router-dom";
-import { FormEvent, useContext } from "react";
+import { FormEvent, useContext, useState } from "react";
 import { type Action, signIn, signUp } from "../lib/api";
 
 type Props = {
@@ -11,11 +11,13 @@ type Props = {
 export function AuthPage({ action }: Props) {
   const navigate = useNavigate();
   const { handleSignIn } = useContext(AppContext);
-
+  const [error, setError] = useState<unknown>();
   const actionPhrase = action === "sign-in" ? "Sign In" : "Register";
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
+    if (error) setError(undefined);
+
     const formData = new FormData(e.currentTarget);
     const { username, password } = Object.fromEntries(formData.entries());
 
@@ -29,7 +31,7 @@ export function AuthPage({ action }: Props) {
         navigate("/sign-in");
       }
     } catch (err) {
-      console.error(err);
+      setError(err);
     }
   }
 
@@ -40,6 +42,9 @@ export function AuthPage({ action }: Props) {
     >
       <Logo />
       <h1 className="my-4 text-xl">{actionPhrase}</h1>
+      <span className="ml-2 text-xs text-red-500">
+        {error instanceof Error && error.message}
+      </span>
       <div className="flex h-36 w-64 flex-col justify-around rounded-md bg-white p-4 shadow-2xl dark:bg-void">
         <label className="font-raleway">
           Username:

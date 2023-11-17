@@ -52,7 +52,11 @@ export async function signUp(
   return await signUpOrIn("register", username, password);
 }
 
-async function signUpOrIn(action: Action, username: string, password: string) {
+async function signUpOrIn(
+  action: Action,
+  username: string,
+  password: string,
+): Promise<Auth> {
   const req = {
     method: "POST",
     headers: {
@@ -61,7 +65,18 @@ async function signUpOrIn(action: Action, username: string, password: string) {
     body: JSON.stringify({ username, password }),
   };
   const res = await fetch(`/api/auth/${action}`, req);
-  if (!res.ok) throw new Error(`Fetch Error ${res.status}`);
+  if (!res.ok) {
+    switch (res.status) {
+      case 401:
+        throw new Error("invalid login credentials");
+      case 404:
+        throw new Error("user does not exist");
+      case 409:
+        throw new Error(`username already exists`);
+      default:
+        throw new Error(`an unexpected error has occured: ${res.status}`);
+    }
+  }
   return await res.json();
 }
 

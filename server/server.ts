@@ -6,6 +6,8 @@ import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
 import { ClientError, authMiddleware, errorMiddleware } from './lib/index.js';
 import { uploadsMiddleware } from './lib/uploads-middleware.js';
+import { compressVideo, type CompressedVideos } from './lib/compressVideo.js';
+import { Multer } from 'multer';
 
 const hashKey = process.env.TOKEN_SECRET;
 if (!hashKey) throw new Error('TOKEN_SECRET not found in .env');
@@ -116,11 +118,17 @@ app.post(
   authMiddleware,
   uploadsMiddleware.array('videos'),
   async (req, res, next) => {
+    console.log('compression now');
     try {
       if (!req.files) throw new ClientError(400, 'no file field in request');
-
-      console.log(req.files);
-      res.json(req.files);
+      const files = req.files as Express.Multer.File[];
+      const compressed: Promise<CompressedVideos>[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const { filename, path } = files[i];
+        compressed.push(compressVideo(filename, path));
+      }
+      const result = await Promise.all(compressed);
+      res.json(result);
     } catch (err) {
       next(err);
     }

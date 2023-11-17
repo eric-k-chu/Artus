@@ -16,9 +16,8 @@ export async function compressVideo(
       .setFfmpegPath(ffmpegStatic || '')
       .setStartTime(2)
       .setDuration(5)
-      .videoCodec('libx265')
-      .addOptions('-crf 28')
       .format('gif')
+      .fps(10)
       .on('start', () => {
         console.log('compressing...');
       })
@@ -46,8 +45,8 @@ export async function compressVideo(
             };
             resolve(compressed);
           })
-          .save(`../public/videos/${filename}-compressed.mp4`);
+          .save(`./public/videos/${filename}-compressed.mp4`);
       })
-      .save(`../public/videos/${filename}-compressed.gif`);
+      .save(`./public/videos/${filename}-compressed.gif`);
   });
 }

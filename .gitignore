@@ -3,6 +3,8 @@ node_modules
 .vscode
 *.log
 .env
+server/public/videos/*
+!server/public/videos/.gitkeep
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*

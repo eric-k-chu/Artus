@@ -6,6 +6,8 @@ import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
 import { ClientError, authMiddleware, errorMiddleware } from './lib/index.js';
 import { uploadsMiddleware } from './lib/uploads-middleware.js';
+import { compressVideo, type CompressedVideos } from './lib/compressVideo.js';
+import { Multer } from 'multer';
 
 const hashKey = process.env.TOKEN_SECRET;
 if (!hashKey) throw new Error('TOKEN_SECRET not found in .env');
@@ -49,6 +51,15 @@ app.post('/api/auth/register', async (req, res, next) => {
     if (!username || !password) {
       throw new ClientError(400, 'username and password are required fields.');
     }
+    // Checking if username exists
+    const checkSql = `SELECT *
+                        FROM "users"
+                       WHERE "username" = $1`;
+    const userData = await db.query<User>(checkSql, [username]);
+    if (userData.rows[0]) {
+      throw new ClientError(409, 'username already exists.');
+    }
+
     const hashedPassword = await argon2.hash(password);
     const sql = `
       INSERT INTO "users" ("username", "hashedPassword")
@@ -78,7 +89,7 @@ app.post('/api/auth/sign-in', async (req, res, next) => {
     const result = await db.query<User>(sql, [username]);
     const user = result.rows[0];
 
-    if (!user) throw new ClientError(401, 'invalid login');
+    if (!user) throw new ClientError(404, 'User does not exist.');
 
     const { userId, hashedPassword } = user;
     if (!(await argon2.verify(hashedPassword, password))) {
@@ -107,11 +118,17 @@ app.post(
   authMiddleware,
   uploadsMiddleware.array('videos'),
   async (req, res, next) => {
+    console.log('compression now');
     try {
       if (!req.files) throw new ClientError(400, 'no file field in request');
-
-      console.log(req.files);
-      res.json(req.files);
+      const files = req.files as Express.Multer.File[];
+      const compressed: Promise<CompressedVideos>[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const { filename, path } = files[i];
+        compressed.push(compressVideo(filename, path));
+      }
+      const result = await Promise.all(compressed);
+      res.json(result);
     } catch (err) {
       next(err);
     }

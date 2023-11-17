@@ -1,7 +1,7 @@
 import path from 'node:path';
 import multer from 'multer';
 
-const videosDirectory = 'public/videos';
+const videosDirectory = 'public/temp';
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -11,7 +11,7 @@ const storage = multer.diskStorage({
     const fileExt = path.extname(file.originalname);
     const fileName = path.basename(file.originalname, fileExt);
     const name = `${fileName}-${Date.now()}${fileExt}`;
-    console.log(fileName);
+    console.log('uploaded', fileName);
     cb(null, name);
   },
 });

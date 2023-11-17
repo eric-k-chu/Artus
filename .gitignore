@@ -3,7 +3,9 @@ node_modules
 .vscode
 *.log
 .env
+server/public/temp/*
 server/public/videos/*
+!server/public/temp/.gitkeep
 !server/public/videos/.gitkeep
 
 # Elastic Beanstalk Files

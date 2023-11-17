@@ -5,10 +5,11 @@ import { uploadVideos } from "../lib/api";
 export function UploadPage() {
   const { user, token } = useContext(AppContext);
   const [isLoading, setIsLoading] = useState<boolean>();
+  let progressText = "";
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
-    setIsLoading(true);
+    // setIsLoading(true);
     const form = new FormData(e.currentTarget);
     try {
       const videos = await uploadVideos(form, user?.userId, token);
@@ -20,12 +21,15 @@ export function UploadPage() {
     }
   }
 
+  if (isLoading) progressText = "Loading...";
+  else if (isLoading === false) progressText = "Uploaded";
+
   return (
     <form
       className="container flex h-full flex-col items-center justify-center gap-y-8"
       onSubmit={handleSubmit}
     >
-      <h1>{isLoading ? "Loading..." : "Uploaded!"}</h1>
+      <h1>{progressText}</h1>
       <input
         required
         type="file"

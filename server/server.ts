@@ -21,15 +21,6 @@ export type User = {
   hashedPassword: string;
 };
 
-export type Video = {
-  videoId: number;
-  userId: number;
-  likes: number;
-  caption: string;
-  videoUrl: string;
-  thumbnailUrl: string;
-};
-
 const connectionString =
   process.env.DATABASE_URL ||
   `postgresql://${process.env.RDS_USERNAME}:${process.env.RDS_PASSWORD}@${process.env.RDS_HOSTNAME}:${process.env.RDS_PORT}/${process.env.RDS_DB_NAME}`;
@@ -49,6 +40,7 @@ const uploadsStaticDir = new URL('public', import.meta.url).pathname;
 app.use(express.static(reactStaticDir));
 // Static directory for file uploads server/public/
 app.use(express.static(uploadsStaticDir));
+
 app.use(express.json());
 
 app.post('/api/auth/register', async (req, res, next) => {
@@ -118,6 +110,7 @@ app.post(
     try {
       if (!req.files) throw new ClientError(400, 'no file field in request');
 
+      console.log(req.files);
       res.json(req.files);
     } catch (err) {
       next(err);

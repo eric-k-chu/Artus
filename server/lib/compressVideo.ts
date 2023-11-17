@@ -19,7 +19,6 @@ export async function compressVideo(
       .videoCodec('libx265')
       .addOptions('-crf 28')
       .format('gif')
-      .output(`/videos/${filename}-compressed.gif`)
       .on('start', () => {
         console.log('compressing...');
       })
@@ -33,7 +32,6 @@ export async function compressVideo(
           .videoCodec('libx265')
           .addOptions('-crf 28')
           .format('mp4')
-          .output(`/videos/${filename}-compressed.mp4`)
           .on('start', () => {
             console.log('compressing...');
           })
@@ -48,8 +46,8 @@ export async function compressVideo(
             };
             resolve(compressed);
           })
-          .save(`/videos/${filename}-compressed.mp4`);
+          .save(`../public/videos/${filename}-compressed.mp4`);
       })
-      .save(`/videos/${filename}-compressed.gif`);
+      .save(`../public/videos/${filename}-compressed.gif`);
   });
 }

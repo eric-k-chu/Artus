@@ -14,8 +14,6 @@ export async function compressVideo(
   return new Promise((resolve, reject) => {
     ffmpeg(path)
       .setFfmpegPath(ffmpegStatic || '')
-      .setStartTime(2)
-      .setDuration(5)
       .format('gif')
       .fps(10)
       .on('start', () => {

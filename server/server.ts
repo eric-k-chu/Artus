@@ -6,8 +6,10 @@ import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
 import { ClientError, authMiddleware, errorMiddleware } from './lib/index.js';
 import { uploadsMiddleware } from './lib/uploads-middleware.js';
-import { compressVideo, type CompressedVideos } from './lib/compressVideo.js';
-import { Multer } from 'multer';
+import {
+  compressVideos,
+  type CompressedVideos,
+} from './lib/compress-videos.js';
 
 const hashKey = process.env.TOKEN_SECRET;
 if (!hashKey) throw new Error('TOKEN_SECRET not found in .env');
@@ -125,7 +127,7 @@ app.post(
       const compressed: Promise<CompressedVideos>[] = [];
       for (let i = 0; i < files.length; i++) {
         const { filename, path } = files[i];
-        compressed.push(compressVideo(filename, path));
+        compressed.push(compressVideos(filename, path));
       }
       const result = await Promise.all(compressed);
       res.json(result);

@@ -7,13 +7,15 @@ export type CompressedVideos = {
   videoUrl: string;
 };
 
-export async function compressVideo(
+export async function compressVideos(
   filename: string,
   path: string,
 ): Promise<CompressedVideos> {
   return new Promise((resolve, reject) => {
     ffmpeg(path)
       .setFfmpegPath(ffmpegStatic || '')
+      .setStartTime(1)
+      .duration(3)
       .format('gif')
       .fps(10)
       .on('start', () => {

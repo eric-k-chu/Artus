@@ -80,7 +80,7 @@ async function signUpOrIn(
   return await res.json();
 }
 
-export async function getVideos(): Promise<Video[]> {
+export async function readVideos(): Promise<Video[]> {
   const res = await fetch("/api/videos");
   if (!res.ok) throw new Error(`Fetch Error ${res.status}`);
   return await res.json();

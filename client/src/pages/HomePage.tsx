@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getVideos, type Video } from "../lib/api";
+import { readVideos, type Video } from "../lib/api";
 
 export function HomePage() {
   const [videos, setVideos] = useState<Video[]>([]);
@@ -10,7 +10,7 @@ export function HomePage() {
     async function load() {
       setIsLoading(true);
       try {
-        const vids = await getVideos();
+        const vids = await readVideos();
         setVideos(vids);
       } catch (err) {
         setError(err);

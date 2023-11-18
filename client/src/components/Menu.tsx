@@ -7,9 +7,9 @@ import {
   RiLogoutBoxFill,
   RiLoginBoxFill,
 } from "react-icons/ri";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-export function AppDrawer() {
+export function Menu() {
   const navigate = useNavigate();
   const [showSideBar, setShowSideBar] = useState(false);
   const { user, theme, handleSetTheme, handleSignOut } = useContext(AppContext);
@@ -43,10 +43,13 @@ export function AppDrawer() {
             </div>
           )}
           {user && (
-            <div className="flex w-full basis-1/12 items-center gap-x-4 px-6 py-2 transition-none hover:cursor-pointer hover:bg-black/10">
+            <Link
+              to="/dashboard"
+              className="flex w-full basis-1/12 items-center gap-x-4 px-6 py-2 transition-none hover:cursor-pointer hover:bg-black/10"
+            >
               <RiFolderVideoFill size={24} />
-              <span>Manage</span>
-            </div>
+              <span>Dashboard</span>
+            </Link>
           )}
           <div
             className="flex w-full basis-1/12 items-center gap-x-4 px-6 py-2 transition-none hover:cursor-pointer hover:bg-black/10"

@@ -10,9 +10,16 @@ import {
   errorMiddleware,
   uploadsMiddleware,
   convertVideos,
-  queryVideos,
+  generateInsertUserVideosSql,
+  checkUserId,
+  validateUpdatedVideo,
+  validateTags,
+  removeExistingTags,
+  generateInsertTagsSql,
   type Auth,
   type User,
+  type UpdatedVideo,
+  type Video,
 } from './lib/index.js';
 
 const hashKey = process.env.TOKEN_SECRET;
@@ -37,7 +44,6 @@ const uploadsStaticDir = new URL('public', import.meta.url).pathname;
 app.use(express.static(reactStaticDir));
 // Static directory for file uploads server/public/
 app.use(express.static(uploadsStaticDir));
-
 app.use(express.json());
 
 app.post('/api/auth/register', async (req, res, next) => {
@@ -46,12 +52,12 @@ app.post('/api/auth/register', async (req, res, next) => {
     if (!username || !password) {
       throw new ClientError(400, 'username and password are required fields.');
     }
-    // Checking if username exists
+
     const checkSql = `SELECT *
                         FROM "users"
                        WHERE "username" = $1`;
-    const userData = await db.query<User>(checkSql, [username]);
-    if (userData.rows[0]) {
+    const checkUser = await db.query<User>(checkSql, [username]);
+    if (checkUser.rows[0]) {
       throw new ClientError(409, 'username already exists.');
     }
 
@@ -59,8 +65,7 @@ app.post('/api/auth/register', async (req, res, next) => {
     const sql = `
       INSERT INTO "users" ("username", "hashedPassword")
            VALUES ($1, $2)
-           RETURNING "userId", "username"
-    `;
+           RETURNING "userId", "username"`;
     const result = await db.query<User>(sql, [username, hashedPassword]);
     const user = result.rows[0];
     res.status(201).json(user);
@@ -109,22 +114,77 @@ app.get('/api/videos', async (req, res, next) => {
 });
 
 app.post(
-  '/api/videos/:userId',
+  '/api/:userId/videos',
   authMiddleware,
   uploadsMiddleware.array('videos'),
   async (req, res, next) => {
     try {
       if (!req.files) throw new ClientError(400, 'no file field in request');
+
       const files = req.files as Express.Multer.File[];
+      const userId = Number(req.params.userId);
+      const jwtUserId = req.user?.userId;
+      checkUserId(userId, jwtUserId);
+
       const convertedVideos = await convertVideos(files);
-      const sql = queryVideos(convertedVideos, req.user?.userId);
-      const result = await db.query(sql);
-      res.status(201).json(result.rows);
+
+      const videoQueries = [];
+      for (let i = 0; i < convertVideos.length; i++) {
+        const { videoUrl, thumbnailUrl, originalname } = convertedVideos[i];
+        const sql = `INSERT INTO
+                     "videos" ("userId", "likes", "caption", "videoUrl", "thumbnailUrl")
+                      VALUES ($1, $2, $3, $4, $5) RETURNING *;`;
+        const result = db.query<Video>(sql, [
+          userId,
+          0,
+          originalname,
+          videoUrl,
+          thumbnailUrl,
+        ]);
+
+        videoQueries.push(result);
+      }
+      const result = await Promise.all(videoQueries);
+      const videos = result.forEach((n) => n.rows[0]);
+      res.status(201).json(videos);
     } catch (err) {
       next(err);
     }
   },
 );
+
+app.put('/api/:userId/videos/:videoId', async (req, res, next) => {
+  try {
+    const { caption, tags } = req.body as UpdatedVideo;
+    const { userId, videoId } = req.params;
+    const jwtUserId = req.user?.userId;
+    checkUserId(Number(userId), jwtUserId);
+
+    validateUpdatedVideo(Number(videoId), caption, tags);
+
+    const videoSql = `UPDATE "videos"
+                         SET "caption" = $1,
+                       WHERE "videoId" = $2
+                       RETURNING "videoId", "caption"`;
+    const result = await db.query(videoSql, [caption, videoId]);
+    const videoInfo = result.rows[0];
+    if (!videoInfo)
+      throw new ClientError(404, `video with ${videoId} not found`);
+
+    validateTags(tags);
+
+    let tagInfo;
+    if (tags) {
+      const tagsArr = await removeExistingTags(tags, db);
+      const tagsSql = generateInsertTagsSql(tagsArr);
+      const tagResult = await db.query(tagsSql);
+      tagInfo = tagResult.rows;
+    }
+    res.status(201).json({ videoInfo, tagInfo });
+  } catch (err) {
+    next(err);
+  }
+});
 
 /**
  * Serves React's index.html if no api route matches.

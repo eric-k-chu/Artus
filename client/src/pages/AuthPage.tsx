@@ -1,7 +1,7 @@
-import { Logo } from "../components/Logo";
+// import { Logo } from "../components/Logo";
 import { AppContext } from "../components/AppContext";
 import { Link, useNavigate } from "react-router-dom";
-import { FormEvent, useContext, useState } from "react";
+import { FormEvent, useContext, useLayoutEffect, useState } from "react";
 import { type Action, signIn, signUp } from "../lib/api";
 
 type Props = {
@@ -13,6 +13,10 @@ export function AuthPage({ action }: Props) {
   const { handleSignIn } = useContext(AppContext);
   const [error, setError] = useState<unknown>();
   const actionPhrase = action === "sign-in" ? "Sign In" : "Register";
+
+  useLayoutEffect(() => {
+    document.title = actionPhrase + " - Artus";
+  }, [actionPhrase]);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
@@ -37,36 +41,40 @@ export function AuthPage({ action }: Props) {
 
   return (
     <form
-      className="mt-20 flex h-full w-64 flex-col items-center gap-y-2 font-poppins"
+      className="flex h-full w-72 flex-col items-center justify-center gap-y-4 font-poppins"
       onSubmit={handleSubmit}
     >
-      <Logo />
-      <h1 className="my-4 text-xl">{actionPhrase}</h1>
-      <span className="ml-2 text-xs text-red-500">
+      <img src="/images/artus-dark.png" alt="artus" />
+      <span className="mt-2 text-xs text-red-500">
         {error instanceof Error && error.message}
       </span>
-      <div className="flex h-36 w-64 flex-col justify-around rounded-md bg-white p-4 shadow-2xl dark:bg-void">
-        <label className="font-raleway">
-          Username:
-          <input
-            required
-            autoFocus
-            type="text"
-            name="username"
-            className="w-full rounded-md bg-silver px-2 dark:bg-black/30"
-          />
-        </label>
-        <label className="font-raleway">
-          Password:
-          <input
-            required
-            autoFocus
-            type="password"
-            name="password"
-            className="w-full rounded-md bg-silver px-2 dark:bg-black/30"
-          />
-        </label>
-      </div>
+      <label>
+        <span className="text-sm font-semibold leading-10">Username</span>
+        <input
+          required
+          autoFocus
+          type="text"
+          name="username"
+          className="w-full rounded-md border-thin border-silver bg-white p-2 font-raleway dark:bg-black/30"
+        />
+      </label>
+      <label>
+        <span className="text-sm font-semibold leading-10">Password</span>
+        <input
+          required
+          autoFocus
+          type="password"
+          name="password"
+          className="w-full rounded-md border-thin border-silver bg-white p-2 dark:bg-black/30"
+        />
+      </label>
+      <button
+        className="rounded-md bg-aquamarine px-2 text-black"
+        type="submit"
+      >
+        {actionPhrase}
+      </button>
+
       <div className="mt-2 flex w-full items-center justify-end gap-x-2">
         <Link
           to={action === "sign-in" ? "/register" : "/sign-in"}

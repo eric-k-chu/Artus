@@ -14,6 +14,7 @@ import {
   themeKey,
   tokenKey,
 } from "./lib/api";
+import { Dashboard } from "./pages/Dashboard";
 
 export default function App() {
   const [user, setUser] = useState<User>();
@@ -69,6 +70,7 @@ export default function App() {
           <Route path="/" element={<NavBar />}>
             <Route index element={<HomePage />} />
             <Route path="upload" element={<UploadPage />} />
+            <Route path="dashboard" element={<Dashboard />} />
           </Route>
           <Route path="/sign-in" element={<AuthPage action="sign-in" />} />
           <Route path="/register" element={<AuthPage action="register" />} />

@@ -90,7 +90,7 @@ export async function uploadVideos(
   form: FormData,
   userId: number | undefined,
   token: string | undefined,
-): Promise<any> {
+): Promise<Video> {
   const req = {
     method: "POST",
     headers: {
@@ -98,7 +98,7 @@ export async function uploadVideos(
     },
     body: form,
   };
-  const res = await fetch(`/api/videos/${userId}`, req);
+  const res = await fetch(`/api/${userId}/videos`, req);
   if (!res.ok) throw new Error(`Fetch Error ${res.status}`);
   return await res.json();
 }

@@ -57,6 +57,7 @@ async function convertToGifandMp4(
 export async function convertVideos(
   files: Express.Multer.File[],
 ): Promise<ConvertedVideos[]> {
+  console.log('Converion starting now...');
   const convertedVideos: Promise<ConvertedVideos>[] = [];
   for (let i = 0; i < files.length; i++) {
     const { filename, path, originalname } = files[i];

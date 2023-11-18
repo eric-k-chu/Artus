@@ -4,26 +4,19 @@ import express from 'express';
 import pg from 'pg';
 import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
-import { ClientError, authMiddleware, errorMiddleware } from './lib/index.js';
-import { uploadsMiddleware } from './lib/uploads-middleware.js';
 import {
-  compressVideos,
-  type CompressedVideos,
-} from './lib/compress-videos.js';
+  ClientError,
+  authMiddleware,
+  errorMiddleware,
+  uploadsMiddleware,
+  convertVideos,
+  queryVideos,
+  type Auth,
+  type User,
+} from './lib/index.js';
 
 const hashKey = process.env.TOKEN_SECRET;
 if (!hashKey) throw new Error('TOKEN_SECRET not found in .env');
-
-export type Auth = {
-  username: string;
-  password: string;
-};
-
-export type User = {
-  userId: number;
-  username: string;
-  hashedPassword: string;
-};
 
 const connectionString =
   process.env.DATABASE_URL ||
@@ -120,17 +113,13 @@ app.post(
   authMiddleware,
   uploadsMiddleware.array('videos'),
   async (req, res, next) => {
-    console.log('compression now');
     try {
       if (!req.files) throw new ClientError(400, 'no file field in request');
       const files = req.files as Express.Multer.File[];
-      const compressed: Promise<CompressedVideos>[] = [];
-      for (let i = 0; i < files.length; i++) {
-        const { filename, path } = files[i];
-        compressed.push(compressVideos(filename, path));
-      }
-      const result = await Promise.all(compressed);
-      res.json(result);
+      const convertedVideos = await convertVideos(files);
+      const sql = queryVideos(convertedVideos, req.user?.userId);
+      const result = await db.query(sql);
+      res.status(201).json(result.rows);
     } catch (err) {
       next(err);
     }

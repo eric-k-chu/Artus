@@ -11,4 +11,4 @@
 --      ('Get a job', false);
 
 INSERT INTO "users" ("users, hashedPassword")
-     VALUES ("admin", "$argon2id$v=19$m=4096,t=3,p=1$OOaXqQwryoUOCwQzC/ONAQ$Z0vAMlqKtgAtKIAKWq8cLFW6DUbMsHLSp1KPYPlN5dQ")
+     VALUES ('admin', '$argon2id$v=19$m=4096,t=3,p=1$OOaXqQwryoUOCwQzC/ONAQ$Z0vAMlqKtgAtKIAKWq8cLFW6DUbMsHLSp1KPYPlN5dQ')

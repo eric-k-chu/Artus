@@ -2,15 +2,17 @@ import ffmpeg from 'fluent-ffmpeg';
 import fs from 'node:fs';
 import ffmpegStatic from 'ffmpeg-static';
 
-export type CompressedVideos = {
-  thumbUrl: string;
+export type ConvertedVideos = {
+  thumbnailUrl: string;
   videoUrl: string;
+  originalname: string;
 };
 
-export async function compressVideos(
+async function convertToGifandMp4(
   filename: string,
   path: string,
-): Promise<CompressedVideos> {
+  originalname: string,
+): Promise<ConvertedVideos> {
   return new Promise((resolve, reject) => {
     ffmpeg(path)
       .setFfmpegPath(ffmpegStatic || '')
@@ -39,14 +41,26 @@ export async function compressVideos(
           })
           .on('end', () => {
             fs.unlinkSync(path);
-            const compressed = {
-              thumbUrl: `/videos/${filename}-compressed.gif`,
+            const converted = {
+              thumbnailUrl: `/videos/${filename}-compressed.gif`,
               videoUrl: `/videos/${filename}-compressed.mp4`,
+              originalname,
             };
-            resolve(compressed);
+            resolve(converted);
           })
           .save(`./public/videos/${filename}-compressed.mp4`);
       })
       .save(`./public/videos/${filename}-compressed.gif`);
   });
+}
+
+export async function convertVideos(
+  files: Express.Multer.File[],
+): Promise<ConvertedVideos[]> {
+  const convertedVideos: Promise<ConvertedVideos>[] = [];
+  for (let i = 0; i < files.length; i++) {
+    const { filename, path, originalname } = files[i];
+    convertedVideos.push(convertToGifandMp4(filename, path, originalname));
+  }
+  return await Promise.all(convertedVideos);
 }

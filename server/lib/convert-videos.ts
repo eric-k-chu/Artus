@@ -1,4 +1,4 @@
-import ffmpeg, { ffprobe } from 'fluent-ffmpeg';
+import ffmpeg from 'fluent-ffmpeg';
 import fs from 'node:fs';
 import ffmpegStatic from 'ffmpeg-static';
 
@@ -19,7 +19,7 @@ async function convertToGifandMp4(
 ): Promise<ConvertedVideos> {
   let duration: number | undefined;
 
-  ffprobe(path, (err, metadata) => {
+  ffmpeg.ffprobe(path, (err, metadata) => {
     if (err) throw new Error(err);
     duration = metadata.format.duration;
   });

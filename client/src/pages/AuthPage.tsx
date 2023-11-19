@@ -1,9 +1,7 @@
-// import { Logo } from "../components/Logo";
-import { AppContext } from "../components/AppContext";
+import { AppContext } from "../components";
 import { useNavigate } from "react-router-dom";
+import { signIn, signUp, useTitle, type Action } from "../lib";
 import { FormEvent, useContext, useEffect, useState } from "react";
-import { type Action, signIn, signUp } from "../lib/api";
-import { useTitle } from "../lib/custom-hooks";
 
 type Props = {
   action: Action;

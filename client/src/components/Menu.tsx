@@ -1,14 +1,13 @@
-import { IoMoon, IoSunny, IoPersonAdd, IoMenu, IoClose } from "react-icons/io5";
-import { AppContext } from "./AppContext";
+import { MenuItem, AppContext } from "./";
+import { useNavigate } from "react-router-dom";
 import { useState, useContext, KeyboardEvent } from "react";
+import { IoMoon, IoSunny, IoPersonAdd, IoMenu, IoClose } from "react-icons/io5";
 import {
   RiFolderVideoFill,
   RiAccountBoxFill,
   RiLogoutBoxFill,
   RiLoginBoxFill,
 } from "react-icons/ri";
-import { useNavigate } from "react-router-dom";
-import { MenuItem } from "./MenuItem";
 
 export function Menu() {
   const navigate = useNavigate();
@@ -50,7 +49,7 @@ export function Menu() {
         >
           <div className="min-h-full w-full" onClick={() => setIsOpen(false)} />
           <div className="flex min-h-full min-w-[20rem] flex-col bg-cream shadow-lg dark:bg-outer-space">
-            <div className="flex items-center justify-between border-b-thin border-silver p-6 dark:border-void">
+            <div className="border-b-thin flex items-center justify-between border-silver p-6 dark:border-void">
               <span className="font-poppins">artus</span>
               <IoClose
                 className="h-7 w-7 rounded-md hover:cursor-pointer hover:bg-silver dark:hover:bg-void"

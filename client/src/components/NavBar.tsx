@@ -1,18 +1,11 @@
-import { Logo } from "./Logo";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Menu } from "./Menu";
+import { useContext } from "react";
+import { Logo, AppContext, Menu } from "./";
 import { RiVideoUploadFill } from "react-icons/ri";
-import { useContext, useEffect } from "react";
-import { AppContext } from "./AppContext";
+import { Outlet, useNavigate } from "react-router-dom";
 
 export function NavBar() {
   const navigate = useNavigate();
   const { user } = useContext(AppContext);
-  const { pathname } = useLocation();
-
-  useEffect(() => {
-    if (!user && pathname !== "/") navigate("/sign-in");
-  }, [user, navigate, pathname]);
 
   function handleVideoUploadClick(): void {
     if (user) navigate("/upload");
@@ -21,7 +14,7 @@ export function NavBar() {
 
   return (
     <>
-      <div className="flex w-full basis-1/12 items-center justify-between border-b-thin border-silver p-4 dark:border-void">
+      <div className="border-b-thin flex w-full basis-1/12 items-center justify-between border-silver p-4 dark:border-void">
         <Logo />
         <div className="flex basis-1/2 items-center justify-end gap-x-2">
           <RiVideoUploadFill

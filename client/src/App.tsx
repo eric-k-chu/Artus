@@ -1,10 +1,7 @@
-import { NavBar } from "./components/NavBar";
-import { HomePage } from "./pages/HomePage";
-import { AuthPage } from "./pages/AuthPage";
-import { UploadPage } from "./pages/UploadPage";
-import { AppContext } from "./components/AppContext";
 import { Route, Routes } from "react-router-dom";
+import { NavBar, AppContext } from "./components";
 import { useEffect, useLayoutEffect, useState } from "react";
+import { HomePage, AuthPage, UploadPage, Dashboard } from "./pages";
 import {
   type Auth,
   type Theme,
@@ -13,8 +10,7 @@ import {
   writeTheme,
   themeKey,
   tokenKey,
-} from "./lib/api";
-import { Dashboard } from "./pages/Dashboard";
+} from "./lib";
 
 export default function App() {
   const [user, setUser] = useState<User>();

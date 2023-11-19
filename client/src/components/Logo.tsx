@@ -1,5 +1,5 @@
-import { IoPlayCircleOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import { IoPlayCircleOutline } from "react-icons/io5";
 
 export function Logo() {
   const navigate = useNavigate();

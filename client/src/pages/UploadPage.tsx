@@ -1,8 +1,7 @@
+import { AppContext } from "../components";
 import { FormEvent, useContext } from "react";
-import { AppContext } from "../components/AppContext";
-import { uploadVideos } from "../lib/api";
 import { useNavigate } from "react-router-dom";
-import { useTitle } from "../lib/custom-hooks";
+import { uploadVideos, useTitle } from "../lib";
 
 export function UploadPage() {
   const navigate = useNavigate();

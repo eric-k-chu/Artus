@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { readVideos, type Video } from "../lib/api";
-import { useTitle } from "../lib/custom-hooks";
+import { readVideos, useTitle, type Video } from "../lib";
 
 export function Dashboard() {
   const [videos, setVideos] = useState<Video[]>([]);

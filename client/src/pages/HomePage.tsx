@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { readVideos, type Video } from "../lib/api";
-import { useTitle } from "../lib/custom-hooks";
+import { useTitle, readVideos, type Video } from "../lib";
 
 export function HomePage() {
   const [videos, setVideos] = useState<Video[]>([]);

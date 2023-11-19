@@ -1,5 +1,4 @@
-import { ClientError, type ConvertedVideos } from './index.js';
-import pg from 'pg';
+import { ClientError } from './index.js';
 
 export type Auth = {
   username: string;
@@ -18,7 +17,7 @@ export type UpdatedVideo = {
 };
 
 export type Video = {
-  userId: string;
+  userId: number;
   videoId: string;
   likes: number;
   caption: string;
@@ -26,51 +25,6 @@ export type Video = {
   thumbnailUrl: string;
   uploadedAt: number;
 };
-
-export function generateInsertUserVideosSql(
-  convertedVids: ConvertedVideos[],
-  userId: number | undefined,
-): string {
-  if (!userId) throw new Error('userId is undefined');
-
-  const values: string[] = [];
-  const sql = `INSERT
-       INTO "videos" ("userId", "likes", "caption", "videoUrl", "thumbnailUrl")
-     VALUES `;
-
-  for (let i = 0; i < convertedVids.length; i++) {
-    const { videoUrl, thumbnailUrl, originalname } = convertedVids[i];
-    values.push(
-      `($<${userId}>, $<${0}>, $<${originalname}>, $<${videoUrl}>, $<${thumbnailUrl}>)`,
-    );
-  }
-  return sql + values.join(',') + ' RETURNING *';
-}
-
-export async function removeExistingTags(
-  tags: string,
-  db: pg.Pool,
-): Promise<string[]> {
-  const tagNames = tags.split(',');
-  const newTags: string[] = [];
-  for (let i = 0; i < tagNames.length; i++) {
-    const sql = `SELECT "name" FROM "tags" WHERE "name" = $1`;
-    const result = await db.query(sql, [tagNames[i]]);
-    if (!result.rows) newTags.push(tagNames[i]);
-  }
-  return newTags;
-}
-
-export function generateInsertTagsSql(tags: string[]): string {
-  if (!tags) throw new Error('tags cannot be undefined');
-
-  const sql = `INSERT INTO "users" ("name") VALUES `;
-
-  for (let i = 0; i < tags.length; i++) {
-    tags[i] = `($<${tags[i]}>)`;
-  }
-  return sql + tags.join(',') + ' RETURNING "name"';
-}
 
 export function checkUserId(
   paramUserId: number,

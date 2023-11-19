@@ -1,7 +1,7 @@
 // import { Logo } from "../components/Logo";
 import { AppContext } from "../components/AppContext";
 import { useNavigate } from "react-router-dom";
-import { FormEvent, useContext, useState } from "react";
+import { FormEvent, useContext, useEffect, useState } from "react";
 import { type Action, signIn, signUp } from "../lib/api";
 import { useTitle } from "../lib/custom-hooks";
 
@@ -15,8 +15,13 @@ export function AuthPage({ action }: Props) {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<unknown>();
+  const { user } = useContext(AppContext);
   const actionPhrase = action === "sign-in" ? "Sign In" : "Register";
   useTitle(actionPhrase);
+
+  useEffect(() => {
+    if (user) navigate("/");
+  }, [user, navigate]);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();

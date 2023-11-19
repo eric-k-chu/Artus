@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars -- Remove when used */
 import 'dotenv/config';
 import express from 'express';
 import pg from 'pg';
@@ -11,16 +10,11 @@ import {
   errorMiddleware,
   uploadsMiddleware,
   convertVideos,
-  generateInsertUserVideosSql,
   checkUserId,
-  validateUpdatedVideo,
-  validateTags,
-  removeExistingTags,
-  generateInsertTagsSql,
   type Auth,
   type User,
-  type UpdatedVideo,
   type Video,
+  ConvertedVideos,
 } from './lib/index.js';
 
 const hashKey = process.env.TOKEN_SECRET;
@@ -106,7 +100,7 @@ app.post('/api/auth/sign-in', async (req, res, next) => {
 app.get('/api/videos', async (req, res, next) => {
   try {
     const sql = 'SELECT * FROM "videos"';
-    const result = await db.query(sql);
+    const result = await db.query<Video>(sql);
     res.status(201).json(result.rows);
   } catch (err) {
     next(err);
@@ -126,65 +120,60 @@ app.post(
       const jwtUserId = req.user?.userId;
       checkUserId(userId, jwtUserId);
 
-      const convertedVideos = await convertVideos(files);
+      const convertedVideos: ConvertedVideos[] = await convertVideos(files);
 
-      const videoQueries = [];
-      for (let i = 0; i < convertVideos.length; i++) {
-        const { videoUrl, thumbnailUrl, originalname } = convertedVideos[i];
-        const sql = `INSERT INTO
-                     "videos" ("userId", "likes", "caption", "videoUrl", "thumbnailUrl")
-                      VALUES ($1, $2, $3, $4, $5) RETURNING *;`;
-        const result = db.query<Video>(sql, [
-          userId,
-          0,
-          originalname,
-          videoUrl,
-          thumbnailUrl,
-        ]);
-
-        videoQueries.push(result);
+      console.log('Inserting into database...');
+      const values: (number | string)[][] = [];
+      for (const vids of convertedVideos) {
+        const { videoUrl, thumbnailUrl, originalname } = vids;
+        values.push([userId, 0, originalname, videoUrl, thumbnailUrl]);
       }
-      const result = await Promise.all(videoQueries);
-      const videos = result.forEach((n) => n.rows[0]);
-      res.status(201).json(videos);
+
+      const sql = format(
+        'INSERT INTO "videos" ("userId", "likes", "caption", "videoUrl", "thumbnailUrl") VALUES %L RETURNING *',
+        values,
+      );
+
+      const result = await db.query<Video>(sql);
+      res.status(201).json(result.rows);
     } catch (err) {
       next(err);
     }
   },
 );
 
-app.put('/api/:userId/videos/:videoId', async (req, res, next) => {
-  try {
-    const { caption, tags } = req.body as UpdatedVideo;
-    const { userId, videoId } = req.params;
-    const jwtUserId = req.user?.userId;
-    checkUserId(Number(userId), jwtUserId);
+// app.put('/api/:userId/videos/:videoId', async (req, res, next) => {
+//   try {
+//     const { caption, tags } = req.body as UpdatedVideo;
+//     const { userId, videoId } = req.params;
+//     const jwtUserId = req.user?.userId;
+//     checkUserId(Number(userId), jwtUserId);
 
-    validateUpdatedVideo(Number(videoId), caption, tags);
+//     validateUpdatedVideo(Number(videoId), caption, tags);
 
-    const videoSql = `UPDATE "videos"
-                         SET "caption" = $1,
-                       WHERE "videoId" = $2
-                       RETURNING "videoId", "caption"`;
-    const result = await db.query(videoSql, [caption, videoId]);
-    const videoInfo = result.rows[0];
-    if (!videoInfo)
-      throw new ClientError(404, `video with ${videoId} not found`);
+//     const videoSql = `UPDATE "videos"
+//                          SET "caption" = $1,
+//                        WHERE "videoId" = $2
+//                        RETURNING "videoId", "caption"`;
+//     const result = await db.query(videoSql, [caption, videoId]);
+//     const videoInfo = result.rows[0];
+//     if (!videoInfo)
+//       throw new ClientError(404, `video with ${videoId} not found`);
 
-    validateTags(tags);
+//     validateTags(tags);
 
-    let tagInfo;
-    if (tags) {
-      const tagsArr = await removeExistingTags(tags, db);
-      const tagsSql = generateInsertTagsSql(tagsArr);
-      const tagResult = await db.query(tagsSql);
-      tagInfo = tagResult.rows;
-    }
-    res.status(201).json({ videoInfo, tagInfo });
-  } catch (err) {
-    next(err);
-  }
-});
+//     let tagInfo;
+//     if (tags) {
+//       const tagsArr = await removeExistingTags(tags, db);
+//       const tagsSql = generateInsertTagsSql(tagsArr);
+//       const tagResult = await db.query(tagsSql);
+//       tagInfo = tagResult.rows;
+//     }
+//     res.status(201).json({ videoInfo, tagInfo });
+//   } catch (err) {
+//     next(err);
+//   }
+// });
 
 /**
  * Serves React's index.html if no api route matches.

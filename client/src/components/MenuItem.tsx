@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 type Props = {
   show: boolean;
   children: ReactNode;
-  onClick?: (val?: any) => any;
+  onClick?: (val?: unknown) => unknown;
   isLast?: boolean;
 };
 

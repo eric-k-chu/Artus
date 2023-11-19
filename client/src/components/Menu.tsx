@@ -15,13 +15,18 @@ export function Menu() {
   const [isOpen, setIsOpen] = useState(false);
   const { user, theme, handleSetTheme, handleSignOut } = useContext(AppContext);
 
-  function handleSignInOrOut(): void {
-    if (!user) navigate("/sign-in");
-    else handleSignOut();
-  }
-
   function handleKeyDown(e: KeyboardEvent<HTMLDivElement>): void {
     if (e.key === "Escape") setIsOpen(false);
+  }
+
+  function handleNavigate(
+    page: "/dashboard" | "/register" | "/sign-in" | "/",
+  ): void {
+    if (page === "/") {
+      handleSignOut();
+    }
+    navigate(page);
+    setIsOpen(false);
   }
 
   return (
@@ -58,12 +63,15 @@ export function Menu() {
             </MenuItem>
             <MenuItem
               show={user !== undefined}
-              onClick={() => navigate("/dashboard")}
+              onClick={() => handleNavigate("/dashboard")}
             >
               <RiFolderVideoFill size={24} />
               <span>Dashboard</span>
             </MenuItem>
-            <MenuItem show={true} onClick={handleSignInOrOut}>
+            <MenuItem
+              show={true}
+              onClick={() => handleNavigate(user ? "/sign-in" : "/")}
+            >
               {user ? (
                 <RiLogoutBoxFill size={24} />
               ) : (
@@ -73,7 +81,7 @@ export function Menu() {
             </MenuItem>
             <MenuItem
               show={user === undefined}
-              onClick={() => navigate("/register")}
+              onClick={() => handleNavigate("/register")}
             >
               <IoPersonAdd size={24} />
               <span>Register</span>

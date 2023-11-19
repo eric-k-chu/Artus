@@ -21,11 +21,11 @@ export function NavBar() {
 
   return (
     <>
-      <div className="flex w-full basis-1/12 items-center justify-between border-b-thin border-silver p-4 dark:border-gray">
+      <div className="flex w-full basis-1/12 items-center justify-between border-b-thin border-silver p-4 dark:border-void">
         <Logo />
         <div className="flex basis-1/2 items-center justify-end gap-x-2">
           <RiVideoUploadFill
-            className="h-8 w-10 rounded-md hover:cursor-pointer hover:bg-silver dark:hover:bg-black/10"
+            className="h-8 w-10 rounded-md hover:cursor-pointer hover:bg-silver dark:hover:bg-void"
             size={24}
             onClick={handleVideoUploadClick}
           />

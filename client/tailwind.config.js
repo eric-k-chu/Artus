@@ -10,7 +10,7 @@ export default {
         silver: "#C9C9C9",
         "tea-rose": "#CEABB1",
         gray: "#616161",
-        void: "#333434",
+        void: "#313338",
         cream: "#EEF0FD",
       },
       fontFamily: {

@@ -81,14 +81,13 @@ async function signUpOrIn(
 }
 
 export async function readVideos(): Promise<Video[]> {
-  const res = await fetch("/api/videos");
+  const res = await fetch("/api/videos/all");
   if (!res.ok) throw new Error(`Fetch Error ${res.status}`);
   return await res.json();
 }
 
 export async function uploadVideos(
   form: FormData,
-  userId: number | undefined,
   token: string | undefined,
 ): Promise<Video> {
   const req = {
@@ -98,7 +97,7 @@ export async function uploadVideos(
     },
     body: form,
   };
-  const res = await fetch(`/api/${userId}/videos`, req);
+  const res = await fetch(`/api/videos`, req);
   if (!res.ok) throw new Error(`Fetch Error ${res.status}`);
   return await res.json();
 }

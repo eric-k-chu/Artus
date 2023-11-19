@@ -17,9 +17,6 @@ export default {
         poppins: ["Poppins", "sans-serif"],
         raleway: ["Raleway", "sans-serif"],
       },
-      borderWidth: {
-        thin: "1px",
-      },
     },
   },
   plugins: [],

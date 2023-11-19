@@ -10,7 +10,6 @@ import {
   errorMiddleware,
   uploadsMiddleware,
   convertVideos,
-  checkUserId,
   type Auth,
   type User,
   type Video,
@@ -97,7 +96,7 @@ app.post('/api/auth/sign-in', async (req, res, next) => {
   }
 });
 
-app.get('/api/videos', async (req, res, next) => {
+app.get('/api/videos/all', async (req, res, next) => {
   try {
     const sql = 'SELECT * FROM "videos"';
     const result = await db.query<Video>(sql);
@@ -107,8 +106,23 @@ app.get('/api/videos', async (req, res, next) => {
   }
 });
 
+app.get('/api/videos', authMiddleware, async (req, res, next) => {
+  try {
+    const sql = `SELECT *
+                   FROM "videos"
+                   JOIN "videoTags" USING ("videoId")
+                   JOIN "tags" USING ("tagId")
+                  WHERE "userId" = $1
+                  ORDER BY "uploadedAt DESC`;
+    const result = await db.query<Video>(sql, [req.user?.userId]);
+    res.status(201).json(result.rows);
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.post(
-  '/api/:userId/videos',
+  '/api/videos',
   authMiddleware,
   uploadsMiddleware.array('videos'),
   async (req, res, next) => {
@@ -116,24 +130,26 @@ app.post(
       if (!req.files) throw new ClientError(400, 'no file field in request');
 
       const files = req.files as Express.Multer.File[];
-      const userId = Number(req.params.userId);
-      const jwtUserId = req.user?.userId;
-      checkUserId(userId, jwtUserId);
-
       const convertedVideos: ConvertedVideos[] = await convertVideos(files);
 
       console.log('Inserting into database...');
-      const values: (number | string)[][] = [];
+      const values: (number | string | undefined)[][] = [];
       for (const vids of convertedVideos) {
         const { videoUrl, thumbnailUrl, originalname } = vids;
-        values.push([userId, 0, originalname, videoUrl, thumbnailUrl]);
+        values.push([
+          req.user?.userId,
+          0,
+          originalname,
+          videoUrl,
+          thumbnailUrl,
+        ]);
       }
 
       const sql = format(
-        'INSERT INTO "videos" ("userId", "likes", "caption", "videoUrl", "thumbnailUrl") VALUES %L RETURNING *',
+        `INSERT INTO "videos" ("userId", "likes", "caption", "videoUrl", "thumbnailUrl")
+                               VALUES %L RETURNING *`,
         values,
       );
-
       const result = await db.query<Video>(sql);
       res.status(201).json(result.rows);
     } catch (err) {

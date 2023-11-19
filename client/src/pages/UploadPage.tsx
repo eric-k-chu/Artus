@@ -6,8 +6,7 @@ import { useTitle } from "../lib/custom-hooks";
 
 export function UploadPage() {
   const navigate = useNavigate();
-  const { user, token } = useContext(AppContext);
-
+  const { token } = useContext(AppContext);
   useTitle("Upload");
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
@@ -15,7 +14,7 @@ export function UploadPage() {
     const form = new FormData(e.currentTarget);
     try {
       console.log("Uploading now...");
-      const videos = await uploadVideos(form, user?.userId, token);
+      const videos = await uploadVideos(form, token);
       console.log(videos);
     } catch (err) {
       console.error(Error);

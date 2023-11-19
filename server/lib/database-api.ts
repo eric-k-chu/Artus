@@ -26,17 +26,6 @@ export type Video = {
   uploadedAt: number;
 };
 
-export function checkUserId(
-  paramUserId: number,
-  jwtUserId: number | undefined,
-): void {
-  if (!Number.isInteger(paramUserId))
-    throw new ClientError(404, 'userId in params is not a valid integer');
-  if (!jwtUserId) throw new ClientError(401, 'verification failed.');
-  if (paramUserId !== jwtUserId)
-    throw new ClientError(401, 'userId and jwt userId does not match.');
-}
-
 export function validateTags(tags: string): void {
   if (tags && tags.includes(' ')) {
     throw new ClientError(

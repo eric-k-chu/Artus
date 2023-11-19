@@ -65,7 +65,7 @@ export function AuthPage({ action }: Props) {
           name="username"
           className={`${
             error instanceof Error ? "border-red-400" : "border-silver"
-          } w-full rounded-md border-thin bg-white p-2 font-raleway dark:bg-black/30`}
+          } w-full rounded-md border bg-white p-2 font-raleway dark:bg-black/30`}
           onChange={(e) => setUsername(e.currentTarget.value)}
         />
       </label>
@@ -79,7 +79,7 @@ export function AuthPage({ action }: Props) {
           name="password"
           className={`${
             error instanceof Error ? "border-red-400" : "border-silver"
-          } w-full rounded-md border-thin bg-white p-2 font-raleway dark:bg-black/30`}
+          } w-full rounded-md border bg-white p-2 font-raleway dark:bg-black/30`}
           onChange={(e) => setPassword(e.currentTarget.value)}
         />
       </label>
@@ -94,7 +94,7 @@ export function AuthPage({ action }: Props) {
         <p>{action === "sign-in" ? "Need an account?" : "Have an account?"}</p>
         <button
           onClick={handleClick}
-          className="rounded-md border-thin border-silver p-2 font-raleway font-semibold hover:border-gray"
+          className="rounded-md border border-silver p-2 font-raleway font-semibold hover:border-gray"
         >
           {action === "sign-in" ? "Register" : "Sign In"}
         </button>

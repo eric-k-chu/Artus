@@ -13,7 +13,7 @@ import {
   type Auth,
   type User,
   type Video,
-  ConvertedVideos,
+  type ConvertedVideos,
 } from './lib/index.js';
 
 const hashKey = process.env.TOKEN_SECRET;

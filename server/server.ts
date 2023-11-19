@@ -4,6 +4,7 @@ import express from 'express';
 import pg from 'pg';
 import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
+import format from 'pg-format';
 import {
   ClientError,
   authMiddleware,

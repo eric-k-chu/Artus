@@ -19,22 +19,17 @@ export function NavBar() {
     else navigate("/sign-in");
   }
 
-  const iconHover =
-    "flex h-8 w-8 items-center justify-center rounded-md transition-none hover:cursor-pointer hover:bg-silver dark:hover:bg-void";
   return (
     <>
-      <div className="flex w-full basis-1/12 items-center justify-between border-b-thin border-silver px-4 dark:border-gray">
+      <div className="flex w-full basis-1/12 items-center justify-between border-b-thin border-silver p-4 dark:border-gray">
         <Logo />
         <div className="flex basis-1/2 items-center justify-end gap-x-2">
-          <div onClick={handleVideoUploadClick} className={iconHover}>
-            <RiVideoUploadFill
-              className="text-black dark:text-white"
-              size={24}
-            />
-          </div>
-          <div className={iconHover}>
-            <Menu />
-          </div>
+          <RiVideoUploadFill
+            className="h-8 w-10 rounded-md hover:cursor-pointer hover:bg-silver dark:hover:bg-black/10"
+            size={24}
+            onClick={handleVideoUploadClick}
+          />
+          <Menu />
         </div>
       </div>
       <Outlet />

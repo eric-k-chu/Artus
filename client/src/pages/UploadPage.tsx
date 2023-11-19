@@ -2,10 +2,13 @@ import { FormEvent, useContext } from "react";
 import { AppContext } from "../components/AppContext";
 import { uploadVideos } from "../lib/api";
 import { useNavigate } from "react-router-dom";
+import { useTitle } from "../lib/custom-hooks";
 
 export function UploadPage() {
   const navigate = useNavigate();
   const { user, token } = useContext(AppContext);
+
+  useTitle("Upload");
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();

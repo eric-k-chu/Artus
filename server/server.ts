@@ -37,12 +37,10 @@ const db = new pg.Pool({
 
 const app = express();
 
-// Create paths for static directories
 const reactStaticDir = new URL('../client/dist', import.meta.url).pathname;
 const uploadsStaticDir = new URL('public', import.meta.url).pathname;
 
 app.use(express.static(reactStaticDir));
-// Static directory for file uploads server/public/
 app.use(express.static(uploadsStaticDir));
 app.use(express.json());
 
@@ -50,7 +48,7 @@ app.post('/api/auth/register', async (req, res, next) => {
   try {
     const { username, password } = req.body as Partial<Auth>;
     if (!username || !password) {
-      throw new ClientError(400, 'username and password are required fields.');
+      throw new ClientError(400, 'Username and password are required fields.');
     }
 
     const checkSql = `SELECT *
@@ -58,7 +56,7 @@ app.post('/api/auth/register', async (req, res, next) => {
                        WHERE "username" = $1`;
     const checkUser = await db.query<User>(checkSql, [username]);
     if (checkUser.rows[0]) {
-      throw new ClientError(409, 'username already exists.');
+      throw new ClientError(409, 'Username already exists.');
     }
 
     const hashedPassword = await argon2.hash(password);
@@ -78,7 +76,7 @@ app.post('/api/auth/sign-in', async (req, res, next) => {
   try {
     const { username, password } = req.body as Partial<Auth>;
     if (!username || !password) {
-      throw new ClientError(401, 'invalid login');
+      throw new ClientError(401, 'Invalid login.');
     }
     const sql = `
       SELECT "userId",
@@ -89,11 +87,12 @@ app.post('/api/auth/sign-in', async (req, res, next) => {
     const result = await db.query<User>(sql, [username]);
     const user = result.rows[0];
 
-    if (!user) throw new ClientError(404, 'User does not exist.');
+    if (!user)
+      throw new ClientError(404, 'These credentials do not match our record.');
 
     const { userId, hashedPassword } = user;
     if (!(await argon2.verify(hashedPassword, password))) {
-      throw new ClientError(401, 'invalid login');
+      throw new ClientError(401, 'Invalid login.');
     }
     const payload = { userId, username };
     const token = jwt.sign(payload, hashKey);

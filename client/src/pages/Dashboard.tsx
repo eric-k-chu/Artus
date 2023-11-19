@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { readVideos, type Video } from "../lib/api";
+import { useTitle } from "../lib/custom-hooks";
 
 export function Dashboard() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>();
   const [error, setError] = useState<unknown>();
+
+  useTitle("Dashboard");
 
   useEffect(() => {
     async function load() {

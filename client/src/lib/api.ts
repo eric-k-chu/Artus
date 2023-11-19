@@ -68,11 +68,11 @@ async function signUpOrIn(
   if (!res.ok) {
     switch (res.status) {
       case 401:
-        throw new Error("invalid login credentials");
+        throw new Error("Login verification failed.");
       case 404:
-        throw new Error("user does not exist");
+        throw new Error("These credentials do not match our records.");
       case 409:
-        throw new Error(`username already exists`);
+        throw new Error(`This username is already taken.`);
       default:
         throw new Error(`an unexpected error has occured: ${res.status}`);
     }

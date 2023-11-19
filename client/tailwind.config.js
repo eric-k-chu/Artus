@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        "outer-space": "#444545",
+        "outer-space": "#36393E",
         aquamarine: "#B5FFE9",
         "mint-green": "#C5E0D8",
         silver: "#C9C9C9",

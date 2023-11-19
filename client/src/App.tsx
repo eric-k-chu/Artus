@@ -6,9 +6,9 @@ import { AppContext } from "./components/AppContext";
 import { Route, Routes } from "react-router-dom";
 import { useEffect, useLayoutEffect, useState } from "react";
 import {
-  Auth,
-  Theme,
-  User,
+  type Auth,
+  type Theme,
+  type User,
   readTheme,
   writeTheme,
   themeKey,

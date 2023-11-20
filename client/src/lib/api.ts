@@ -9,7 +9,6 @@ export type Theme = "light" | "dark";
 export type User = {
   userId: number;
   username: string;
-  photoUrl: string;
 };
 export type Auth = {
   user: User;
@@ -22,7 +21,9 @@ export type Video = {
   caption: string;
   videoUrl: string;
   thumbnailUrl: string;
+  uploadedAt: string;
 };
+export type VideoDetails = Video & User;
 
 export function readTheme(): Theme {
   let theme: Theme;
@@ -81,8 +82,16 @@ async function signUpOrIn(
   return await res.json();
 }
 
-export async function readVideos(): Promise<Video[]> {
+export async function fetchVideos(): Promise<Video[]> {
   const res = await fetch("/api/videos/all");
+  if (!res.ok) throw new Error(`Fetch Error ${res.status}`);
+  return await res.json();
+}
+
+export async function fetchVideoDetails(
+  videoId: number,
+): Promise<VideoDetails> {
+  const res = await fetch(`/api/videos/${videoId}`);
   if (!res.ok) throw new Error(`Fetch Error ${res.status}`);
   return await res.json();
 }
@@ -101,4 +110,13 @@ export async function uploadVideos(
   const res = await fetch(`/api/videos`, req);
   if (!res.ok) throw new Error(`Fetch Error ${res.status}`);
   return await res.json();
+}
+
+export function getDate(ttz: string | undefined): string {
+  if (!ttz) throw new Error("Error in getting date");
+  return new Date(ttz).toLocaleString("default", {
+    month: "long",
+    day: "2-digit",
+    year: "numeric",
+  });
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { readVideos, useTitle, type Video } from "../lib";
+import { fetchVideos, useTitle, type Video } from "../lib";
 
 export function Dashboard() {
   const [videos, setVideos] = useState<Video[]>([]);
@@ -12,7 +12,7 @@ export function Dashboard() {
     async function load() {
       setIsLoading(true);
       try {
-        const vids = await readVideos();
+        const vids = await fetchVideos();
         setVideos(vids);
       } catch (err) {
         setError(err);

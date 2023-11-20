@@ -1,5 +1,6 @@
+import { VideoCard } from "../components";
 import { useEffect, useState } from "react";
-import { useTitle, readVideos, type Video } from "../lib";
+import { useTitle, fetchVideos, type Video } from "../lib";
 
 export function HomePage() {
   const [videos, setVideos] = useState<Video[]>([]);
@@ -12,7 +13,7 @@ export function HomePage() {
     async function load() {
       setIsLoading(true);
       try {
-        const vids = await readVideos();
+        const vids = await fetchVideos();
         setVideos(vids);
       } catch (err) {
         setError(err);
@@ -34,7 +35,6 @@ export function HomePage() {
   if (error) {
     return (
       <div className="container flex h-full flex-col items-center justify-center">
-        Error loading videos:
         {error instanceof Error ? error.message : "Unknown Error"}
       </div>
     );
@@ -49,10 +49,9 @@ export function HomePage() {
   }
 
   return (
-    <div className="container flex h-full flex-col items-center justify-center">
-      <h1>Videos</h1>
+    <div className="container flex h-full flex-wrap justify-center gap-8 overflow-y-auto p-8">
       {videos.map((n) => (
-        <div key={n.videoId}>{n.videoId}</div>
+        <VideoCard video={n} key={n.videoId} />
       ))}
       {/* <img src="/images/artus-dark.png" /> */}
     </div>

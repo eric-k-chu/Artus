@@ -15,6 +15,7 @@ import {
   type User,
   type Video,
   type ConvertedVideos,
+  type VideoDetails,
 } from './lib/index.js';
 
 const hashKey = process.env.TOKEN_SECRET;
@@ -102,6 +103,27 @@ app.get('/api/videos/all', async (req, res, next) => {
     const sql = 'SELECT * FROM "videos"';
     const result = await db.query<Video>(sql);
     res.status(201).json(result.rows);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.get('/api/videos/:videoId', async (req, res, next) => {
+  try {
+    const videoId = Number(req.params.videoId);
+    if (!Number.isInteger(videoId)) {
+      throw new ClientError(400, 'videoId must be a positive integer.');
+    }
+    const sql = `SELECT *
+                   FROM "videos"
+                   JOIN "users" USING ("userId")
+                  WHERE "videoId" = $1`;
+    const result = await db.query<VideoDetails>(sql, [videoId]);
+    const video = result.rows[0];
+    if (!video) {
+      throw new ClientError(404, `Cannot find video with id: ${videoId}`);
+    }
+    res.json(video);
   } catch (err) {
     next(err);
   }

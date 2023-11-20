@@ -1,7 +1,13 @@
 import { Route, Routes } from "react-router-dom";
 import { NavBar, AppContext } from "./components";
 import { useEffect, useLayoutEffect, useState } from "react";
-import { HomePage, AuthPage, UploadPage, Dashboard } from "./pages";
+import {
+  HomePage,
+  AuthPage,
+  UploadPage,
+  Dashboard,
+  VideoDetails,
+} from "./pages";
 import {
   type Auth,
   type Theme,
@@ -67,6 +73,7 @@ export default function App() {
             <Route index element={<HomePage />} />
             <Route path="upload" element={<UploadPage />} />
             <Route path="dashboard" element={<Dashboard />} />
+            <Route path=":videoId" element={<VideoDetails />} />
           </Route>
           <Route path="/sign-in" element={<AuthPage action="sign-in" />} />
           <Route path="/register" element={<AuthPage action="register" />} />

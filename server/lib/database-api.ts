@@ -26,6 +26,8 @@ export type Video = {
   uploadedAt: number;
 };
 
+export type VideoDetails = Video & User;
+
 export function validateTags(tags: string): void {
   if (tags && tags.includes(' ')) {
     throw new ClientError(

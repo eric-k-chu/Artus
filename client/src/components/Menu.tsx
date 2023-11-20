@@ -1,7 +1,16 @@
 import { MenuItem, AppContext } from "./";
 import { useNavigate } from "react-router-dom";
+import { GITHUB_LINK, LINKEDIN_LINK } from "../lib";
 import { useState, useContext, KeyboardEvent } from "react";
-import { IoMoon, IoSunny, IoPersonAdd, IoMenu, IoClose } from "react-icons/io5";
+import {
+  IoMoon,
+  IoSunny,
+  IoPersonAdd,
+  IoMenu,
+  IoClose,
+  IoLogoGithub,
+  IoLogoLinkedin,
+} from "react-icons/io5";
 import {
   RiFolderVideoFill,
   RiAccountBoxFill,
@@ -49,7 +58,7 @@ export function Menu() {
         >
           <div className="min-h-full w-full" onClick={() => setIsOpen(false)} />
           <div className="flex min-h-full min-w-[20rem] flex-col bg-cream shadow-lg dark:bg-outer-space">
-            <div className="border-b-thin flex items-center justify-between border-silver p-6 dark:border-void">
+            <div className="flex items-center justify-between border-b border-silver p-6 dark:border-void">
               <span className="font-poppins">artus</span>
               <IoClose
                 className="h-7 w-7 rounded-md hover:cursor-pointer hover:bg-silver dark:hover:bg-void"
@@ -69,7 +78,7 @@ export function Menu() {
             </MenuItem>
             <MenuItem
               show={true}
-              onClick={() => handleNavigate(user ? "/sign-in" : "/")}
+              onClick={() => handleNavigate(user ? "/" : "/sign-in")}
             >
               {user ? (
                 <RiLogoutBoxFill size={24} />
@@ -95,6 +104,14 @@ export function Menu() {
               {theme === "light" ? <IoMoon size={24} /> : <IoSunny size={24} />}
               <span>{theme === "light" ? "Light" : "Dark"}</span>
             </MenuItem>
+            <div className="mt-auto flex items-center gap-x-8 border-t border-silver p-6 dark:border-void">
+              <a href={GITHUB_LINK} target="_blank">
+                <IoLogoGithub size={24} />
+              </a>
+              <a href={LINKEDIN_LINK} target="_blank">
+                <IoLogoLinkedin size={24} />
+              </a>
+            </div>
           </div>
         </div>
       </div>

@@ -1,10 +1,28 @@
-import ffmpeg from 'fluent-ffmpeg';
 import fs from 'node:fs';
+import ffmpeg from 'fluent-ffmpeg';
 import ffmpegStatic from 'ffmpeg-static';
+import ffprobeStatic from 'ffprobe-static';
 
 const ffmpegStaticPath = ffmpegStatic ?? '';
-if (!ffmpegStaticPath)
-  throw new Error('ffmpeg binaries are needed to run fluent-ffmpeg');
+const ffprobeStaticPath = ffprobeStatic.path ?? '';
+if (!ffmpegStaticPath && !ffprobeStaticPath) {
+  throw new Error(
+    'ffmpeg and ffprobe binaries are needed to run fluent-ffmpeg',
+  );
+}
+
+export async function logDuration(path: string) {
+  let duration: number | undefined;
+
+  ffmpeg(path)
+    .setFfprobePath(ffprobeStaticPath)
+    .ffprobe(async (err, metadata) => {
+      if (err) throw new Error(err);
+      duration = metadata.format.duration;
+      console.log(duration);
+    });
+  console.log(duration);
+}
 
 export type ConvertedVideos = {
   thumbnailUrl: string;
@@ -17,23 +35,11 @@ async function convertToGifandMp4(
   path: string,
   originalname: string,
 ): Promise<ConvertedVideos> {
-  let duration: number | undefined;
-
-  ffmpeg.ffprobe(path, (err, metadata) => {
-    if (err) throw new Error(err);
-    duration = metadata.format.duration;
-  });
-
-  if (!duration) throw new Error('undefined video duration.');
-
-  const startTime = duration < 3 ? 0 : duration / 2;
-  const endTime = duration < 3 ? duration : 3;
-
   return new Promise((resolve, reject) => {
     ffmpeg(path)
       .setFfmpegPath(ffmpegStaticPath)
-      .setStartTime(startTime)
-      .duration(endTime)
+      .setStartTime(0)
+      .duration(3)
       .format('gif')
       .fps(10)
       .on('start', () => {

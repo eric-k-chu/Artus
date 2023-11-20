@@ -54,7 +54,7 @@ export function HomePage() {
       {videos.map((n) => (
         <div key={n.videoId}>{n.videoId}</div>
       ))}
-      <img src="/images/artus-dark.png" />
+      {/* <img src="/images/artus-dark.png" /> */}
     </div>
   );
 }

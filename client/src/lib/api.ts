@@ -1,8 +1,9 @@
 export const themeKey = "theme";
 export const tokenKey = "user-jwt";
+export const GITHUB_LINK = "https://github.com/eric-k-chu";
+export const LINKEDIN_LINK = "https://www.linkedin.com/in/eric-k-chu/";
 
 export type Action = "sign-in" | "register";
-
 export type Theme = "light" | "dark";
 
 export type User = {

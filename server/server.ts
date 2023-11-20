@@ -10,6 +10,7 @@ import {
   errorMiddleware,
   uploadsMiddleware,
   convertVideos,
+  logDuration,
   type Auth,
   type User,
   type Video,
@@ -151,12 +152,19 @@ app.post(
         values,
       );
       const result = await db.query<Video>(sql);
+      console.log('Sending to client...');
       res.status(201).json(result.rows);
     } catch (err) {
       next(err);
     }
   },
 );
+
+app.get('/api/ffprobe', async (req, res) => {
+  const { path } = req.body;
+  logDuration(path);
+  res.sendStatus(200);
+});
 
 // app.put('/api/:userId/videos/:videoId', async (req, res, next) => {
 //   try {

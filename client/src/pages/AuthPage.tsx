@@ -71,7 +71,6 @@ export function AuthPage({ action }: Props) {
         <span className="text-sm font-semibold leading-10">Password</span>
         <input
           required
-          autoFocus
           value={password}
           type="password"
           name="password"

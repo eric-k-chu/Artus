@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { fetchVideos, useTitle, type Video } from "../lib";
+import { UserVideoCard } from "../components";
+import { fetchUserVideos, useTitle, type Video, type User } from "../lib";
 
 export function Dashboard() {
-  const [videos, setVideos] = useState<Video[]>([]);
+  const [videos, setVideos] = useState<Partial<Video & User>[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>();
   const [error, setError] = useState<unknown>();
 
@@ -12,7 +13,7 @@ export function Dashboard() {
     async function load() {
       setIsLoading(true);
       try {
-        const vids = await fetchVideos();
+        const vids = await fetchUserVideos();
         setVideos(vids);
       } catch (err) {
         setError(err);
@@ -21,7 +22,7 @@ export function Dashboard() {
       }
     }
     if (isLoading === undefined) load();
-  }, [isLoading, videos]);
+  }, [isLoading]);
 
   if (isLoading) {
     return (
@@ -34,7 +35,7 @@ export function Dashboard() {
   if (error) {
     return (
       <div className="container flex h-full flex-col items-center justify-center">
-        Error loading videos:
+        <span>Error loading videos: </span>
         {error instanceof Error ? error.message : "Unknown Error"}
       </div>
     );
@@ -43,7 +44,7 @@ export function Dashboard() {
   return (
     <div className="container flex h-full w-full flex-col items-center justify-center">
       {videos.map((n) => (
-        <div key={n.videoId}>{n.videoId}</div>
+        <UserVideoCard key={n.videoId} video={n} />
       ))}
     </div>
   );

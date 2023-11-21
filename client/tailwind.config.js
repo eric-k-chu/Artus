@@ -17,6 +17,10 @@ export default {
         poppins: ["Poppins", "sans-serif"],
         raleway: ["Raleway", "sans-serif"],
       },
+      aspectRatio: {
+        "4/3": "4 / 3",
+        "5/4": "5 / 4",
+      },
     },
   },
   plugins: [],

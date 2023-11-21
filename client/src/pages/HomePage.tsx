@@ -49,11 +49,10 @@ export function HomePage() {
   }
 
   return (
-    <div className="container flex h-full flex-wrap justify-center gap-8 overflow-y-auto p-8">
+    <div className="flex h-full flex-wrap justify-center gap-8 overflow-y-auto p-8">
       {videos.map((n) => (
         <VideoCard video={n} key={n.videoId} />
       ))}
-      {/* <img src="/images/artus-dark.png" /> */}
     </div>
   );
 }

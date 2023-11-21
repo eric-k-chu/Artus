@@ -59,7 +59,13 @@ export function Menu() {
           <div className="min-h-full w-full" onClick={() => setIsOpen(false)} />
           <div className="flex min-h-full min-w-[20rem] flex-col bg-cream shadow-lg dark:bg-outer-space">
             <div className="flex items-center justify-between border-b border-silver p-6 dark:border-void">
-              <span className="font-poppins">artus</span>
+              <img
+                src={
+                  theme === "light"
+                    ? "/images/logo-d-24.png"
+                    : "/images/logo-l-24.png"
+                }
+              />
               <IoClose
                 className="h-7 w-7 rounded-md hover:cursor-pointer hover:bg-silver dark:hover:bg-void"
                 onClick={() => setIsOpen(false)}

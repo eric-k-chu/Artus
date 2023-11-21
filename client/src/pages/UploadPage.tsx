@@ -1,11 +1,9 @@
-import { AppContext } from "../components";
-import { FormEvent, useContext } from "react";
+import { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { uploadVideos, useTitle } from "../lib";
 
 export function UploadPage() {
   const navigate = useNavigate();
-  const { token } = useContext(AppContext);
   useTitle("Upload");
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
@@ -13,7 +11,7 @@ export function UploadPage() {
     const form = new FormData(e.currentTarget);
     try {
       console.log("Uploading now...");
-      const videos = await uploadVideos(form, token);
+      const videos = await uploadVideos(form);
       console.log(videos);
     } catch (err) {
       console.error(Error);

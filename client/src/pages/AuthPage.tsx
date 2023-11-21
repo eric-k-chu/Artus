@@ -1,4 +1,4 @@
-import { AppContext } from "../components";
+import { AppContext, Logo } from "../components";
 import { useNavigate } from "react-router-dom";
 import { signIn, signUp, useTitle, type Action } from "../lib";
 import { FormEvent, useContext, useEffect, useState } from "react";
@@ -49,7 +49,7 @@ export function AuthPage({ action }: Props) {
       className="mb-28 flex h-full w-72 flex-col items-center justify-center gap-y-4 font-poppins"
       onSubmit={handleSubmit}
     >
-      <img src="/images/artus-dark.png" alt="artus" />
+      <Logo />
       <span className="mt-2 text-xs text-red-500">
         {error instanceof Error && error.message}
       </span>

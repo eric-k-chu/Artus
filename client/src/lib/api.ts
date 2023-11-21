@@ -23,7 +23,17 @@ export type Video = {
   thumbnailUrl: string;
   uploadedAt: string;
 };
-export type VideoDetails = Video & User;
+export type VideoDetails = {
+  video: Video & User;
+  tags: string[];
+};
+
+function getToken(): any {
+  const tokenJSON = localStorage.getItem(tokenKey);
+  if (!tokenJSON) throw new Error("Unable to retrieve token. Please relog.");
+  const userJwt = JSON.parse(tokenJSON);
+  return userJwt.token;
+}
 
 export function readTheme(): Theme {
   let theme: Theme;
@@ -88,6 +98,17 @@ export async function fetchVideos(): Promise<Video[]> {
   return await res.json();
 }
 
+export async function fetchUserVideos(): Promise<Video[]> {
+  const res = await fetch("/api/videos", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+    },
+  });
+  if (!res.ok) throw new Error(`Fetch Error ${res.status}`);
+  return await res.json();
+}
+
 export async function fetchVideoDetails(
   videoId: number,
 ): Promise<VideoDetails> {
@@ -96,14 +117,11 @@ export async function fetchVideoDetails(
   return await res.json();
 }
 
-export async function uploadVideos(
-  form: FormData,
-  token: string | undefined,
-): Promise<Video> {
+export async function uploadVideos(form: FormData): Promise<Video> {
   const req = {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${getToken()}`,
     },
     body: form,
   };

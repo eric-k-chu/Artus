@@ -43,8 +43,8 @@ export function VideoDetails() {
   }
 
   return (
-    <div className="container flex flex-wrap items-center justify-center p-8 lg:flex-nowrap lg:justify-start">
-      <VideoPlayer />
+    <div className="flex h-full w-full flex-wrap items-center justify-center gap-x-4 p-8 lg:flex-nowrap">
+      <VideoPlayer videoUrl={videoDetails?.video.videoUrl} />
       <VideoInfo videoDetails={videoDetails} />
     </div>
   );

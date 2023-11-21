@@ -6,3 +6,4 @@ export * from "./NavBar";
 export * from "./VideoCard";
 export * from "./VideoInfo";
 export * from "./VideoPlayer";
+export * from "./UserVideoCard";

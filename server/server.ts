@@ -15,7 +15,8 @@ import {
   type User,
   type Video,
   type ConvertedVideos,
-  type VideoDetails,
+  type UpdatedVideo,
+  type Tag,
 } from './lib/index.js';
 
 const hashKey = process.env.TOKEN_SECRET;
@@ -114,16 +115,74 @@ app.get('/api/videos/:videoId', async (req, res, next) => {
     if (!Number.isInteger(videoId)) {
       throw new ClientError(400, 'videoId must be a positive integer.');
     }
-    const sql = `SELECT *
+    const sql = `SELECT "videoId", "userId", "username",
+                        "likes", "caption", "uploadedAt",
+                        "videoUrl", "thumbnailUrl"
                    FROM "videos"
                    JOIN "users" USING ("userId")
                   WHERE "videoId" = $1`;
-    const result = await db.query<VideoDetails>(sql, [videoId]);
+    const result = await db.query(sql, [videoId]);
     const video = result.rows[0];
     if (!video) {
       throw new ClientError(404, `Cannot find video with id: ${videoId}`);
     }
-    res.json(video);
+
+    let tags = [];
+    {
+      const sql = `SELECT "tagId", "videoId", "name"
+                     FROM "videoTags"
+                     JOIN "tags" USING ("tagId")
+                    WHERE "videoId" = $1`;
+      const result = await db.query(sql, [videoId]);
+      tags = result.rows;
+    }
+    res.json({ video, tags: tags.map((n) => n.name) });
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.put('/api/videos/:videoId', async (req, res, next) => {
+  try {
+    const videoId = Number(req.body.videoId);
+    const { caption, tags } = req.body as UpdatedVideo;
+    if (!Number.isInteger(videoId)) {
+      throw new ClientError(400, 'videoId must be a positive integer.');
+    }
+    if (!caption) throw new ClientError(400, 'Caption cannot be empty.');
+
+    const sql = `UPDATE "videos"
+                    SET "caption" = $1
+                  WHERE "videoId" = $2
+                  RETURNING *`;
+    const result = await db.query<Video>(sql, [caption, videoId]);
+    const video = result.rows[0];
+    if (!video) {
+      throw new ClientError(404, `Video with id ${videoId} does not exist.`);
+    }
+
+    if (tags.length < 1) res.status(201).json({ video });
+
+    const tagList = tags.split(',');
+    const tagValues: string[][] = [];
+    for (const tag of tagList) {
+      tagValues.push([tag]);
+    }
+    const tagSql = format(
+      'INSERT INTO "tags" ("name") VALUES %L RETURNING *',
+      tagValues,
+    );
+    const tagResult = await db.query<Tag>(tagSql);
+    const videoTags: Tag[] = tagResult.rows;
+
+    const vidTagValues: number[][] = [];
+    for (const tag of videoTags) {
+      vidTagValues.push([tag.tagId]);
+    }
+
+    const vidTagSql = format('INSERT INTO "videoTags" VALUES %L', vidTagValues);
+    await db.query(vidTagSql);
+    res.status(201).json({ video, videoTags });
   } catch (err) {
     next(err);
   }
@@ -131,13 +190,11 @@ app.get('/api/videos/:videoId', async (req, res, next) => {
 
 app.get('/api/videos', authMiddleware, async (req, res, next) => {
   try {
-    const sql = `SELECT *
+    const sql = `SELECT "caption", "thumbnailUrl", "videoId", "userId", "uploadedAt"
                    FROM "videos"
-                   JOIN "videoTags" USING ("videoId")
-                   JOIN "tags" USING ("tagId")
                   WHERE "userId" = $1
-                  ORDER BY "uploadedAt DESC`;
-    const result = await db.query<Video>(sql, [req.user?.userId]);
+                  ORDER BY "uploadedAt" DESC`;
+    const result = await db.query(sql, [req.user?.userId]);
     res.status(201).json(result.rows);
   } catch (err) {
     next(err);
@@ -187,39 +244,6 @@ app.get('/api/ffprobe', async (req, res) => {
   logDuration(path);
   res.sendStatus(200);
 });
-
-// app.put('/api/:userId/videos/:videoId', async (req, res, next) => {
-//   try {
-//     const { caption, tags } = req.body as UpdatedVideo;
-//     const { userId, videoId } = req.params;
-//     const jwtUserId = req.user?.userId;
-//     checkUserId(Number(userId), jwtUserId);
-
-//     validateUpdatedVideo(Number(videoId), caption, tags);
-
-//     const videoSql = `UPDATE "videos"
-//                          SET "caption" = $1,
-//                        WHERE "videoId" = $2
-//                        RETURNING "videoId", "caption"`;
-//     const result = await db.query(videoSql, [caption, videoId]);
-//     const videoInfo = result.rows[0];
-//     if (!videoInfo)
-//       throw new ClientError(404, `video with ${videoId} not found`);
-
-//     validateTags(tags);
-
-//     let tagInfo;
-//     if (tags) {
-//       const tagsArr = await removeExistingTags(tags, db);
-//       const tagsSql = generateInsertTagsSql(tagsArr);
-//       const tagResult = await db.query(tagsSql);
-//       tagInfo = tagResult.rows;
-//     }
-//     res.status(201).json({ videoInfo, tagInfo });
-//   } catch (err) {
-//     next(err);
-//   }
-// });
 
 /**
  * Serves React's index.html if no api route matches.

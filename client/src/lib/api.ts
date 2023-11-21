@@ -138,3 +138,23 @@ export function getDate(ttz: string | undefined): string {
     year: "numeric",
   });
 }
+
+export async function updateVideo(
+  videoId: number | undefined,
+  caption: string | undefined,
+): Promise<VideoDetails> {
+  const req = {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      caption: caption,
+      tags: [],
+    }),
+  };
+  const res = await fetch(`/api/videos/${videoId}`, req);
+  if (!res.ok) throw new Error(`Error: ${res.status}`);
+  return await res.json();
+}

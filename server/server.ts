@@ -144,7 +144,7 @@ app.get('/api/videos/:videoId', async (req, res, next) => {
 
 app.put('/api/videos/:videoId', async (req, res, next) => {
   try {
-    const videoId = Number(req.body.videoId);
+    const videoId = Number(req.params.videoId);
     const { caption, tags } = req.body as UpdatedVideo;
     if (!Number.isInteger(videoId)) {
       throw new ClientError(400, 'videoId must be a positive integer.');
@@ -161,28 +161,28 @@ app.put('/api/videos/:videoId', async (req, res, next) => {
       throw new ClientError(404, `Video with id ${videoId} does not exist.`);
     }
 
-    if (tags.length < 1) res.status(201).json({ video });
+    if (tags.length < 1) {
+      res.status(201).json({ video, videoTags: [] });
+    } else {
+      const tagValues: string[][] = [];
+      tags.forEach((n) => tagValues.push([n]));
+      const tagSql = format(
+        'INSERT INTO "tags" ("name") VALUES %L RETURNING *',
+        tagValues,
+      );
+      const tagResult = await db.query<Tag>(tagSql);
+      const videoTags: Tag[] = tagResult.rows;
 
-    const tagList = tags.split(',');
-    const tagValues: string[][] = [];
-    for (const tag of tagList) {
-      tagValues.push([tag]);
+      const vidTagValues: number[][] = [];
+      videoTags.forEach((n) => vidTagValues.push([n.tagId]));
+
+      const vidTagSql = format(
+        'INSERT INTO "videoTags" VALUES %L',
+        vidTagValues,
+      );
+      await db.query(vidTagSql);
+      res.status(201).json({ video, videoTags });
     }
-    const tagSql = format(
-      'INSERT INTO "tags" ("name") VALUES %L RETURNING *',
-      tagValues,
-    );
-    const tagResult = await db.query<Tag>(tagSql);
-    const videoTags: Tag[] = tagResult.rows;
-
-    const vidTagValues: number[][] = [];
-    for (const tag of videoTags) {
-      vidTagValues.push([tag.tagId]);
-    }
-
-    const vidTagSql = format('INSERT INTO "videoTags" VALUES %L', vidTagValues);
-    await db.query(vidTagSql);
-    res.status(201).json({ video, videoTags });
   } catch (err) {
     next(err);
   }

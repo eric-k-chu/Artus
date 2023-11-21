@@ -11,7 +11,7 @@ export type User = {
 
 export type UpdatedVideo = {
   caption: string;
-  tags: string;
+  tags: string[];
 };
 
 export type Video = {

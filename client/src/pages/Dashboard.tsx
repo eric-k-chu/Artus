@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { UserVideoCard } from "../components";
-import { fetchUserVideos, useTitle, type Video, type User } from "../lib";
+import { fetchUserVideos, useTitle, type Video } from "../lib";
 
 export function Dashboard() {
-  const [videos, setVideos] = useState<Partial<Video & User>[]>([]);
+  const [videos, setVideos] = useState<Video[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>();
   const [error, setError] = useState<unknown>();
 
@@ -23,6 +23,13 @@ export function Dashboard() {
     }
     if (isLoading === undefined) load();
   }, [isLoading]);
+
+  function handleEdit(video: Video) {
+    const updatedVideos = videos.map((n) =>
+      n.videoId === video.videoId ? video : n,
+    );
+    setVideos(updatedVideos);
+  }
 
   if (isLoading) {
     return (
@@ -44,7 +51,7 @@ export function Dashboard() {
   return (
     <div className="container flex h-full w-full flex-col items-center justify-center">
       {videos.map((n) => (
-        <UserVideoCard key={n.videoId} video={n} />
+        <UserVideoCard key={n.videoId} video={n} onEdit={handleEdit} />
       ))}
     </div>
   );

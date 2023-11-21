@@ -7,3 +7,4 @@ export * from "./VideoCard";
 export * from "./VideoInfo";
 export * from "./VideoPlayer";
 export * from "./UserVideoCard";
+export * from "./PageIndicators";

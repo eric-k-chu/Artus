@@ -158,3 +158,19 @@ export async function updateVideo(
   if (!res.ok) throw new Error(`Error: ${res.status}`);
   return await res.json();
 }
+
+export function breakIntoSubArr<T>(size: number, arr: T[]): T[][] {
+  if (arr.length < 1) return [];
+  const output: T[][] = [];
+  let sub: T[] = [];
+  for (let i = 0; i < arr.length; i++) {
+    if (sub.length < size) {
+      sub.push(arr[i]);
+    } else {
+      output.push(sub);
+      sub = [arr[i]];
+    }
+  }
+  output.push(sub);
+  return output;
+}

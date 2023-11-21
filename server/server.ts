@@ -41,6 +41,7 @@ app.use(express.static(reactStaticDir));
 app.use(express.static(uploadsStaticDir));
 app.use(express.json());
 
+// INSERT User
 app.post('/api/auth/register', async (req, res, next) => {
   try {
     const { username, password } = req.body as Partial<Auth>;
@@ -69,6 +70,7 @@ app.post('/api/auth/register', async (req, res, next) => {
   }
 });
 
+// SELECT User
 app.post('/api/auth/sign-in', async (req, res, next) => {
   try {
     const { username, password } = req.body as Partial<Auth>;
@@ -99,6 +101,7 @@ app.post('/api/auth/sign-in', async (req, res, next) => {
   }
 });
 
+// SELECT Videos
 app.get('/api/videos/all', async (req, res, next) => {
   try {
     const sql = 'SELECT * FROM "videos"';
@@ -109,6 +112,7 @@ app.get('/api/videos/all', async (req, res, next) => {
   }
 });
 
+// SELECT Video by ID
 app.get('/api/videos/:videoId', async (req, res, next) => {
   try {
     const videoId = Number(req.params.videoId);
@@ -142,7 +146,61 @@ app.get('/api/videos/:videoId', async (req, res, next) => {
   }
 });
 
-app.put('/api/videos/:videoId', async (req, res, next) => {
+// SELECT User Video
+app.get('/api/videos', authMiddleware, async (req, res, next) => {
+  try {
+    const sql = `SELECT "caption", "thumbnailUrl", "videoId", "userId", "uploadedAt"
+                   FROM "videos"
+                  WHERE "userId" = $1
+                  ORDER BY "uploadedAt" DESC`;
+    const result = await db.query(sql, [req.user?.userId]);
+    res.status(201).json(result.rows);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// INSERT User Video
+app.post(
+  '/api/videos',
+  authMiddleware,
+  uploadsMiddleware.array('videos'),
+  async (req, res, next) => {
+    try {
+      if (!req.files) throw new ClientError(400, 'no file field in request');
+
+      const files = req.files as Express.Multer.File[];
+      const convertedVideos: ConvertedVideos[] = await convertVideos(files);
+
+      console.log('Inserting into database...');
+      const values: (number | string | undefined)[][] = [];
+      for (const vids of convertedVideos) {
+        const { videoUrl, thumbnailUrl, originalname } = vids;
+        values.push([
+          req.user?.userId,
+          0,
+          originalname,
+          videoUrl,
+          thumbnailUrl,
+        ]);
+      }
+
+      const sql = format(
+        `INSERT INTO "videos" ("userId", "likes", "caption", "videoUrl", "thumbnailUrl")
+                               VALUES %L RETURNING *`,
+        values,
+      );
+      const result = await db.query<Video>(sql);
+      console.log('Sending to client...');
+      res.status(201).json(result.rows);
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+// UPDATE User Video
+app.put('/api/videos/:videoId', authMiddleware, async (req, res, next) => {
   try {
     const videoId = Number(req.params.videoId);
     const { caption, tags } = req.body as UpdatedVideo;
@@ -187,57 +245,6 @@ app.put('/api/videos/:videoId', async (req, res, next) => {
     next(err);
   }
 });
-
-app.get('/api/videos', authMiddleware, async (req, res, next) => {
-  try {
-    const sql = `SELECT "caption", "thumbnailUrl", "videoId", "userId", "uploadedAt"
-                   FROM "videos"
-                  WHERE "userId" = $1
-                  ORDER BY "uploadedAt" DESC`;
-    const result = await db.query(sql, [req.user?.userId]);
-    res.status(201).json(result.rows);
-  } catch (err) {
-    next(err);
-  }
-});
-
-app.post(
-  '/api/videos',
-  authMiddleware,
-  uploadsMiddleware.array('videos'),
-  async (req, res, next) => {
-    try {
-      if (!req.files) throw new ClientError(400, 'no file field in request');
-
-      const files = req.files as Express.Multer.File[];
-      const convertedVideos: ConvertedVideos[] = await convertVideos(files);
-
-      console.log('Inserting into database...');
-      const values: (number | string | undefined)[][] = [];
-      for (const vids of convertedVideos) {
-        const { videoUrl, thumbnailUrl, originalname } = vids;
-        values.push([
-          req.user?.userId,
-          0,
-          originalname,
-          videoUrl,
-          thumbnailUrl,
-        ]);
-      }
-
-      const sql = format(
-        `INSERT INTO "videos" ("userId", "likes", "caption", "videoUrl", "thumbnailUrl")
-                               VALUES %L RETURNING *`,
-        values,
-      );
-      const result = await db.query<Video>(sql);
-      console.log('Sending to client...');
-      res.status(201).json(result.rows);
-    } catch (err) {
-      next(err);
-    }
-  },
-);
 
 app.get('/api/ffprobe', async (req, res) => {
   const { path } = req.body;

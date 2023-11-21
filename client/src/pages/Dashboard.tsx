@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { UserVideoCard } from "../components";
-import { fetchUserVideos, useTitle, type Video } from "../lib";
+import { PageIndicators } from "../components";
+import { breakIntoSubArr, fetchUserVideos, useTitle, type Video } from "../lib";
+import { PageAccordion } from "../components/PageAccordion";
 
 export function Dashboard() {
-  const [videos, setVideos] = useState<Video[]>([]);
+  const [videos, setVideos] = useState<Video[][]>([]);
   const [isLoading, setIsLoading] = useState<boolean>();
   const [error, setError] = useState<unknown>();
+  const [currentPage, setCurrentPage] = useState(0);
 
   useTitle("Dashboard");
 
@@ -14,7 +16,7 @@ export function Dashboard() {
       setIsLoading(true);
       try {
         const vids = await fetchUserVideos();
-        setVideos(vids);
+        setVideos(breakIntoSubArr(3, vids));
       } catch (err) {
         setError(err);
       } finally {
@@ -23,13 +25,6 @@ export function Dashboard() {
     }
     if (isLoading === undefined) load();
   }, [isLoading]);
-
-  function handleEdit(video: Video) {
-    const updatedVideos = videos.map((n) =>
-      n.videoId === video.videoId ? video : n,
-    );
-    setVideos(updatedVideos);
-  }
 
   if (isLoading) {
     return (
@@ -49,10 +44,13 @@ export function Dashboard() {
   }
 
   return (
-    <div className="container flex h-full w-full flex-col items-center justify-center">
-      {videos.map((n) => (
-        <UserVideoCard key={n.videoId} video={n} onEdit={handleEdit} />
-      ))}
+    <div className="flex h-full w-full flex-col items-center justify-center gap-y-8 overflow-y-auto p-8">
+      {videos[currentPage] && <PageAccordion videos={videos[currentPage]} />}
+      <PageIndicators
+        arr={videos}
+        currentPage={currentPage}
+        onSelect={setCurrentPage}
+      />
     </div>
   );
 }

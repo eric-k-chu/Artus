@@ -11,7 +11,7 @@ export function PageIndicators({ arr, onSelect, currentPage }: Props) {
         <div
           key={i}
           onClick={() => onSelect(i)}
-          className={`select-none rounded-md bg-silver px-2 py-1 hover:cursor-pointer hover:text-aquamarine dark:bg-void ${
+          className={`select-none rounded-md bg-silver px-2 py-1 shadow-md hover:cursor-pointer hover:text-aquamarine dark:bg-void ${
             currentPage === i ? "text-aquamarine" : ""
           }`}
         >

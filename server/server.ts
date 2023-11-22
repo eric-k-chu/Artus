@@ -146,6 +146,27 @@ app.get('/api/videos/:videoId', async (req, res, next) => {
   }
 });
 
+// SELECT Tags by Video ID
+app.get('/api/videos/:videoId/tags', async (req, res, next) => {
+  try {
+    const videoId = Number(req.params.videoId);
+    if (!Number.isInteger(videoId)) {
+      throw new ClientError(400, 'videoId must be a positive integer.');
+    }
+    const sql = `SELECT "tagId", "name", "videoId"
+                  FROM "videoTags"
+                  JOIN "tags" USING ("tagId")
+                 WHERE "videoId" = $1`;
+    const result = await db.query(sql, [videoId]);
+    const tags = result.rows;
+    if (!tags) res.json([]);
+
+    res.json(tags.forEach((n) => ({ tagId: n.tagId, tagName: n.name })));
+  } catch (err) {
+    next(err);
+  }
+});
+
 // SELECT User Video
 app.get('/api/videos', authMiddleware, async (req, res, next) => {
   try {

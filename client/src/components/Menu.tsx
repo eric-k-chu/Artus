@@ -49,10 +49,10 @@ export function Menu() {
           isOpen
             ? "bg-slate-900/25 backdrop-blur-sm dark:bg-black/25"
             : "pointer-events-none bg-transparent backdrop-blur-none"
-        } transition duration-[400ms] ease-in-out`}
+        } transition duration-[300ms] ease-in-out`}
       >
         <div
-          className={`flex h-full items-start justify-end transition-transform duration-[400ms] ease-in-out ${
+          className={`flex h-full items-start justify-end transition-transform duration-[300ms] ease-in-out ${
             isOpen ? "translate-x-0" : "translate-x-full"
           }`}
         >

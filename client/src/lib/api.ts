@@ -27,8 +27,12 @@ export type VideoDetails = {
   video: Video & User;
   tags: string[];
 };
+export type Tag = {
+  tagId: number;
+  tagName: string;
+};
 
-function getToken(): any {
+function getToken() {
   const tokenJSON = localStorage.getItem(tokenKey);
   if (!tokenJSON) throw new Error("Unable to retrieve token. Please relog.");
   const userJwt = JSON.parse(tokenJSON);
@@ -160,6 +164,7 @@ export async function updateVideo(
 }
 
 export function breakIntoSubArr<T>(size: number, arr: T[]): T[][] {
+  if (size < 1) throw new Error("size has to be greater than 1");
   if (arr.length < 1) return [];
   const output: T[][] = [];
   let sub: T[] = [];
@@ -173,4 +178,16 @@ export function breakIntoSubArr<T>(size: number, arr: T[]): T[][] {
   }
   output.push(sub);
   return output;
+}
+
+export async function getVideoTags(
+  videoId: number | undefined,
+): Promise<Tag[]> {
+  const res = await fetch(`/api/videos/${videoId}/tags`, {
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+    },
+  });
+  if (!res.ok) throw new Error(`Fetch Error ${res.status}`);
+  return await res.json();
 }

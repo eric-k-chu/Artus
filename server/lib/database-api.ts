@@ -9,11 +9,6 @@ export type User = {
   hashedPassword: string;
 };
 
-export type UpdatedVideo = {
-  caption: string;
-  tags: string[];
-};
-
 export type Video = {
   userId: number;
   videoId: string;
@@ -22,7 +17,7 @@ export type Video = {
   videoUrl: string;
   thumbnailUrl: string;
   uploadedAt: number;
-  tags: any;
+  tags: string[];
 };
 
 export type Tag = {

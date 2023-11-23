@@ -15,7 +15,6 @@ import {
   type User,
   type Video,
   type ConvertedVideos,
-  type UpdatedVideo,
   type Tag,
 } from './lib/index.js';
 
@@ -106,7 +105,7 @@ app.get('/api/videos/all', async (req, res, next) => {
   try {
     const sql = 'SELECT * FROM "videos"';
     const result = await db.query<Video>(sql);
-    res.status(201).json(result.rows);
+    res.json(result.rows);
   } catch (err) {
     next(err);
   }
@@ -119,10 +118,19 @@ app.get('/api/videos/:videoId', async (req, res, next) => {
     if (!Number.isInteger(videoId)) {
       throw new ClientError(400, 'videoId must be a positive integer.');
     }
-    const sql = `SELECT "videoId", "userId", "username",
-                        "likes", "caption", "uploadedAt",
-                        "videoUrl", "thumbnailUrl"
+    const sql = `SELECT
+                    "videoId",
+                    "likes",
+                    "caption",
+                    "uploadedAt",
+                    "videoUrl",
+                    "thumbnailUrl",
+                    "userId",
+                    "username",
+                    "name" as "tags"
                    FROM "videos"
+              LEFT JOIN "videoTags" USING ("videoId")
+              LEFT JOIN "tags" USING ("tagId")
                    JOIN "users" USING ("userId")
                   WHERE "videoId" = $1`;
     const result = await db.query(sql, [videoId]);
@@ -130,17 +138,8 @@ app.get('/api/videos/:videoId', async (req, res, next) => {
     if (!video) {
       throw new ClientError(404, `Cannot find video with id: ${videoId}`);
     }
-
-    let tags = [];
-    {
-      const sql = `SELECT "tagId", "videoId", "name"
-                     FROM "videoTags"
-                     JOIN "tags" USING ("tagId")
-                    WHERE "videoId" = $1`;
-      const result = await db.query(sql, [videoId]);
-      tags = result.rows;
-    }
-    res.json({ video, tags: tags.map((n) => n.name) });
+    video.tags = result.rows.map((n) => n.tags);
+    res.json(video);
   } catch (err) {
     next(err);
   }
@@ -167,15 +166,52 @@ app.get('/api/videos/:videoId/tags', async (req, res, next) => {
   }
 });
 
-// SELECT User Video
+// SELECT User Video *** CHECK IF USER DOES NOT HAVE ANY VIDEOS
 app.get('/api/videos', authMiddleware, async (req, res, next) => {
   try {
-    const sql = `SELECT "caption", "thumbnailUrl", "videoId", "userId", "uploadedAt"
+    const sql = `SELECT
+                  "videoId",
+                  "likes",
+                  "caption",
+                  "uploadedAt",
+                  "videoUrl",
+                  "thumbnailUrl",
+                  "userId",
+                  "username",
+                  "name" as "tags"
                    FROM "videos"
-                  WHERE "userId" = $1
-                  ORDER BY "uploadedAt" DESC`;
+              LEFT JOIN "videoTags" USING ("videoId")
+              LEFT JOIN "tags" USING ("tagId")
+                   JOIN "users" USING ("userId")
+                  WHERE "videos"."userId" = $1
+               ORDER BY "uploadedAt"`;
     const result = await db.query(sql, [req.user?.userId]);
-    res.status(201).json(result.rows);
+
+    // if (!result.rows) res.
+
+    let tagBuffer: string[] = [];
+    const tags: string[][] = [];
+    let currentVideoId: number = result.rows[0].videoId;
+    const videos = [result.rows[0]];
+    for (let i = 0; i < result.rows.length; i++) {
+      if (currentVideoId === result.rows[i].videoId) {
+        tagBuffer.push(result.rows[i].tags);
+      } else {
+        currentVideoId = result.rows[i].videoId;
+        tags.push(tagBuffer);
+        videos.push(result.rows[i]);
+        tagBuffer = [result.rows[i].tags];
+      }
+    }
+    tags.push(tagBuffer);
+
+    const augmentedVideos = [];
+    for (let i = 0; i < videos.length; i++) {
+      videos[i].tags = tags[i];
+      augmentedVideos.push(videos[i]);
+    }
+
+    res.json(augmentedVideos);
   } catch (err) {
     next(err);
   }
@@ -220,11 +256,11 @@ app.post(
   },
 );
 
-// UPDATE User Video
+// UPDATE User video
 app.put('/api/videos/:videoId', authMiddleware, async (req, res, next) => {
   try {
     const videoId = Number(req.params.videoId);
-    const { caption, tags } = req.body as UpdatedVideo;
+    const { caption, tags } = req.body as Partial<Video>;
     if (!Number.isInteger(videoId)) {
       throw new ClientError(400, 'videoId must be a positive integer.');
     }
@@ -240,27 +276,31 @@ app.put('/api/videos/:videoId', authMiddleware, async (req, res, next) => {
       throw new ClientError(404, `Video with id ${videoId} does not exist.`);
     }
 
-    if (tags.length < 1) {
-      res.status(201).json({ video, videoTags: [] });
+    if (!tags) {
+      video.tags = [null] as unknown as string[];
+      res.status(201).json(video);
     } else {
-      const tagValues: string[][] = [];
-      tags.forEach((n) => tagValues.push([n]));
-      const tagSql = format(
-        'INSERT INTO "tags" ("name") VALUES %L RETURNING *',
+      const deleteSQL = `DELETE FROM "videoTags" WHERE "videoId" = $1`;
+      await db.query(deleteSQL, [videoId]);
+
+      const tagValues = tags.map((n) => [n]);
+      const insertSQL = format(
+        `INSERT INTO "tags" ("name") VALUES %L RETURNING *`,
         tagValues,
       );
-      const tagResult = await db.query<Tag>(tagSql);
+
+      const tagResult = await db.query(insertSQL);
       const videoTags: Tag[] = tagResult.rows;
 
-      const vidTagValues: number[][] = [];
-      videoTags.forEach((n) => vidTagValues.push([n.tagId]));
-
+      const vidTagValues = videoTags.map((n) => [videoId, n.tagId]);
       const vidTagSql = format(
-        'INSERT INTO "videoTags" VALUES %L',
+        `INSERT INTO "videoTags" ("videoId", "tagId")
+          VALUES %L RETURNING *`,
         vidTagValues,
       );
       await db.query(vidTagSql);
-      res.status(201).json({ video, videoTags });
+      video.tags = videoTags.map((n) => n.name);
+      res.status(201).json(video);
     }
   } catch (err) {
     next(err);

@@ -8,3 +8,4 @@ export * from "./VideoInfo";
 export * from "./VideoPlayer";
 export * from "./UserVideoCard";
 export * from "./PageIndicators";
+export * from "./VideosContext";

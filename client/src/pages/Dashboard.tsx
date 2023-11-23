@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
-import { PageIndicators } from "../components";
-import { breakIntoSubArr, fetchUserVideos, useTitle, type Video } from "../lib";
 import { PageAccordion } from "../components/PageAccordion";
+import { PageIndicators, VideosContext } from "../components";
+import { breakIntoSubArr, fetchUserVideos, useTitle, type Video } from "../lib";
 
 export function Dashboard() {
   const [videos, setVideos] = useState<Video[][]>([]);
   const [isLoading, setIsLoading] = useState<boolean>();
   const [error, setError] = useState<unknown>();
   const [currentPage, setCurrentPage] = useState(0);
-
   useTitle("Dashboard");
 
   useEffect(() => {
@@ -43,14 +42,18 @@ export function Dashboard() {
     );
   }
 
+  const contextValues = { videos, setVideos };
+
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center gap-y-8 overflow-y-auto p-8">
-      {videos[currentPage] && <PageAccordion videos={videos[currentPage]} />}
-      <PageIndicators
-        arr={videos}
-        currentPage={currentPage}
-        onSelect={setCurrentPage}
-      />
-    </div>
+    <VideosContext.Provider value={contextValues}>
+      <div className="flex h-full w-full flex-col items-center justify-center gap-y-8 overflow-y-auto p-8">
+        {videos[currentPage] && <PageAccordion videos={videos[currentPage]} />}
+        <PageIndicators
+          arr={videos}
+          currentPage={currentPage}
+          onSelect={setCurrentPage}
+        />
+      </div>
+    </VideosContext.Provider>
   );
 }

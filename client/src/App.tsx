@@ -67,7 +67,7 @@ export default function App() {
 
   return (
     <AppContext.Provider value={contextValue}>
-      <main className="flex h-screen w-screen flex-col items-center bg-cream text-black transition-colors dark:bg-outer-space dark:text-white">
+      <main className="flex h-screen w-screen min-w-[330px] flex-col items-center bg-cream text-black transition-colors dark:bg-outer-space dark:text-white">
         <Routes>
           <Route path="/" element={<NavBar />}>
             <Route index element={<HomePage />} />

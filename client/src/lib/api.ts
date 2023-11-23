@@ -14,18 +14,16 @@ export type Auth = {
   user: User;
   token: string;
 };
-export type Video = {
+export type Video = User & {
   videoId: number;
-  userId: number;
-  likes: number;
   caption: string;
-  videoUrl: string;
-  thumbnailUrl: string;
-  uploadedAt: string;
-};
-export type VideoDetails = {
-  video: Video & User;
+  likes: number;
   tags: string[];
+  thumbnailUrl: string;
+  videoUrl: string;
+  uploadedAt: string;
+  userId: number;
+  username: string;
 };
 export type Tag = {
   tagId: number;
@@ -104,7 +102,6 @@ export async function fetchVideos(): Promise<Video[]> {
 
 export async function fetchUserVideos(): Promise<Video[]> {
   const res = await fetch("/api/videos", {
-    method: "GET",
     headers: {
       Authorization: `Bearer ${getToken()}`,
     },
@@ -113,9 +110,7 @@ export async function fetchUserVideos(): Promise<Video[]> {
   return await res.json();
 }
 
-export async function fetchVideoDetails(
-  videoId: number,
-): Promise<VideoDetails> {
+export async function fetchVideoDetails(videoId: number): Promise<Video> {
   const res = await fetch(`/api/videos/${videoId}`);
   if (!res.ok) throw new Error(`Fetch Error ${res.status}`);
   return await res.json();
@@ -146,7 +141,8 @@ export function getDate(ttz: string | undefined): string {
 export async function updateVideo(
   videoId: number | undefined,
   caption: string | undefined,
-): Promise<VideoDetails> {
+  tags: string[],
+): Promise<Video> {
   const req = {
     method: "PUT",
     headers: {
@@ -155,7 +151,7 @@ export async function updateVideo(
     },
     body: JSON.stringify({
       caption: caption,
-      tags: [],
+      tags: tags,
     }),
   };
   const res = await fetch(`/api/videos/${videoId}`, req);

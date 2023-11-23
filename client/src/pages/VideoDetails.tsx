@@ -1,11 +1,11 @@
 import { VideoInfo, VideoPlayer } from "../components";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useTitle, fetchVideoDetails, type VideoDetails } from "../lib";
+import { useTitle, fetchVideoDetails, type Video } from "../lib";
 
 export function VideoDetails() {
   const { videoId } = useParams();
-  const [videoDetails, setVideoDetails] = useState<VideoDetails>();
+  const [video, setVideo] = useState<Video>();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<unknown>();
 
@@ -14,8 +14,7 @@ export function VideoDetails() {
   useEffect(() => {
     async function loadVideo(videoId: number) {
       try {
-        const videoDetails = await fetchVideoDetails(videoId);
-        setVideoDetails(videoDetails);
+        setVideo(await fetchVideoDetails(videoId));
       } catch (err) {
         setError(err);
       } finally {
@@ -44,8 +43,8 @@ export function VideoDetails() {
 
   return (
     <div className="flex h-full w-full flex-wrap items-center justify-center gap-x-4 p-8 lg:flex-nowrap">
-      <VideoPlayer videoUrl={videoDetails?.video.videoUrl} />
-      <VideoInfo videoDetails={videoDetails} />
+      <VideoPlayer videoUrl={video?.videoUrl} />
+      <VideoInfo video={video} />
     </div>
   );
 }

@@ -9,11 +9,10 @@ type Props = {
 
 export function AuthPage({ action }: Props) {
   const navigate = useNavigate();
-  const { handleSignIn } = useContext(AppContext);
+  const { handleSignIn, user } = useContext(AppContext);
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<unknown>();
-  const { user } = useContext(AppContext);
   const actionPhrase = action === "sign-in" ? "Sign In" : "Register";
   useTitle(actionPhrase);
 

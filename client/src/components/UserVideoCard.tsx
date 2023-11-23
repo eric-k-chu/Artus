@@ -1,97 +1,94 @@
-import { IoPencil, IoChevronForward } from "react-icons/io5";
 import { FormEvent, useState } from "react";
-import { getVideoTags, Tag, updateVideo, type User, type Video } from "../lib";
+import { updateVideo, type Video } from "../lib";
+import { IoChevronForward } from "react-icons/io5";
 
 type Props = {
-  video: Partial<Video & User>;
+  video: Video;
   isOpen: boolean;
   onSelect: () => void;
 };
 
 export function UserVideoCard({ video, isOpen, onSelect }: Props) {
   const [caption, setCaption] = useState(video.caption);
-  const [tags, setTags] = useState<Tag[]>();
-  const [isEditingCaption, setIsEditingCaption] = useState(false);
-  console.log(tags);
+  const [tags, setTags] = useState(video.tags.join(","));
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
     try {
-      const res = await updateVideo(video.videoId, caption);
-      setCaption(res.video.caption);
+      await updateVideo(video.videoId, caption as string, tags.split(","));
     } catch (err) {
       console.error(err);
-    }
-  }
-
-  async function handleEditClick(): Promise<void> {
-    onSelect();
-    if (isOpen) return;
-
-    try {
-      const tags = await getVideoTags(video.videoId);
-      setTags(tags);
-    } catch (err) {
-      console.error(err);
+    } finally {
+      onSelect();
     }
   }
 
   return (
     <div className="flex w-full flex-col items-center">
-      <form
-        className={`flex h-36 w-1/2 items-center gap-x-2 bg-white p-4 shadow-md dark:bg-void ${
+      <div
+        className={`flex h-36 w-full items-center gap-x-2 bg-white p-4 shadow-md shadow-black shadow-black dark:bg-void lg:max-w-[60rem] ${
           isOpen ? "rounded-t-md" : "rounded-md"
         }`}
-        onSubmit={handleSubmit}
       >
         <img
           src={video.thumbnailUrl}
           className="h-28 w-28 min-w-[8rem] rounded-md object-cover"
         />
-        <div className="flex flex-col gap-y-2">
-          <p className="w-full py-1 font-raleway font-thin italic">
-            {video.caption}
+        <div className="hidden flex-col gap-y-2 min-[360px]:flex">
+          <p className="w-full py-1 font-raleway text-sm font-thin italic">
+            {caption}
           </p>
+          <div className="hidden flex-wrap items-center gap-2 font-raleway text-black empty:hidden min-[500px]:flex">
+            {tags &&
+              tags.split(",").map((n, i) => (
+                <div key={i} className="rounded-md bg-tea-rose p-1 text-xs">
+                  {n}
+                </div>
+              ))}
+          </div>
         </div>
         <IoChevronForward
-          className={`ml-auto h-6 w-6 transition-transform hover:scale-110 hover:cursor-pointer hover:text-aquamarine ${
+          className={`ml-auto h-6 min-h-[1.5rem] w-6 min-w-[1.5rem] transition-transform hover:scale-110 hover:cursor-pointer hover:text-aquamarine ${
             isOpen ? "rotate-90" : "rotate-0"
           }`}
-          onClick={handleEditClick}
+          onClick={onSelect}
         />
-      </form>
-      <div className="flex w-1/2 flex-col rounded-b-md bg-white p-4 shadow-md empty:hidden dark:bg-void">
-        {isOpen && (
-          <div className="flex items-center gap-x-2">
-            <input
-              value={caption}
-              onChange={(e) => setCaption(e.currentTarget.value)}
-              className="rounded-md border border-silver bg-gray/40 p-1 font-raleway dark:border-gray dark:bg-black/30"
-            />
-            {isEditingCaption ? (
-              <div className="flex items-center justify-center gap-y-2 text-sm">
-                <button
-                  className="rounded-l-md bg-mint-green p-1 text-black shadow-md hover:scale-105 hover:cursor-pointer"
-                  type="submit"
-                >
-                  Save
-                </button>
-                <button
-                  className="rounded-r-md bg-tea-rose p-1 text-black shadow-md hover:scale-105 hover:cursor-pointer"
-                  onClick={() => setIsEditingCaption(false)}
-                >
-                  Quit
-                </button>
-              </div>
-            ) : (
-              <IoPencil
-                className="h-6 w-6 hover:scale-110 hover:cursor-pointer hover:text-aquamarine"
-                onClick={() => setIsEditingCaption(true)}
-              />
-            )}
-          </div>
-        )}
       </div>
+      <form
+        className="flex w-full flex-col gap-y-4 rounded-b-md bg-white p-4 shadow-md shadow-black empty:hidden dark:bg-void lg:max-w-[60rem]"
+        onSubmit={handleSubmit}
+      >
+        {isOpen && (
+          <>
+            <div className="flex w-full items-center rounded-md p-1 text-xs ring-1 ring-silver focus-within:ring-2 focus-within:ring-blue-500 dark:border-gray dark:bg-black/30 md:text-sm">
+              <span className="select-none px-2 font-poppins text-slate-500">
+                caption
+              </span>
+              <input
+                value={caption}
+                onChange={(e) => setCaption(e.currentTarget.value)}
+                className="w-full flex-1 bg-transparent font-raleway focus:outline-none"
+              />
+            </div>
+            <div className="flex w-full items-center rounded-md p-1 text-xs ring-1 ring-silver focus-within:ring-2 focus-within:ring-blue-500 dark:border-gray dark:bg-black/30 md:text-sm">
+              <span className="select-none px-2 font-poppins text-slate-500">
+                tags
+              </span>
+              <input
+                value={tags}
+                onChange={(e) => setTags(e.currentTarget.value)}
+                className="w-full flex-1 bg-transparent font-raleway focus:outline-none"
+              />
+            </div>
+            <button
+              className="self-end rounded-md bg-aquamarine p-1 font-poppins text-sm hover:bg-aquamarine/75"
+              type="submit"
+            >
+              Save
+            </button>
+          </>
+        )}
+      </form>
     </div>
   );
 }

@@ -10,7 +10,6 @@ import {
   errorMiddleware,
   uploadsMiddleware,
   convertVideos,
-  logDuration,
   type Auth,
   type User,
   type Video,
@@ -307,11 +306,23 @@ app.put('/api/videos/:videoId', authMiddleware, async (req, res, next) => {
   }
 });
 
-app.get('/api/ffprobe', async (req, res) => {
-  const { path } = req.body;
-  logDuration(path);
-  res.sendStatus(200);
-});
+app.delete(
+  '/api/dashboard/:videoId',
+  authMiddleware,
+  async (req, res, next) => {
+    try {
+      const videoId = Number(req.params.videoId);
+      if (!Number.isInteger(videoId)) {
+        throw new ClientError(400, 'videoId must be a positive integer.');
+      }
+      await db.query('DELETE FROM "videoTags" WHERE "videoId" = $1', [videoId]);
+      await db.query('DELETE FROM "videos" WHERE "videoId" = $1', [videoId]);
+      res.sendStatus(204);
+    } catch (err) {
+      next(err);
+    }
+  },
+);
 
 /**
  * Serves React's index.html if no api route matches.

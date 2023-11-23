@@ -1,25 +1,24 @@
-import { FormEvent, DragEvent } from "react";
+import { FormEvent, useState } from "react";
 import { IoImage } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { uploadVideos, useTitle } from "../lib";
 
 export function UploadPage() {
+  const [hasChanged, setHasChanged] = useState(false);
   const navigate = useNavigate();
   useTitle("Upload");
 
-  async function handleSubmit(
-    e: FormEvent<HTMLFormElement> | DragEvent<HTMLFormElement>,
-  ): Promise<void> {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
     try {
       console.log("Uploading now...");
-      const videos = await uploadVideos(form);
-      console.log(videos);
+      navigate("/dashboard");
+      await uploadVideos(form);
     } catch (err) {
       console.error(Error);
     } finally {
-      navigate("/dashboard");
+      setHasChanged(false);
     }
   }
 
@@ -28,7 +27,6 @@ export function UploadPage() {
       className="container flex h-full w-full items-center justify-center font-poppins"
       encType="multipart/form-data"
       onSubmit={handleSubmit}
-      onDrag={handleSubmit}
     >
       <div className="flex h-4/5 w-4/5 flex-col items-center justify-center rounded-md border-2 border-dashed border-silver dark:border-gray">
         <IoImage className="text-gray/50" size={48} />
@@ -46,6 +44,7 @@ export function UploadPage() {
               name="videos"
               accept=".webm, .mp4, .mov"
               multiple={true}
+              onChange={() => setHasChanged(true)}
             />
           </label>
           <p className="pl-1 text-gray">or drag and drop</p>
@@ -53,6 +52,14 @@ export function UploadPage() {
         <p className="text-xs leading-5 text-gray">
           WEBM, MP4, MOV up to 100MB
         </p>
+
+        <button
+          className={`mt-4 rounded-md bg-aquamarine p-2 font-poppins shadow-md hover:bg-aquamarine/80 ${
+            hasChanged ? "visible" : "invisible"
+          }`}
+        >
+          Submit
+        </button>
       </div>
     </form>
   );

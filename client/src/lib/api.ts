@@ -79,25 +79,16 @@ async function signUpOrIn(
     body: JSON.stringify({ username, password }),
   };
   const res = await fetch(`/api/auth/${action}`, req);
-  if (!res.ok) {
-    switch (res.status) {
-      case 401:
-        throw new Error("Login verification failed.");
-      case 404:
-        throw new Error("These credentials do not match our records.");
-      case 409:
-        throw new Error(`This username is already taken.`);
-      default:
-        throw new Error(`an unexpected error has occured: ${res.status}`);
-    }
-  }
-  return await res.json();
+  const data = await res.json();
+  if (!res.ok) throw new Error(`${data.error}`);
+  return data;
 }
 
 export async function fetchVideos(): Promise<Video[]> {
   const res = await fetch("/api/videos/all");
-  if (!res.ok) throw new Error(`Fetch Error ${res.status}`);
-  return await res.json();
+  const data = await res.json();
+  if (!res.ok) throw new Error(`${data.error}`);
+  return data;
 }
 
 export async function fetchUserVideos(): Promise<Video[]> {
@@ -106,14 +97,16 @@ export async function fetchUserVideos(): Promise<Video[]> {
       Authorization: `Bearer ${getToken()}`,
     },
   });
-  if (!res.ok) throw new Error(`Fetch Error ${res.status}`);
-  return await res.json();
+  const data = await res.json();
+  if (!res.ok) throw new Error(`${res.statusText}: ${data.error}`);
+  return data;
 }
 
 export async function fetchVideoDetails(videoId: number): Promise<Video> {
   const res = await fetch(`/api/videos/${videoId}`);
-  if (!res.ok) throw new Error(`Fetch Error ${res.status}`);
-  return await res.json();
+  const data = await res.json();
+  if (!res.ok) throw new Error(`${res.statusText}: ${data.error}`);
+  return data;
 }
 
 export async function uploadVideos(form: FormData): Promise<Video> {
@@ -125,15 +118,16 @@ export async function uploadVideos(form: FormData): Promise<Video> {
     body: form,
   };
   const res = await fetch(`/api/videos`, req);
-  if (!res.ok) throw new Error(`Fetch Error ${res.status}`);
-  return await res.json();
+  const data = await res.json();
+  if (!res.ok) throw new Error(`${res.statusText}: ${data.error}`);
+  return data;
 }
 
-export function getDate(ttz: string | undefined): string {
-  if (!ttz) throw new Error("Error in getting date");
-  return new Date(ttz).toLocaleString("default", {
+export function getDate(ttz?: string): string {
+  const date = ttz ? new Date(ttz) : new Date();
+  return date.toLocaleString("default", {
     month: "long",
-    day: "2-digit",
+    day: "numeric",
     year: "numeric",
   });
 }
@@ -155,25 +149,18 @@ export async function updateVideo(
     }),
   };
   const res = await fetch(`/api/videos/${videoId}`, req);
-  if (!res.ok) throw new Error(`Error: ${res.status}`);
-  return await res.json();
+  const data = await res.json();
+  if (!res.ok) throw new Error(`${res.statusText}: ${data.error}`);
+  return data;
 }
 
-export function breakIntoSubArr<T>(size: number, arr: T[]): T[][] {
-  if (size < 1) throw new Error("size has to be greater than 1");
-  if (arr.length < 1) return [];
-  const output: T[][] = [];
-  let sub: T[] = [];
-  for (let i = 0; i < arr.length; i++) {
-    if (sub.length < size) {
-      sub.push(arr[i]);
-    } else {
-      output.push(sub);
-      sub = [arr[i]];
-    }
+export function breakIntoSubArr<T>(chunkSize: number, arr: T[]): T[][] {
+  if (chunkSize < 1) throw new Error("size has to be greater than 1");
+  const result: T[][] = [];
+  for (let i = 0; i < arr.length; i += chunkSize) {
+    result.push(arr.slice(i, i + chunkSize));
   }
-  output.push(sub);
-  return output;
+  return result;
 }
 
 export async function getVideoTags(
@@ -184,6 +171,7 @@ export async function getVideoTags(
       Authorization: `Bearer ${getToken()}`,
     },
   });
-  if (!res.ok) throw new Error(`Fetch Error ${res.status}`);
-  return await res.json();
+  const data = await res.json();
+  if (!res.ok) throw new Error(`${data.error}`);
+  return data;
 }

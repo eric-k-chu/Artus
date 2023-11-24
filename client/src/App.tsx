@@ -7,6 +7,7 @@ import {
   UploadPage,
   Dashboard,
   VideoDetails,
+  ManageVideosPage,
 } from "./pages";
 import {
   type Auth,
@@ -72,7 +73,16 @@ export default function App() {
           <Route path="/" element={<NavBar />}>
             <Route index element={<HomePage />} />
             <Route path="upload" element={<UploadPage />} />
-            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="dashboard/" element={<Dashboard />}>
+              <Route index element={<ManageVideosPage />} />
+              <Route
+                index
+                path="manage-videos"
+                element={<ManageVideosPage />}
+              />
+              {/* <Route path="/liked-videos" element={<Dashboard />} />
+              <Route path="/settings" element={<Dashboard />} /> */}
+            </Route>
             <Route path=":videoId" element={<VideoDetails />} />
           </Route>
           <Route path="/sign-in" element={<AuthPage action="sign-in" />} />

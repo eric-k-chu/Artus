@@ -6,13 +6,15 @@ type Props = {
 
 export function PageIndicators({ arr, onSelect, currentPage }: Props) {
   return (
-    <div className="mt-auto flex items-center gap-x-4">
+    <div className="mt-auto flex items-center divide-x divide-silver rounded-md border border-silver">
       {arr.map((_, i) => (
         <div
           key={i}
           onClick={() => onSelect(i)}
-          className={`select-none rounded-md bg-white px-2 py-1 shadow-md shadow-black hover:cursor-pointer hover:border hover:border-aquamarine dark:bg-void ${
-            currentPage === i ? "border border-aquamarine" : ""
+          className={`select-none px-3 py-1 font-poppins text-sm hover:cursor-pointer dark:bg-void ${
+            currentPage === i
+              ? "bg-tea-rose text-black"
+              : "bg-transparent text-gray"
           }`}
         >
           {i + 1}

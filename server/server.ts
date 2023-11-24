@@ -47,21 +47,23 @@ app.post('/api/auth/register', async (req, res, next) => {
       throw new ClientError(400, 'Username and password are required fields.');
     }
 
-    const checkSql = `SELECT *
-                        FROM "users"
-                       WHERE "username" = $1`;
-    const checkUser = await db.query<User>(checkSql, [username]);
-    if (checkUser.rows[0]) {
-      throw new ClientError(409, 'Username already exists.');
-    }
+    // const checkSql = `SELECT *
+    //                     FROM "users"
+    //                    WHERE "username" = $1`;
+    // const checkUser = await db.query<User>(checkSql, [username]);
+    // if (checkUser.rows[0]) {
+    //   throw new ClientError(409, 'Username already exists.');
+    // }
 
     const hashedPassword = await argon2.hash(password);
     const sql = `
       INSERT INTO "users" ("username", "hashedPassword")
            VALUES ($1, $2)
+          ON CONFLICT ("username") DO NOTHING
            RETURNING "userId", "username"`;
     const result = await db.query<User>(sql, [username, hashedPassword]);
     const user = result.rows[0];
+    if (!user) throw new ClientError(409, 'This username already exists.');
     res.status(201).json(user);
   } catch (err) {
     next(err);
@@ -85,7 +87,7 @@ app.post('/api/auth/sign-in', async (req, res, next) => {
     const user = result.rows[0];
 
     if (!user)
-      throw new ClientError(404, 'These credentials do not match our record.');
+      throw new ClientError(404, 'These credentials do not match our records.');
 
     const { userId, hashedPassword } = user;
     if (!(await argon2.verify(hashedPassword, password))) {
@@ -137,36 +139,15 @@ app.get('/api/videos/:videoId', async (req, res, next) => {
     if (!video) {
       throw new ClientError(404, `Cannot find video with id: ${videoId}`);
     }
-    video.tags = result.rows.map((n) => n.tags);
+    video.tags = video.tags ? result.rows.map((n) => n.tags) : null;
     res.json(video);
   } catch (err) {
     next(err);
   }
 });
 
-// SELECT Tags by Video ID
-app.get('/api/videos/:videoId/tags', async (req, res, next) => {
-  try {
-    const videoId = Number(req.params.videoId);
-    if (!Number.isInteger(videoId)) {
-      throw new ClientError(400, 'videoId must be a positive integer.');
-    }
-    const sql = `SELECT "tagId", "name", "videoId"
-                  FROM "videoTags"
-                  JOIN "tags" USING ("tagId")
-                 WHERE "videoId" = $1`;
-    const result = await db.query(sql, [videoId]);
-    const tags = result.rows;
-    if (!tags) res.json([]);
-
-    res.json(tags.forEach((n) => ({ tagId: n.tagId, tagName: n.name })));
-  } catch (err) {
-    next(err);
-  }
-});
-
-// SELECT User Video *** CHECK IF USER DOES NOT HAVE ANY VIDEOS
-app.get('/api/videos', authMiddleware, async (req, res, next) => {
+// SELECT User Videos
+app.get('/api/videos/', authMiddleware, async (req, res, next) => {
   try {
     const sql = `SELECT
                   "videoId",
@@ -185,32 +166,26 @@ app.get('/api/videos', authMiddleware, async (req, res, next) => {
                   WHERE "videos"."userId" = $1
                ORDER BY "uploadedAt"`;
     const result = await db.query(sql, [req.user?.userId]);
+    const videos = result.rows;
 
-    // if (!result.rows) res.
+    if (videos.length < 1) {
+      res.json(videos);
+    } else {
+      const reducedVideos = videos.reduce((acc, video) => {
+        const exisitingVideo = acc[video.videoId];
+        if (exisitingVideo) {
+          exisitingVideo.tags.push(video.tags);
+        } else {
+          acc[video.videoId] = {
+            ...video,
+            tags: video.tags ? [video.tags] : null,
+          };
+        }
+        return acc;
+      }, {});
 
-    let tagBuffer: string[] = [];
-    const tags: string[][] = [];
-    let currentVideoId: number = result.rows[0].videoId;
-    const videos = [result.rows[0]];
-    for (let i = 0; i < result.rows.length; i++) {
-      if (currentVideoId === result.rows[i].videoId) {
-        tagBuffer.push(result.rows[i].tags);
-      } else {
-        currentVideoId = result.rows[i].videoId;
-        tags.push(tagBuffer);
-        videos.push(result.rows[i]);
-        tagBuffer = [result.rows[i].tags];
-      }
+      res.json(Object.values(reducedVideos));
     }
-    tags.push(tagBuffer);
-
-    const augmentedVideos = [];
-    for (let i = 0; i < videos.length; i++) {
-      videos[i].tags = tags[i];
-      augmentedVideos.push(videos[i]);
-    }
-
-    res.json(augmentedVideos);
   } catch (err) {
     next(err);
   }
@@ -306,6 +281,7 @@ app.put('/api/videos/:videoId', authMiddleware, async (req, res, next) => {
   }
 });
 
+// DELETE User video
 app.delete(
   '/api/dashboard/:videoId',
   authMiddleware,
@@ -315,8 +291,12 @@ app.delete(
       if (!Number.isInteger(videoId)) {
         throw new ClientError(400, 'videoId must be a positive integer.');
       }
-      await db.query('DELETE FROM "videoTags" WHERE "videoId" = $1', [videoId]);
-      await db.query('DELETE FROM "videos" WHERE "videoId" = $1', [videoId]);
+      const result = await db.query(
+        'DELETE FROM "videos" WHERE "videoId" = $1 RETURNING "videoUrl"',
+        [videoId],
+      );
+      const videoUrl = result.rows[0].videoUrl;
+      console.log('Delete video file once depoloyed', videoUrl);
       res.sendStatus(204);
     } catch (err) {
       next(err);

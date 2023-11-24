@@ -8,7 +8,7 @@ create schema "public";
 
 CREATE TABLE "public"."users" (
   "userId" serial PRIMARY KEY,
-  "username" text NOT NULL,
+  "username" text NOT NULL UNIQUE,
   "hashedPassword" text NOT NULL,
   "createdAt" timestamptz(6) NOT NULL DEFAULT (now())
 );
@@ -44,8 +44,8 @@ ALTER TABLE "videos" ADD FOREIGN KEY ("userId") REFERENCES "users" ("userId");
 
 ALTER TABLE "likedVideos" ADD FOREIGN KEY ("userId") REFERENCES "users" ("userId");
 
-ALTER TABLE "likedVideos" ADD FOREIGN KEY ("videoId") REFERENCES "videos" ("videoId");
+ALTER TABLE "likedVideos" ADD FOREIGN KEY ("videoId") REFERENCES "videos" ("videoId") ON Delete cascade;
 
-ALTER TABLE "videoTags" ADD FOREIGN KEY ("videoId") REFERENCES "videos" ("videoId");
+ALTER TABLE "videoTags" ADD FOREIGN KEY ("videoId") REFERENCES "videos" ("videoId") ON Delete cascade;
 
 ALTER TABLE "videoTags" ADD FOREIGN KEY ("tagId") REFERENCES "tags" ("tagId");

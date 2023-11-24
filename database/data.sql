@@ -1,5 +1,6 @@
 INSERT INTO "users" ("username", "hashedPassword")
-     VALUES ('admin', '$argon2id$v=19$m=4098,t=3,p=1$OOaXqQwryoUOCwQzC/ONAQ$Z0vAMlqKtgAtKIAKWq8cLFW6DUbMsHLSp1KPYPlN5dQ');
+     VALUES ('admin', '$argon2id$v=19$m=4096,t=3,p=1$I1HnApkzTksNXR/xUU/1IA$Fbwk8akxwwF6m8XbxSsihpPT+fK3JbzSL6VXa0BxRoo');
+
 
 INSERT INTO "videos" ("userId", "likes", "caption", "videoUrl", "thumbnailUrl")
      VALUES (1, 0, 'The GOAT', '/videos/faker-azir.mp4','/videos/faker-azir.gif'),          --1
@@ -30,6 +31,7 @@ INSERT INTO "videoTags" ("videoId", "tagId")
      VALUES (1, 1), (1, 2), (1, 3),
             (2, 6), (2, 9), (2, 10),
             (3, 12), (3, 11),
+            (4, 1),
             (5, 4), (5, 5),
             (7, 1), (7, 3), (7, 5),
             (9, 8), (9, 11);

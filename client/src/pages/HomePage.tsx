@@ -1,58 +1,53 @@
-import { VideoCard } from "../components";
-import { useEffect, useState } from "react";
-import { useTitle, fetchVideos, type Video } from "../lib";
+import { useTitle, useVideos } from "../lib";
+import {
+  VideoCard,
+  ErrorNotice,
+  AppContext,
+  VideoCardLoading,
+} from "../components";
+import { TbFolderQuestion } from "react-icons/tb";
+import { Link } from "react-router-dom";
+import { useContext } from "react";
 
 export function HomePage() {
-  const [videos, setVideos] = useState<Video[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>();
-  const [error, setError] = useState<unknown>();
-
+  const { videos, isLoading, error } = useVideos();
+  const { user } = useContext(AppContext);
   useTitle("Home");
-
-  useEffect(() => {
-    async function load() {
-      setIsLoading(true);
-      try {
-        const vids = await fetchVideos();
-        setVideos(vids);
-      } catch (err) {
-        setError(err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    if (isLoading === undefined) load();
-  }, [isLoading]);
 
   if (isLoading) {
     return (
-      <div className="container flex h-full flex-col items-center justify-center">
-        Loading...
-      </div>
+      <main className="flex h-full flex-wrap justify-center gap-8 overflow-y-auto p-8">
+        <VideoCardLoading />
+      </main>
     );
   }
 
   if (error) {
-    return (
-      <div className="container flex h-full flex-col items-center justify-center">
-        {error instanceof Error ? error.message : "Unknown Error"}
-      </div>
-    );
+    return <ErrorNotice error={error} />;
   }
 
   if (videos.length < 1) {
     return (
-      <div className="container flex h-full flex-col items-center justify-center">
-        No videos created
-      </div>
+      <main className="container flex flex-col items-center font-poppins">
+        <TbFolderQuestion size={40} className="mt-60" />
+        <h2 className="my-8 font-semibold leading-8">
+          There are no videos in the database.
+        </h2>
+        <Link
+          to={user ? "/upload" : "/sign-in"}
+          className="rounded-md bg-light-primary p-2 text-black shadow-md dark:bg-dark-primary"
+        >
+          Upload a Video
+        </Link>
+      </main>
     );
   }
 
   return (
-    <div className="flex h-full flex-wrap justify-center gap-8 overflow-y-auto p-8">
+    <main className="flex h-full flex-wrap justify-center gap-8 overflow-y-auto p-8">
       {videos.map((n) => (
         <VideoCard video={n} key={n.videoId} />
       ))}
-    </div>
+    </main>
   );
 }

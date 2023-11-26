@@ -8,6 +8,7 @@ import {
   Dashboard,
   VideoDetails,
   ManageVideosPage,
+  UserVideoPage,
 } from "./pages";
 import {
   type Auth,
@@ -68,27 +69,27 @@ export default function App() {
 
   return (
     <AppContext.Provider value={contextValue}>
-      <main className="flex h-screen w-screen min-w-[330px] flex-col items-center bg-cream text-black transition-colors dark:bg-outer-space dark:text-white">
+      <div className="min-w-screen flex min-w-[330px] flex-col items-center">
         <Routes>
           <Route path="/" element={<NavBar />}>
             <Route index element={<HomePage />} />
             <Route path="upload" element={<UploadPage />} />
             <Route path="dashboard/" element={<Dashboard />}>
               <Route index element={<ManageVideosPage />} />
-              <Route
-                index
-                path="manage-videos"
-                element={<ManageVideosPage />}
-              />
+              <Route path="manage-videos" element={<ManageVideosPage />} />
               {/* <Route path="/liked-videos" element={<Dashboard />} />
               <Route path="/settings" element={<Dashboard />} /> */}
             </Route>
             <Route path=":videoId" element={<VideoDetails />} />
+            <Route
+              path="/dashboard/manage-videos/:videoId"
+              element={<UserVideoPage />}
+            />
           </Route>
           <Route path="/sign-in" element={<AuthPage action="sign-in" />} />
           <Route path="/register" element={<AuthPage action="register" />} />
         </Routes>
-      </main>
+      </div>
     </AppContext.Provider>
   );
 }

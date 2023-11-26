@@ -1,64 +1,45 @@
-import { FormEvent, useState } from "react";
-import { updateVideo, type Video } from "../lib";
+import { Link } from "react-router-dom";
+import { type Video } from "../lib";
 import { IoChevronForward } from "react-icons/io5";
 
 type Props = {
   video: Video;
-  isOpen: boolean;
-  onSelect: () => void;
 };
 
-export function UserVideoCard({ video, isOpen, onSelect }: Props) {
-  const [caption, setCaption] = useState(video.caption);
-  const [tags, setTags] = useState(video.tags.join(","));
-
-  async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
-    e.preventDefault();
-    try {
-      await updateVideo(video.videoId, caption as string, tags.split(","));
-    } catch (err) {
-      console.error(err);
-    } finally {
-      onSelect();
-    }
-  }
-
+export function UserVideoCard({ video }: Props) {
   return (
-    <div className="flex w-full flex-col items-center">
-      <div
-        className={`flex h-36 w-full items-center gap-x-2 bg-white p-4 shadow-md shadow-black shadow-black dark:bg-void lg:max-w-[60rem] ${
-          isOpen ? "rounded-t-md" : "rounded-md"
-        }`}
-      >
-        <img
-          src={video.thumbnailUrl}
-          className="h-28 w-28 min-w-[8rem] rounded-md object-cover"
-        />
-        <div className="hidden flex-col gap-y-2 min-[360px]:flex">
-          <p className="w-full py-1 font-raleway text-sm font-thin italic">
-            {caption}
-          </p>
-          <div className="hidden flex-wrap items-center gap-2 font-raleway text-black empty:hidden min-[500px]:flex">
-            {tags &&
-              tags.split(",").map((n, i) => (
-                <div key={i} className="rounded-md bg-tea-rose p-1 text-xs">
-                  {n}
-                </div>
-              ))}
-          </div>
+    <Link
+      to={`/dashboard/manage-videos/${video.videoId}`}
+      className="flex h-36 w-full items-center gap-x-2 rounded-md bg-light-background-3 p-4 shadow-md hover:cursor-pointer dark:bg-dark-background-12dp"
+    >
+      <img
+        src={video.thumbnailUrl}
+        className="max-h-[8rem] min-h-[8rem] min-w-[8rem] max-w-[8rem] rounded-md object-cover"
+      />
+      <section className="hidden flex-col gap-y-2 min-[360px]:flex">
+        <h4 className="w-full py-1 font-raleway text-sm font-thin italic">
+          {video.caption}
+        </h4>
+        <div className="hidden flex-wrap items-center gap-2 font-raleway text-white/90 empty:hidden min-[500px]:flex">
+          {video.tags &&
+            video.tags.map((n, i) => (
+              <div
+                key={i}
+                className="rounded-md bg-light-primary p-1 text-xs font-semibold dark:bg-dark-primary"
+              >
+                {n}
+              </div>
+            ))}
         </div>
-        <IoChevronForward
-          className={`ml-auto h-6 min-h-[1.5rem] w-6 min-w-[1.5rem] transition-transform hover:scale-110 hover:cursor-pointer hover:text-aquamarine ${
-            isOpen ? "rotate-90" : "rotate-0"
-          }`}
-          onClick={onSelect}
-        />
-      </div>
-      <form
-        className="flex w-full flex-col gap-y-4 rounded-b-md bg-white p-4 shadow-md shadow-black empty:hidden dark:bg-void lg:max-w-[60rem]"
-        onSubmit={handleSubmit}
-      >
-        {isOpen && (
+      </section>
+      <IoChevronForward className="ml-auto h-6 min-h-[1.5rem] w-6 min-w-[1.5rem]" />
+    </Link>
+  );
+}
+
+/*
+
+      {isOpen && (
           <>
             <div className="flex w-full items-center rounded-md p-1 text-xs ring-1 ring-silver focus-within:ring-2 focus-within:ring-blue-500 dark:border-gray dark:bg-black/30 md:text-sm">
               <span className="select-none px-2 font-poppins text-slate-500">
@@ -88,7 +69,6 @@ export function UserVideoCard({ video, isOpen, onSelect }: Props) {
             </button>
           </>
         )}
-      </form>
-    </div>
-  );
-}
+
+
+*/

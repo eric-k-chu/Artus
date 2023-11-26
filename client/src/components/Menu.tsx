@@ -38,9 +38,9 @@ export function Menu() {
   }
 
   return (
-    <div onKeyDown={handleKeyDown} tabIndex={0}>
+    <section onKeyDown={handleKeyDown} tabIndex={0}>
       <IoMenu
-        className="h-8 w-8 rounded-md hover:cursor-pointer hover:bg-silver dark:hover:bg-void"
+        className="h-8 w-8 hover:cursor-pointer"
         size={24}
         onClick={() => setIsOpen(!isOpen)}
       />
@@ -57,8 +57,11 @@ export function Menu() {
           }`}
         >
           <div className="min-h-full w-full" onClick={() => setIsOpen(false)} />
-          <div className="flex min-h-full min-w-[20rem] flex-col bg-cream shadow-lg dark:bg-outer-space">
-            <div className="flex items-center justify-between border-b border-silver p-6 dark:border-void">
+          <menu className="flex min-h-full min-w-[20rem] flex-col bg-light-background-1 shadow-lg dark:bg-dark-background-03dp">
+            <li
+              key={0}
+              className="flex items-center justify-between border-b border-silver p-6 dark:border-dark-background-12dp"
+            >
               <img
                 src={
                   theme === "light"
@@ -67,15 +70,16 @@ export function Menu() {
                 }
               />
               <IoClose
-                className="h-7 w-7 rounded-md hover:cursor-pointer hover:bg-silver dark:hover:bg-void"
+                className="h-7 w-7 hover:cursor-pointer"
                 onClick={() => setIsOpen(false)}
               />
-            </div>
-            <MenuItem show={user !== undefined}>
+            </li>
+            <MenuItem key={1} show={user !== undefined}>
               <RiAccountBoxFill size={24} />
               <span>Profile</span>
             </MenuItem>
             <MenuItem
+              key={2}
               show={user !== undefined}
               onClick={() => handleNavigate("/dashboard")}
             >
@@ -83,6 +87,7 @@ export function Menu() {
               <span>Dashboard</span>
             </MenuItem>
             <MenuItem
+              key={3}
               show={true}
               onClick={() => handleNavigate(user ? "/" : "/sign-in")}
             >
@@ -94,33 +99,40 @@ export function Menu() {
               <span>{user ? "Sign Out" : "Sign In"}</span>
             </MenuItem>
             <MenuItem
+              key={4}
               show={user === undefined}
               onClick={() => handleNavigate("/register")}
             >
               <IoPersonAdd size={24} />
               <span>Register</span>
             </MenuItem>
-            <MenuItem
-              show={true}
-              isLast={true}
-              onClick={() =>
-                handleSetTheme(theme === "light" ? "dark" : "light")
-              }
+            <li
+              key={5}
+              className="mt-auto flex items-center gap-x-8 border-t border-silver p-6 dark:border-dark-background-12dp"
             >
-              {theme === "light" ? <IoMoon size={24} /> : <IoSunny size={24} />}
-              <span>{theme === "light" ? "Light" : "Dark"}</span>
-            </MenuItem>
-            <div className="mt-auto flex items-center gap-x-8 border-t border-silver p-6 dark:border-void">
               <a href={GITHUB_LINK} target="_blank">
                 <IoLogoGithub size={24} />
               </a>
               <a href={LINKEDIN_LINK} target="_blank">
                 <IoLogoLinkedin size={24} />
               </a>
-            </div>
-          </div>
+              <button
+                type="button"
+                className="ml-auto"
+                onClick={() =>
+                  handleSetTheme(theme === "light" ? "dark" : "light")
+                }
+              >
+                {theme === "light" ? (
+                  <IoMoon size={24} />
+                ) : (
+                  <IoSunny size={24} />
+                )}
+              </button>
+            </li>
+          </menu>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

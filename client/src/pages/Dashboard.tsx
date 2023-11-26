@@ -10,52 +10,58 @@ export function Dashboard() {
   useTitle("Dashboard");
 
   return (
-    <div className="mt-8 w-full max-w-[1080px] p-4">
-      <div className="flex w-full flex-col items-center rounded-md border border-silver bg-white dark:border-gray dark:bg-void">
-        <div className="flex w-full basis-1/6 items-center gap-x-4 border-b border-silver p-4 dark:border-gray">
+    <section className="mt-4 w-full max-w-[1080px] p-4">
+      <div className="flex w-full flex-col items-center gap-y-2">
+        <div className="flex w-full basis-1/6 items-center gap-x-4 rounded-md bg-light-background-1 p-4 shadow-md dark:bg-dark-background-03dp">
           <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-silver">
             <IoPerson className="h-16 w-16 text-silver" />
           </div>
           <div className="flex flex-col font-poppins text-lg font-semibold">
-            <span className="text-xs text-gray dark:text-silver">Hello,</span>
+            <span className="text-xs text-black dark:text-white/60">
+              Hello,
+            </span>
             <h2>{user?.username}</h2>
           </div>
-          <span className="ml-auto pr-2 font-poppins text-sm text-gray dark:text-silver">
+          <span className="ml-auto pr-2 font-poppins text-sm text-black dark:text-white/60">
             {getDate()}
           </span>
         </div>
-        <div className="flex w-full select-none items-center border-b border-silver font-poppins text-sm dark:border-gray">
+        <nav className="flex h-12 w-full select-none items-center gap-x-4 rounded-md bg-light-background-1 px-4 font-poppins text-sm shadow-md dark:bg-dark-background-03dp">
           <Link
-            className={`cursor-pointer p-4 hover:text-tea-rose ${
+            className={`flex h-full cursor-pointer items-center border-b-2 ${
               loc.endsWith("/manage-videos") ||
               loc.endsWith("dashboard/") ||
               loc.endsWith("dashboard")
-                ? "text-tea-rose"
-                : ""
+                ? "border-light-secondary text-black dark:border-dark-secondary dark:text-white/90"
+                : "border-transparent text-gray hover:text-black dark:text-white/60 dark:hover:text-white/90"
             }`}
             to="/dashboard/manage-videos"
           >
             <span>Manage Videos</span>
           </Link>
           <Link
-            className={`cursor-pointer p-4 hover:text-tea-rose ${
-              loc.endsWith("/liked-videos") ? "text-tea-rose" : ""
+            className={`flex h-full cursor-pointer items-center border-b-2 ${
+              loc.endsWith("/liked-videos")
+                ? "border-light-secondary text-black dark:border-dark-secondary dark:text-white/90"
+                : "border-transparent text-gray hover:text-black dark:text-white/60 dark:hover:text-white/90"
             }`}
             to="/dashboard/liked-videos"
           >
             <span>Liked Videos</span>
           </Link>
           <Link
-            className={`cursor-pointer p-4 hover:text-tea-rose ${
-              loc.endsWith("/settings") ? "text-tea-rose" : ""
+            className={`flex h-full cursor-pointer items-center border-b-2 ${
+              loc.endsWith("/settings")
+                ? "border-light-secondary text-black dark:border-dark-secondary dark:text-white/90"
+                : "border-transparent text-gray hover:text-black dark:text-white/60 dark:hover:text-white/90"
             }`}
             to="/dashboard/settings"
           >
             <span>Settings</span>
           </Link>
-        </div>
+        </nav>
         <Outlet />
       </div>
-    </div>
+    </section>
   );
 }

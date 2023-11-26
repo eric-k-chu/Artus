@@ -29,6 +29,10 @@ export type Tag = {
   tagId: number;
   tagName: string;
 };
+export type UpdateForm = {
+  caption: string;
+  tags: string;
+};
 
 function getToken() {
   const tokenJSON = localStorage.getItem(tokenKey);
@@ -102,7 +106,7 @@ export async function fetchUserVideos(): Promise<Video[]> {
   return data;
 }
 
-export async function fetchVideoDetails(videoId: number): Promise<Video> {
+export async function fetchVideoById(videoId: number): Promise<Video> {
   const res = await fetch(`/api/videos/${videoId}`);
   const data = await res.json();
   if (!res.ok) throw new Error(`${res.statusText}: ${data.error}`);
@@ -135,9 +139,9 @@ export function getDate(ttz?: string): string {
 export async function updateVideo(
   videoId: number | undefined,
   caption: string | undefined,
-  tags: string[],
+  tags: string | undefined,
 ): Promise<Video> {
-  const req = {
+  const res = await fetch(`/api/dashboard/manage-videos/${videoId}`, {
     method: "PUT",
     headers: {
       Authorization: `Bearer ${getToken()}`,
@@ -145,10 +149,9 @@ export async function updateVideo(
     },
     body: JSON.stringify({
       caption: caption,
-      tags: tags,
+      tags: tags ? tags.split(",") : [],
     }),
-  };
-  const res = await fetch(`/api/videos/${videoId}`, req);
+  });
   const data = await res.json();
   if (!res.ok) throw new Error(`${res.statusText}: ${data.error}`);
   return data;
@@ -174,4 +177,15 @@ export async function getVideoTags(
   const data = await res.json();
   if (!res.ok) throw new Error(`${data.error}`);
   return data;
+}
+
+export async function deleteVideo(videoId: number): Promise<void> {
+  const res = await fetch(`/api/dashboard/manage-videos/${videoId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+    },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(`${data.error}`);
 }

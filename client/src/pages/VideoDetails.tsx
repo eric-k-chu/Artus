@@ -1,31 +1,11 @@
-import { VideoInfo, VideoPlayer } from "../components";
-import { useEffect, useState } from "react";
+import { useTitle, useVideo } from "../lib";
 import { useParams } from "react-router-dom";
-import { useTitle, fetchVideoDetails, type Video } from "../lib";
+import { VideoInfo, VideoPlayer } from "../components";
 
 export function VideoDetails() {
   const { videoId } = useParams();
-  const [video, setVideo] = useState<Video>();
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<unknown>();
-
+  const { video, isLoading, error } = useVideo(Number(videoId));
   useTitle(String(videoId));
-
-  useEffect(() => {
-    async function loadVideo(videoId: number) {
-      try {
-        setVideo(await fetchVideoDetails(videoId));
-      } catch (err) {
-        setError(err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    if (videoId) {
-      setIsLoading(true);
-      loadVideo(+videoId);
-    }
-  }, [videoId]);
 
   if (isLoading) {
     return (

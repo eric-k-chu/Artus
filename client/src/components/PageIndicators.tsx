@@ -5,21 +5,45 @@ type Props = {
 };
 
 export function PageIndicators({ arr, onSelect, currentPage }: Props) {
+  function handlePageNav(index: number, dir: "prev" | "next"): void {
+    if (dir === "prev") {
+      onSelect((index - 1 + arr.length) % arr.length);
+    } else {
+      onSelect((index + 1) % arr.length);
+    }
+  }
+
   return (
-    <div className="mt-auto flex items-center divide-x divide-silver rounded-md border border-silver">
-      {arr.map((_, i) => (
-        <div
-          key={i}
-          onClick={() => onSelect(i)}
-          className={`select-none px-3 py-1 font-poppins text-sm hover:cursor-pointer dark:bg-void ${
-            currentPage === i
-              ? "bg-tea-rose text-black"
-              : "bg-transparent text-gray"
-          }`}
+    <section className="self-end font-poppins">
+      <ul className="mt-auto flex items-center rounded-md bg-light-background-3 shadow-md hover:cursor-pointer dark:bg-dark-background-12dp">
+        <li
+          key="prev"
+          className="px-3 py-1"
+          onClick={() => handlePageNav(currentPage, "prev")}
         >
-          {i + 1}
-        </div>
-      ))}
-    </div>
+          {"<"}
+        </li>
+        {arr.map((_, i) => (
+          <li
+            key={i}
+            onClick={() => onSelect(i)}
+            className={`px-4 py-2 text-sm ${
+              currentPage === i
+                ? "bg-light-primary text-white/90 dark:bg-dark-primary"
+                : "bg-transparent text-gray hover:text-black dark:text-white/60 dark:hover:text-white/90"
+            }`}
+          >
+            {i + 1}
+          </li>
+        ))}
+        <li
+          key="next"
+          className="px-3 py-1"
+          onClick={() => handlePageNav(currentPage, "next")}
+        >
+          {">"}
+        </li>
+      </ul>
+    </section>
   );
 }

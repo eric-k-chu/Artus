@@ -9,7 +9,7 @@ export function VideoPlayer({ videoUrl }: Props) {
       loop
       muted
       autoPlay
-      className="aspect-video max-w-screen-lg basis-full bg-black lg:basis-6/12 xl:basis-8/12 2xl:basis-9/12"
+      className="aspect-video max-w-screen-lg basis-full bg-cream dark:bg-outer-space lg:basis-6/12 xl:basis-8/12 2xl:basis-9/12"
     >
       <source src={videoUrl} type="video/mp4" />
     </video>

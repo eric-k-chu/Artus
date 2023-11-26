@@ -47,14 +47,6 @@ app.post('/api/auth/register', async (req, res, next) => {
       throw new ClientError(400, 'Username and password are required fields.');
     }
 
-    // const checkSql = `SELECT *
-    //                     FROM "users"
-    //                    WHERE "username" = $1`;
-    // const checkUser = await db.query<User>(checkSql, [username]);
-    // if (checkUser.rows[0]) {
-    //   throw new ClientError(409, 'Username already exists.');
-    // }
-
     const hashedPassword = await argon2.hash(password);
     const sql = `
       INSERT INTO "users" ("username", "hashedPassword")
@@ -231,59 +223,64 @@ app.post(
 );
 
 // UPDATE User video
-app.put('/api/videos/:videoId', authMiddleware, async (req, res, next) => {
-  try {
-    const videoId = Number(req.params.videoId);
-    const { caption, tags } = req.body as Partial<Video>;
-    if (!Number.isInteger(videoId)) {
-      throw new ClientError(400, 'videoId must be a positive integer.');
-    }
-    if (!caption) throw new ClientError(400, 'Caption cannot be empty.');
+app.put(
+  '/api/dashboard/manage-videos/:videoId',
+  authMiddleware,
+  async (req, res, next) => {
+    console.log('Received PUT request');
+    try {
+      const videoId = Number(req.params.videoId);
+      const { caption, tags } = req.body as Partial<Video>;
+      if (!Number.isInteger(videoId)) {
+        throw new ClientError(400, 'videoId must be a positive integer.');
+      }
+      if (!caption) throw new ClientError(400, 'Caption cannot be empty.');
 
-    const sql = `UPDATE "videos"
+      const sql = `UPDATE "videos"
                     SET "caption" = $1
                   WHERE "videoId" = $2
                   RETURNING *`;
-    const result = await db.query<Video>(sql, [caption, videoId]);
-    const video = result.rows[0];
-    if (!video) {
-      throw new ClientError(404, `Video with id ${videoId} does not exist.`);
-    }
+      const result = await db.query<Video>(sql, [caption, videoId]);
+      const video = result.rows[0];
+      if (!video) {
+        throw new ClientError(404, `Video with id ${videoId} does not exist.`);
+      }
 
-    if (!tags) {
-      video.tags = [null] as unknown as string[];
-      res.status(201).json(video);
-    } else {
-      const deleteSQL = `DELETE FROM "videoTags" WHERE "videoId" = $1`;
-      await db.query(deleteSQL, [videoId]);
+      if (!tags) {
+        video.tags = null;
+        res.status(201).json(video);
+      } else {
+        const deleteSQL = `DELETE FROM "videoTags" WHERE "videoId" = $1`;
+        await db.query(deleteSQL, [videoId]);
 
-      const tagValues = tags.map((n) => [n]);
-      const insertSQL = format(
-        `INSERT INTO "tags" ("name") VALUES %L RETURNING *`,
-        tagValues,
-      );
+        const tagValues = tags.map((n) => [n]);
+        const insertSQL = format(
+          `INSERT INTO "tags" ("name") VALUES %L RETURNING *`,
+          tagValues,
+        );
 
-      const tagResult = await db.query(insertSQL);
-      const videoTags: Tag[] = tagResult.rows;
+        const tagResult = await db.query(insertSQL);
+        const videoTags: Tag[] = tagResult.rows;
 
-      const vidTagValues = videoTags.map((n) => [videoId, n.tagId]);
-      const vidTagSql = format(
-        `INSERT INTO "videoTags" ("videoId", "tagId")
+        const vidTagValues = videoTags.map((n) => [videoId, n.tagId]);
+        const vidTagSql = format(
+          `INSERT INTO "videoTags" ("videoId", "tagId")
           VALUES %L RETURNING *`,
-        vidTagValues,
-      );
-      await db.query(vidTagSql);
-      video.tags = videoTags.map((n) => n.name);
-      res.status(201).json(video);
+          vidTagValues,
+        );
+        await db.query(vidTagSql);
+        video.tags = videoTags.map((n) => n.name);
+        res.status(201).json(video);
+      }
+    } catch (err) {
+      next(err);
     }
-  } catch (err) {
-    next(err);
-  }
-});
+  },
+);
 
 // DELETE User video
 app.delete(
-  '/api/dashboard/:videoId',
+  '/api/dashboard/manage-videos/:videoId',
   authMiddleware,
   async (req, res, next) => {
     try {

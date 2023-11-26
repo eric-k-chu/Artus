@@ -9,3 +9,5 @@ export * from "./VideoPlayer";
 export * from "./UserVideoCard";
 export * from "./PageIndicators";
 export * from "./VideosContext";
+export * from "./ErrorNotice";
+export * from "./LoadingCircle";

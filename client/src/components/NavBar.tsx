@@ -14,17 +14,17 @@ export function NavBar() {
 
   return (
     <>
-      <div className="flex w-full basis-1/12 items-center justify-between border-b border-silver p-4 dark:border-void">
+      <header className="flex w-full basis-1/12 items-center justify-between bg-light-background-1 p-4 shadow-md dark:border-void dark:bg-dark-background-01dp">
         <Logo />
         <div className="flex basis-1/2 items-center justify-end gap-x-2">
           <RiVideoUploadFill
-            className="h-8 w-10 rounded-md hover:cursor-pointer hover:bg-silver dark:hover:bg-void"
+            className="h-8 w-10 hover:cursor-pointer"
             size={24}
             onClick={handleVideoUploadClick}
           />
           <Menu />
         </div>
-      </div>
+      </header>
       <Outlet />
     </>
   );

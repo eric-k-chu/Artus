@@ -8,7 +8,7 @@ type Props = {
 export function VideoCard({ video }: Props) {
   return (
     <Link
-      className="relative max-h-[24rem] min-h-[24rem] min-w-[15rem] max-w-[15rem] rounded-md bg-black"
+      className="relative h-[384px] w-[240px] rounded-md bg-black"
       to={String(video.videoId)}
     >
       <img
@@ -16,7 +16,7 @@ export function VideoCard({ video }: Props) {
         src={video.thumbnailUrl}
       />
       <div className="absolute bottom-0 flex h-8 w-full items-center p-2">
-        <p className="truncate text-white">{video.caption}</p>
+        <h4 className="truncate text-white">{video.caption}</h4>
       </div>
     </Link>
   );

@@ -33,6 +33,8 @@ export default {
         "light-background-3": "#F0F0F0",
         "light-background-4": "#E8E8E8",
         "light-error": "#B00020",
+        "light-shadow": "#2f383d33",
+        "light-border": "#e2e8f0",
       },
       fontFamily: {
         poppins: ["Poppins", "sans-serif"],

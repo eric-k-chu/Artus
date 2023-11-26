@@ -40,7 +40,7 @@ export function ManageVideosPage() {
   }
 
   return (
-    <main className="flex w-full flex-col items-center gap-y-4 rounded-md bg-light-background-1 p-4 shadow-md dark:bg-dark-background-03dp">
+    <main className="flex w-full flex-col items-center gap-y-4 rounded-md border border-light-border bg-light-background-1 p-4 shadow-sm shadow-light-shadow dark:border-none dark:bg-dark-background-03dp dark:shadow-none">
       {videos[currentPage] &&
         videos[currentPage].map((n) => (
           <UserVideoCard key={n.videoId} video={n} />

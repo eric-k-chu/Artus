@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { deleteVideo, updateVideo, useVideo } from "../lib";
 import { ErrorNotice, LoadingCircle } from "../components";
 import { FormEvent, useState } from "react";
@@ -50,7 +50,7 @@ export function UserVideoPage() {
   return (
     <main className="mt-16 flex w-full max-w-[1080px] gap-x-2 p-4">
       <form
-        className="relative flex w-full flex-col gap-y-4 rounded-md bg-light-background-1 p-4 shadow-md dark:bg-dark-background-03dp"
+        className="relative flex w-full flex-col gap-y-4 rounded-md border border-light-border bg-light-background-1 p-4 shadow-sm shadow-light-shadow dark:border-none dark:bg-dark-background-03dp dark:shadow-none"
         onSubmit={handleUpdate}
       >
         {isPending && (
@@ -64,6 +64,9 @@ export function UserVideoPage() {
             )}
           </div>
         )}
+        <Link to="/dashboard/manage-videos" className="mb-2">
+          {"<"} Back
+        </Link>
         <label className="space-y-2">
           <div className="flex items-center">
             <h3 className="font-poppins font-semibold">Caption</h3>
@@ -107,7 +110,7 @@ export function UserVideoPage() {
           </button>
         </div>
       </form>
-      <section className="hidden max-h-[12rem] min-h-[12rem] min-w-[12rem] max-w-[12rem] rounded-md bg-light-background-1 p-2 shadow-md dark:bg-dark-background-03dp md:block">
+      <section className="hidden max-h-[12rem] min-h-[12rem] min-w-[12rem] max-w-[12rem] rounded-md border border-light-border bg-light-background-1 p-2 shadow-sm shadow-light-shadow dark:border-none dark:bg-dark-background-03dp dark:shadow-none md:block">
         <img
           src={video.video?.thumbnailUrl}
           className="h-full w-full rounded-md object-cover"

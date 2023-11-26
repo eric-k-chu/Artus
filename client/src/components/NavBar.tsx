@@ -14,7 +14,7 @@ export function NavBar() {
 
   return (
     <>
-      <header className="flex w-full basis-1/12 items-center justify-between bg-light-background-1 p-4 shadow-md dark:border-void dark:bg-dark-background-01dp">
+      <header className="flex w-full basis-1/12 items-center justify-between border border-light-border bg-light-background-1 p-4 shadow-sm shadow-light-shadow dark:border-none dark:bg-dark-background-01dp dark:shadow-none">
         <Logo />
         <div className="flex basis-1/2 items-center justify-end gap-x-2">
           <RiVideoUploadFill

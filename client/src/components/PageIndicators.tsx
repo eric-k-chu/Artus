@@ -15,7 +15,7 @@ export function PageIndicators({ arr, onSelect, currentPage }: Props) {
 
   return (
     <section className="self-end font-poppins">
-      <ul className="mt-auto flex items-center rounded-md bg-light-background-3 shadow-md hover:cursor-pointer dark:bg-dark-background-12dp">
+      <ul className="mt-auto flex items-center rounded-md border border-light-border bg-light-background-3 shadow-sm shadow-light-shadow hover:cursor-pointer dark:border-none dark:bg-dark-background-12dp dark:shadow-none">
         <li
           key="prev"
           className="px-3 py-1"

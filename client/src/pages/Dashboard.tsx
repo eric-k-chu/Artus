@@ -12,12 +12,12 @@ export function Dashboard() {
   return (
     <section className="mt-4 w-full max-w-[1080px] p-4">
       <div className="flex w-full flex-col items-center gap-y-2">
-        <div className="flex w-full basis-1/6 items-center gap-x-4 rounded-md bg-light-background-1 p-4 shadow-md dark:bg-dark-background-03dp">
+        <div className="flex w-full basis-1/6 items-center gap-x-4 rounded-md border border-light-border bg-light-background-1 p-4 shadow-sm shadow-light-shadow dark:border-none dark:bg-dark-background-03dp dark:shadow-none">
           <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-silver">
             <IoPerson className="h-16 w-16 text-silver" />
           </div>
           <div className="flex flex-col font-poppins text-lg font-semibold">
-            <span className="text-xs text-black dark:text-white/60">
+            <span className="text-xs font-thin text-gray dark:text-white/60">
               Hello,
             </span>
             <h2>{user?.username}</h2>
@@ -26,7 +26,7 @@ export function Dashboard() {
             {getDate()}
           </span>
         </div>
-        <nav className="flex h-12 w-full select-none items-center gap-x-4 rounded-md bg-light-background-1 px-4 font-poppins text-sm shadow-md dark:bg-dark-background-03dp">
+        <nav className="flex h-12 w-full select-none items-center gap-x-4 rounded-md border border-light-border bg-light-background-1 px-4 font-poppins text-sm shadow-sm shadow-light-shadow dark:border-none dark:bg-dark-background-03dp dark:shadow-none">
           <Link
             className={`flex h-full cursor-pointer items-center border-b-2 ${
               loc.endsWith("/manage-videos") ||

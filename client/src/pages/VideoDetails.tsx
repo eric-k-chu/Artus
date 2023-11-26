@@ -1,6 +1,11 @@
 import { useTitle, useVideo } from "../lib";
 import { useParams } from "react-router-dom";
-import { VideoInfo, VideoPlayer } from "../components";
+import {
+  ErrorNotice,
+  LoadingCircle,
+  VideoInfo,
+  VideoPlayer,
+} from "../components";
 
 export function VideoDetails() {
   const { videoId } = useParams();
@@ -9,20 +14,18 @@ export function VideoDetails() {
 
   if (isLoading) {
     return (
-      <div className="container flex h-full flex-col items-center justify-center">
-        Loading...
+      <div className="mt-20 flex justify-center">
+        <LoadingCircle />
       </div>
     );
   }
 
   if (error) {
-    <div className="container flex h-full flex-col items-center justify-center">
-      {error instanceof Error ? error.message : "Unknown error."}
-    </div>;
+    return <ErrorNotice error={error} />;
   }
 
   return (
-    <div className="flex h-full w-full flex-wrap items-center justify-center gap-x-4 p-8 lg:flex-nowrap">
+    <div className="mt-10 flex h-[180px] w-[320px] flex-col items-center sm:h-[270px] sm:w-[480px] md:h-[405px] md:w-[720px] lg:h-[495px] lg:w-[880px]">
       <VideoPlayer videoUrl={video?.videoUrl} />
       <VideoInfo video={video} />
     </div>

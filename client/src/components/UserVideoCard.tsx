@@ -10,7 +10,7 @@ export function UserVideoCard({ video }: Props) {
   return (
     <Link
       to={`/dashboard/manage-videos/${video.videoId}`}
-      className="flex h-36 w-full items-center gap-x-2 rounded-md bg-light-background-3 p-4 shadow-md hover:cursor-pointer dark:bg-dark-background-12dp"
+      className="flex h-36 w-full items-center gap-x-2 rounded-md border border-light-border bg-light-background-3 p-4 shadow-sm shadow-light-shadow hover:cursor-pointer dark:border-none dark:bg-dark-background-12dp dark:shadow-none"
     >
       <img
         src={video.thumbnailUrl}

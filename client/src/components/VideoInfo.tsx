@@ -7,26 +7,32 @@ type Props = {
 
 export function VideoInfo({ video }: Props) {
   return (
-    <div className="flex basis-full flex-col gap-y-4 py-4 font-raleway lg:basis-4/12 2xl:basis-2/12">
-      <h2 className="font-poppins text-sm font-semibold lg:text-lg">
-        {video?.caption}
-      </h2>
-      <h4 className="text-xs lg:text-sm">{getDate(video?.uploadedAt)}</h4>
-      <div className="flex w-fit items-center gap-x-2 rounded-md border border-aquamarine bg-white p-2 shadow-md shadow-black dark:bg-void">
+    <main className="mt-2 flex w-full flex-col gap-y-2">
+      <section className="flex items-center">
+        <h2 className="font-poppins text-sm font-semibold lg:text-lg">
+          {video?.caption}
+        </h2>
+        <h4 className="ml-auto font-poppins text-sm font-thin lg:text-base">
+          {getDate(video?.uploadedAt)}
+        </h4>
+      </section>
+      <section className="flex w-fit items-center gap-x-2 rounded-md border border-light-border bg-light-background-1 p-2 shadow-sm shadow-light-shadow dark:border-none dark:bg-dark-background-03dp dark:shadow-none">
         <IoPerson size={16} />
-        <span className="text-xs lg:text-sm">{video?.username}</span>
-      </div>
-      <div className="flex flex-wrap items-center gap-4">
+        <span className="font-poppins text-xs lg:text-sm">
+          {video?.username}
+        </span>
+      </section>
+      <section className="mt-2 flex flex-wrap items-center gap-4 font-poppins">
         {video?.tags[0] !== null &&
           video?.tags.map((n, i) => (
             <div
               key={i}
-              className="rounded-md bg-tea-rose p-2 text-sm text-black shadow-md shadow-black lg:text-lg"
+              className="rounded-md bg-light-primary p-2 text-xs text-white/90 shadow-md dark:bg-dark-primary lg:text-sm"
             >
               {n}
             </div>
           ))}
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

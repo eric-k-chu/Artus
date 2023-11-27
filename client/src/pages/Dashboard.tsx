@@ -12,7 +12,7 @@ export function Dashboard() {
   return (
     <section className="mt-4 w-full max-w-[1080px] p-4">
       <div className="flex w-full flex-col items-center gap-y-2">
-        <div className="flex w-full basis-1/6 items-center gap-x-4 rounded-md border border-light-border bg-light-background-1 p-4 shadow-sm shadow-light-shadow dark:border-none dark:bg-dark-background-03dp dark:shadow-none">
+        <div className="flex w-full basis-1/6 items-center gap-x-4 rounded-md border border-l-brdr bg-l-bg-1 p-4 shadow-sm shadow-l-shdw dark:border-none dark:bg-d-bg-03dp dark:shadow-none">
           <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-silver">
             <IoPerson className="h-16 w-16 text-silver" />
           </div>
@@ -26,13 +26,13 @@ export function Dashboard() {
             {getDate()}
           </span>
         </div>
-        <nav className="flex h-12 w-full select-none items-center gap-x-4 rounded-md border border-light-border bg-light-background-1 px-4 font-poppins text-sm shadow-sm shadow-light-shadow dark:border-none dark:bg-dark-background-03dp dark:shadow-none">
+        <nav className="flex h-12 w-full select-none items-center gap-x-4 rounded-md border border-l-brdr bg-l-bg-1 px-4 font-poppins text-sm shadow-sm shadow-l-shdw dark:border-none dark:bg-d-bg-03dp dark:shadow-none">
           <Link
             className={`flex h-full cursor-pointer items-center border-b-2 ${
               loc.endsWith("/manage-videos") ||
               loc.endsWith("dashboard/") ||
               loc.endsWith("dashboard")
-                ? "border-light-secondary text-black dark:border-dark-secondary dark:text-white/90"
+                ? "border-l-s text-black dark:border-d-s dark:text-white/90"
                 : "border-transparent text-gray hover:text-black dark:text-white/60 dark:hover:text-white/90"
             }`}
             to="/dashboard/manage-videos"
@@ -42,22 +42,12 @@ export function Dashboard() {
           <Link
             className={`flex h-full cursor-pointer items-center border-b-2 ${
               loc.endsWith("/liked-videos")
-                ? "border-light-secondary text-black dark:border-dark-secondary dark:text-white/90"
+                ? "border-l-s text-black dark:border-d-s dark:text-white/90"
                 : "border-transparent text-gray hover:text-black dark:text-white/60 dark:hover:text-white/90"
             }`}
             to="/dashboard/liked-videos"
           >
             <span>Liked Videos</span>
-          </Link>
-          <Link
-            className={`flex h-full cursor-pointer items-center border-b-2 ${
-              loc.endsWith("/settings")
-                ? "border-light-secondary text-black dark:border-dark-secondary dark:text-white/90"
-                : "border-transparent text-gray hover:text-black dark:text-white/60 dark:hover:text-white/90"
-            }`}
-            to="/dashboard/settings"
-          >
-            <span>Settings</span>
           </Link>
         </nav>
         <Outlet />

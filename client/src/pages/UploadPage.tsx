@@ -24,16 +24,16 @@ export function UploadPage() {
 
   return (
     <form
-      className="container flex h-full w-full items-center justify-center font-poppins"
+      className="container mt-8 flex h-[192px] w-[320px] items-center justify-center font-poppins md:h-[288px] md:w-[480px] lg:h-[576px] lg:w-[960px]"
       encType="multipart/form-data"
       onSubmit={handleSubmit}
     >
-      <div className="flex h-4/5 w-4/5 flex-col items-center justify-center rounded-md border-2 border-dashed border-silver dark:border-gray">
+      <div className="flex h-full w-full flex-col items-center justify-center rounded-md border-2 border-dashed border-silver dark:border-gray">
         <IoImage className="text-gray/50" size={48} />
         <div className="mb-2 mt-4 flex">
           <label
             htmlFor="file-input"
-            className="cursor-pointer rounded-md text-tea-rose focus-within:ring-offset-2 hover:text-tea-rose/75"
+            className="cursor-pointer rounded-md text-l-s focus-within:ring-offset-2 dark:text-d-s"
           >
             <span>Upload a file</span>
             <input
@@ -54,7 +54,7 @@ export function UploadPage() {
         </p>
 
         <button
-          className={`mt-4 rounded-md bg-aquamarine p-2 font-poppins shadow-md hover:bg-aquamarine/80 ${
+          className={`mt-4 rounded-md bg-l-p p-2 font-poppins text-white shadow-md dark:bg-d-p ${
             hasChanged ? "visible" : "invisible"
           }`}
         >

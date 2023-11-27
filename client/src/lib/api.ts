@@ -102,14 +102,25 @@ export async function fetchUserVideos(): Promise<Video[]> {
     },
   });
   const data = await res.json();
-  if (!res.ok) throw new Error(`${res.statusText}: ${data.error}`);
+  if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
+  return data;
+}
+
+export async function fetchUserLikedVideos(): Promise<Video[]> {
+  const res = await fetch("/api/dashboard/liked-videos", {
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+    },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
   return data;
 }
 
 export async function fetchVideoById(videoId: number): Promise<Video> {
   const res = await fetch(`/api/videos/${videoId}`);
   const data = await res.json();
-  if (!res.ok) throw new Error(`${res.statusText}: ${data.error}`);
+  if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
   return data;
 }
 
@@ -123,7 +134,7 @@ export async function uploadVideos(form: FormData): Promise<Video> {
   };
   const res = await fetch(`/api/videos`, req);
   const data = await res.json();
-  if (!res.ok) throw new Error(`${res.statusText}: ${data.error}`);
+  if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
   return data;
 }
 
@@ -153,7 +164,7 @@ export async function updateVideo(
     }),
   });
   const data = await res.json();
-  if (!res.ok) throw new Error(`${res.statusText}: ${data.error}`);
+  if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
   return data;
 }
 
@@ -166,19 +177,6 @@ export function breakIntoSubArr<T>(chunkSize: number, arr: T[]): T[][] {
   return result;
 }
 
-export async function getVideoTags(
-  videoId: number | undefined,
-): Promise<Tag[]> {
-  const res = await fetch(`/api/videos/${videoId}/tags`, {
-    headers: {
-      Authorization: `Bearer ${getToken()}`,
-    },
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(`${data.error}`);
-  return data;
-}
-
 export async function deleteVideo(videoId: number): Promise<void> {
   const res = await fetch(`/api/dashboard/manage-videos/${videoId}`, {
     method: "DELETE",
@@ -187,5 +185,43 @@ export async function deleteVideo(videoId: number): Promise<void> {
     },
   });
   const data = await res.json();
-  if (!res.ok) throw new Error(`${data.error}`);
+  if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
+}
+
+export async function incrementLikes(
+  videoId: number | undefined,
+): Promise<void> {
+  const res = await fetch(`/api/videos/${videoId}/inc`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+    },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
+}
+
+export async function decrementLikes(
+  videoId: number | undefined,
+): Promise<void> {
+  const res = await fetch(`/api/videos/${videoId}/dec`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+    },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
+}
+
+export async function isLiked(videoId: number | undefined): Promise<boolean> {
+  const res = await fetch(`/api/videos/likes/${videoId}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+    },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
+  return data;
 }

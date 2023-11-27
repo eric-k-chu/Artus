@@ -22,7 +22,7 @@ export function AuthPage({ action }: Props) {
       if (action === "sign-in") {
         const auth = await signIn(username, password);
         if (auth.user && auth.token) handleSignIn(auth);
-        navigate("/");
+        navigate("/home");
       } else {
         await signUp(username, password);
         navigate("/sign-in");
@@ -58,7 +58,7 @@ export function AuthPage({ action }: Props) {
           name="username"
           className={`${
             error instanceof Error ? "border border-red-400" : "border-hidden"
-          } w-full rounded-md border bg-silver p-2 font-raleway shadow-md dark:bg-dark-background-03dp`}
+          } w-full rounded-md border border-l-brdr bg-l-bg-1 p-2 font-raleway shadow-md shadow-l-shdw dark:bg-d-bg-03dp`}
           onChange={(e) => setUsername(e.currentTarget.value)}
         />
       </label>
@@ -71,12 +71,12 @@ export function AuthPage({ action }: Props) {
           name="password"
           className={`${
             error instanceof Error ? "border border-red-400" : "border-hidden"
-          } w-full rounded-md bg-silver p-2 font-raleway shadow-md dark:bg-dark-background-03dp`}
+          } w-full rounded-md border-l-brdr bg-l-bg-1 p-2 font-raleway shadow-md shadow-l-shdw dark:bg-d-bg-03dp`}
           onChange={(e) => setPassword(e.currentTarget.value)}
         />
       </label>
       <button
-        className="mt-2 w-full rounded-md bg-light-primary p-2 text-white/90 shadow-md dark:bg-dark-primary dark:text-black"
+        className="mt-2 w-full rounded-md bg-l-p p-2 text-white/90 shadow-md dark:bg-d-p dark:text-black"
         type="submit"
       >
         {action === "sign-in" ? "Sign In" : "Register"}
@@ -86,7 +86,7 @@ export function AuthPage({ action }: Props) {
         <p>{action === "sign-in" ? "Need an account?" : "Have an account?"}</p>
         <button
           onClick={handleClick}
-          className="rounded-md bg-light-secondary p-2 font-raleway font-semibold text-black dark:bg-dark-secondary"
+          className="rounded-md bg-l-s p-2 font-raleway font-semibold text-black dark:bg-d-s"
         >
           {action === "sign-in" ? "Register" : "Sign In"}
         </button>

@@ -35,7 +35,7 @@ export function HomePage() {
         </h2>
         <Link
           to={user ? "/upload" : "/sign-in"}
-          className="rounded-md bg-light-primary p-2 text-black shadow-md dark:bg-dark-primary"
+          className="rounded-md bg-l-p p-2 text-black shadow-md dark:bg-d-p"
         >
           Upload a Video
         </Link>

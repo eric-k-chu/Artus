@@ -9,6 +9,8 @@ import {
   VideoDetails,
   ManageVideosPage,
   UserVideoPage,
+  NotFound,
+  LikedVideosPage,
 } from "./pages";
 import {
   type Auth,
@@ -73,14 +75,14 @@ export default function App() {
         <Routes>
           <Route path="/" element={<NavBar />}>
             <Route index element={<HomePage />} />
+            <Route path="home" element={<HomePage />} />
+            <Route path="watch/:videoId" element={<VideoDetails />} />
             <Route path="upload" element={<UploadPage />} />
             <Route path="dashboard/" element={<Dashboard />}>
               <Route index element={<ManageVideosPage />} />
               <Route path="manage-videos" element={<ManageVideosPage />} />
-              {/* <Route path="/liked-videos" element={<Dashboard />} />
-              <Route path="/settings" element={<Dashboard />} /> */}
+              <Route path="liked-videos" element={<LikedVideosPage />} />
             </Route>
-            <Route path=":videoId" element={<VideoDetails />} />
             <Route
               path="/dashboard/manage-videos/:videoId"
               element={<UserVideoPage />}
@@ -88,6 +90,7 @@ export default function App() {
           </Route>
           <Route path="/sign-in" element={<AuthPage action="sign-in" />} />
           <Route path="/register" element={<AuthPage action="register" />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
     </AppContext.Provider>

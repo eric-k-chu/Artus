@@ -11,7 +11,7 @@ export function MenuItem({ show, children, onClick }: Props) {
     <>
       {show && (
         <li
-          className="flex items-center gap-x-2 px-6 py-4 hover:cursor-pointer hover:bg-silver dark:hover:bg-dark-background-12dp"
+          className="flex items-center gap-x-2 px-6 py-4 hover:cursor-pointer hover:bg-silver dark:hover:bg-d-bg-12dp"
           onClick={onClick}
         >
           {children}

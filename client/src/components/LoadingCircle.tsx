@@ -1,9 +1,19 @@
-export function LoadingCircle() {
+type Props = {
+  size?: "sm" | "md";
+};
+
+export function LoadingCircle({ size = "md" }: Props) {
+  let style = "fill-l-s animate-spin ";
+  if (size === "md") {
+    style += "h-8 w-8";
+  } else {
+    style += "h-4 w-8";
+  }
   return (
     <svg
       aria-hidden="true"
       viewBox="0 0 100 101"
-      className="h-8 w-8 animate-spin fill-light-secondary"
+      className={style}
       fill=""
       xmlns="http://www.w3.org/2000/svg"
     >

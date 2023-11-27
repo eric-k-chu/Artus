@@ -1,9 +1,11 @@
 import {
   Video,
   breakIntoSubArr,
+  fetchUserLikedVideos,
   fetchUserVideos,
   fetchVideoById,
   fetchVideos,
+  isLiked,
 } from ".";
 import { useEffect, useLayoutEffect, useState } from "react";
 
@@ -83,4 +85,47 @@ export function useUserVideos() {
   }, [isLoading]);
 
   return { videos, isLoading, error };
+}
+
+export function useLikedVideos() {
+  const [videos, setVideos] = useState<Video[][]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>();
+  const [error, setError] = useState<unknown>();
+  useEffect(() => {
+    async function load() {
+      setIsLoading(true);
+      try {
+        const vids = await fetchUserLikedVideos();
+        setVideos(breakIntoSubArr(3, vids));
+      } catch (err) {
+        setError(err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    if (isLoading === undefined) load();
+  }, [isLoading]);
+
+  return { videos, isLoading, error };
+}
+
+export function useHasLiked(videoId: number | undefined) {
+  const [hasLiked, setHasLiked] = useState<boolean>();
+  const [isLoading, setIsLoading] = useState<boolean>();
+  const [error, setError] = useState<unknown>();
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const bool = await isLiked(videoId);
+        setHasLiked(bool);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    if (isLoading === undefined) load();
+  });
+  return { hasLiked, isLoading, error };
 }

@@ -131,7 +131,7 @@ app.get('/api/videos/:videoId', async (req, res, next) => {
     if (!video) {
       throw new ClientError(404, `Cannot find video with id: ${videoId}`);
     }
-    video.tags = video.tags ? result.rows.map((n) => n.tags) : null;
+    video.tags = video.tags ? result.rows.map((n) => n.tags) : [];
     res.json(video);
   } catch (err) {
     next(err);
@@ -170,7 +170,7 @@ app.get('/api/videos/', authMiddleware, async (req, res, next) => {
         } else {
           acc[video.videoId] = {
             ...video,
-            tags: video.tags ? [video.tags] : null,
+            tags: video.tags ? [video.tags] : [],
           };
         }
         return acc;
@@ -182,6 +182,48 @@ app.get('/api/videos/', authMiddleware, async (req, res, next) => {
     next(err);
   }
 });
+
+// SELECT User Liked Videos
+app.get(
+  '/api/dashboard/liked-videos',
+  authMiddleware,
+  async (req, res, next) => {
+    try {
+      const sql = `SELECT
+                    "videos".*,
+                    "name" as "tags"
+                    FROM "videos"
+                LEFT JOIN "likedVideos" USING ("videoId")
+                LEFT JOIN "videoTags" USING ("videoId")
+                LEFT JOIN "tags" USING ("tagId")
+                    WHERE "likedVideos"."userId" = $1
+                ORDER BY "uploadedAt"`;
+      const result = await db.query(sql, [req.user?.userId]);
+      const videos = result.rows;
+
+      if (videos.length < 1) {
+        res.json(videos);
+      } else {
+        const reducedVideos = videos.reduce((acc, video) => {
+          const exisitingVideo = acc[video.videoId];
+          if (exisitingVideo) {
+            exisitingVideo.tags.push(video.tags);
+          } else {
+            acc[video.videoId] = {
+              ...video,
+              tags: video.tags ? [video.tags] : [],
+            };
+          }
+          return acc;
+        }, {});
+
+        res.json(Object.values(reducedVideos));
+      }
+    } catch (err) {
+      next(err);
+    }
+  },
+);
 
 // INSERT User Video
 app.post(
@@ -247,7 +289,7 @@ app.put(
       }
 
       if (!tags) {
-        video.tags = null;
+        video.tags = [];
         res.status(201).json(video);
       } else {
         const deleteSQL = `DELETE FROM "videoTags" WHERE "videoId" = $1`;
@@ -273,6 +315,36 @@ app.put(
         res.status(201).json(video);
       }
     } catch (err) {
+      next(err);
+    }
+  },
+);
+
+// UPDATE likes
+app.patch(
+  '/api/videos/:videoId/inc',
+  authMiddleware,
+  async (req, res, next) => {
+    try {
+      const videoId = Number(req.params.videoId);
+      if (!Number.isInteger(videoId)) {
+        throw new ClientError(400, 'videoId must be a positive integer.');
+      }
+
+      await db.query('BEGIN');
+
+      const sql1 = `UPDATE "videos"
+                    SET "likes" = "likes" + 1
+                  WHERE "videoId" = $1`;
+      await db.query(sql1, [videoId]);
+
+      const sql2 = `INSERT INTO "likedVideos" ("userId", "videoId")
+                       VALUES ($1, $2)`;
+      await db.query(sql2, [req.user?.userId, videoId]);
+      await db.query('COMMIT');
+      res.sendStatus(204);
+    } catch (err) {
+      await db.query('ROLLBACK');
       next(err);
     }
   },

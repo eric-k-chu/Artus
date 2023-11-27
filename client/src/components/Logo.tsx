@@ -6,18 +6,41 @@ export function Logo() {
   return (
     <section
       className="flex items-center gap-x-2 hover:cursor-pointer"
-      onClick={() => navigate("/")}
+      onClick={() => navigate("/home")}
     >
       <svg
-        width="24"
-        height="24"
-        viewBox="0 0 100 104"
-        className="fill-light-primary dark:fill-dark-primary"
+        viewBox="0 0 151 137"
+        className="h-[16px] w-[17px] stroke-l-p dark:stroke-d-p md:h-[24px] md:w-[26px]"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <path d="M95.5 49.402C97.5 50.5567 97.5 53.4435 95.5 54.5982L29.5 92.7033C27.5 93.858 25 92.4146 25 90.1052V13.895C25 11.5856 27.5 10.1422 29.5 11.2969L95.5 49.402Z" />
-        <path d="M9 5.21938C9 2.90483 11.51 1.46211 13.51 2.62711L17.51 4.95714C18.4326 5.49453 19 6.48175 19 7.54941V95.9265C19 96.9821 18.4453 97.96 17.5393 98.5015L13.5393 100.893C11.5396 102.088 9 100.647 9 98.3176V5.21938Z" />
+        <line
+          x1="10.2316"
+          y1="122.714"
+          x2="75.2316"
+          y2="10.1308"
+          strokeWidth="20"
+          strokeLinecap="round"
+        />
+        <line
+          x1="10"
+          y1="123"
+          x2="83"
+          y2="123"
+          strokeWidth="20"
+          strokeLinecap="round"
+        />
+        <line
+          x1="75.6603"
+          y1="10.1308"
+          x2="140.66"
+          y2="122.714"
+          strokeWidth="20"
+          strokeLinecap="round"
+        />
       </svg>
+      <h1 className="select-none font-poppins text-sm md:text-base lg:text-xl">
+        artus
+      </h1>
     </section>
   );
 }

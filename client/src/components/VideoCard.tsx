@@ -9,7 +9,7 @@ export function VideoCard({ video }: Props) {
   return (
     <Link
       className="relative h-[384px] w-[240px] rounded-md bg-black"
-      to={String(video.videoId)}
+      to={`/watch/${video.videoId}`}
     >
       <img
         className="h-full w-full rounded-md object-cover"
@@ -29,7 +29,7 @@ export function VideoCardLoading() {
       {temp.map((n) => (
         <article
           key={n}
-          className="relative h-96 w-60 animate-pulse rounded-md bg-silver dark:bg-dark-background-03dp"
+          className="relative h-96 w-60 animate-pulse rounded-md bg-silver dark:bg-d-bg-03dp"
         />
       ))}
     </>

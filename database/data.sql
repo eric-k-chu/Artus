@@ -1,5 +1,6 @@
 INSERT INTO "users" ("username", "hashedPassword")
-     VALUES ('admin', '$argon2id$v=19$m=4096,t=3,p=1$I1HnApkzTksNXR/xUU/1IA$Fbwk8akxwwF6m8XbxSsihpPT+fK3JbzSL6VXa0BxRoo');
+     VALUES ('admin', '$argon2id$v=19$m=4096,t=3,p=1$I1HnApkzTksNXR/xUU/1IA$Fbwk8akxwwF6m8XbxSsihpPT+fK3JbzSL6VXa0BxRoo'),
+            ('admin2', '$argon2id$v=19$m=4096,t=3,p=1$eODD9WcCYdKfUh5p5V1S2Q$mRDGuGpNbq31zfHX7VkA+MeAKJT6QiJ0FsOjfodH0IY');
 
 
 INSERT INTO "videos" ("userId", "likes", "caption", "videoUrl", "thumbnailUrl", "uploadedAt")
@@ -35,3 +36,6 @@ INSERT INTO "videoTags" ("videoId", "tagId")
             (5, 4), (5, 5),
             (7, 1), (7, 3), (7, 5),
             (9, 8), (9, 11);
+
+INSERT INTO "likedVideos" ("videoId", "userId")
+     VALUES (3, 2);

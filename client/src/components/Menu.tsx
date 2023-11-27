@@ -1,4 +1,4 @@
-import { MenuItem, AppContext } from "./";
+import { MenuItem, AppContext, Logo } from "./";
 import { useNavigate } from "react-router-dom";
 import { GITHUB_LINK, LINKEDIN_LINK } from "../lib";
 import { useState, useContext, KeyboardEvent } from "react";
@@ -57,18 +57,12 @@ export function Menu() {
           }`}
         >
           <div className="min-h-full w-full" onClick={() => setIsOpen(false)} />
-          <menu className="flex min-h-full min-w-[20rem] flex-col bg-light-background-1 shadow-lg dark:bg-dark-background-03dp">
+          <menu className="flex min-h-full min-w-[20rem] flex-col bg-l-bg-1 shadow-lg dark:bg-d-bg-03dp">
             <li
               key={0}
-              className="flex items-center justify-between border-b border-silver p-6 dark:border-dark-background-12dp"
+              className="flex items-center justify-between border-b border-silver p-6 dark:border-d-bg-12dp"
             >
-              <img
-                src={
-                  theme === "light"
-                    ? "/images/logo-d-24.png"
-                    : "/images/logo-l-24.png"
-                }
-              />
+              <Logo />
               <IoClose
                 className="h-7 w-7 hover:cursor-pointer"
                 onClick={() => setIsOpen(false)}
@@ -108,7 +102,7 @@ export function Menu() {
             </MenuItem>
             <li
               key={5}
-              className="mt-auto flex items-center gap-x-8 border-t border-silver p-6 dark:border-dark-background-12dp"
+              className="mt-auto flex items-center gap-x-8 border-t border-silver p-6 dark:border-d-bg-12dp"
             >
               <a href={GITHUB_LINK} target="_blank">
                 <IoLogoGithub size={24} />

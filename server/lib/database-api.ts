@@ -17,7 +17,7 @@ export type Video = {
   videoUrl: string;
   thumbnailUrl: string;
   uploadedAt: number;
-  tags: string[] | null;
+  tags: string[];
 };
 
 export type Tag = {

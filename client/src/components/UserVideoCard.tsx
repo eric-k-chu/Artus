@@ -4,13 +4,14 @@ import { IoChevronForward } from "react-icons/io5";
 
 type Props = {
   video: Video;
+  url: string;
 };
 
-export function UserVideoCard({ video }: Props) {
+export function UserVideoCard({ video, url }: Props) {
   return (
     <Link
-      to={`/dashboard/manage-videos/${video.videoId}`}
-      className="flex h-36 w-full items-center gap-x-2 rounded-md border border-light-border bg-light-background-3 p-4 shadow-sm shadow-light-shadow hover:cursor-pointer dark:border-none dark:bg-dark-background-12dp dark:shadow-none"
+      to={url}
+      className="flex h-36 w-full items-center gap-x-2 rounded-md border border-l-brdr bg-l-bg-3 p-4 shadow-sm shadow-l-shdw hover:cursor-pointer dark:border-none dark:bg-d-bg-12dp dark:shadow-none"
     >
       <img
         src={video.thumbnailUrl}
@@ -25,7 +26,7 @@ export function UserVideoCard({ video }: Props) {
             video.tags.map((n, i) => (
               <div
                 key={i}
-                className="rounded-md bg-light-primary p-1 text-xs font-semibold dark:bg-dark-primary"
+                className="rounded-md bg-l-p p-1 text-xs font-semibold dark:bg-d-p"
               >
                 {n}
               </div>
@@ -36,39 +37,3 @@ export function UserVideoCard({ video }: Props) {
     </Link>
   );
 }
-
-/*
-
-      {isOpen && (
-          <>
-            <div className="flex w-full items-center rounded-md p-1 text-xs ring-1 ring-silver focus-within:ring-2 focus-within:ring-blue-500 dark:border-gray dark:bg-black/30 md:text-sm">
-              <span className="select-none px-2 font-poppins text-slate-500">
-                caption
-              </span>
-              <input
-                value={caption}
-                onChange={(e) => setCaption(e.currentTarget.value)}
-                className="w-full flex-1 bg-transparent font-raleway focus:outline-none"
-              />
-            </div>
-            <div className="flex w-full items-center rounded-md p-1 text-xs ring-1 ring-silver focus-within:ring-2 focus-within:ring-blue-500 dark:border-gray dark:bg-black/30 md:text-sm">
-              <span className="select-none px-2 font-poppins text-slate-500">
-                tags
-              </span>
-              <input
-                value={tags}
-                onChange={(e) => setTags(e.currentTarget.value)}
-                className="w-full flex-1 bg-transparent font-raleway focus:outline-none"
-              />
-            </div>
-            <button
-              className="self-end rounded-md bg-aquamarine p-1 font-poppins text-sm hover:bg-aquamarine/75"
-              type="submit"
-            >
-              Save
-            </button>
-          </>
-        )}
-
-
-*/

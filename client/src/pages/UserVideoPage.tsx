@@ -50,13 +50,13 @@ export function UserVideoPage() {
   return (
     <main className="mt-16 flex w-full max-w-[1080px] gap-x-2 p-4">
       <form
-        className="relative flex w-full flex-col gap-y-4 rounded-md border border-light-border bg-light-background-1 p-4 shadow-sm shadow-light-shadow dark:border-none dark:bg-dark-background-03dp dark:shadow-none"
+        className="relative flex w-full flex-col gap-y-4 rounded-md border border-l-brdr bg-l-bg-1 p-4 shadow-sm shadow-l-shdw dark:border-none dark:bg-d-bg-03dp dark:shadow-none"
         onSubmit={handleUpdate}
       >
         {isPending && (
           <div className="absolute inset-0 flex items-center justify-center rounded-md bg-black/20 backdrop-blur-sm">
             {err instanceof Error ? (
-              <span className="font-poppins font-semibold text-light-error dark:text-dark-error">
+              <span className="font-poppins font-semibold text-l-err dark:text-d-err">
                 {err.message}
               </span>
             ) : (
@@ -78,7 +78,7 @@ export function UserVideoPage() {
             value={video.caption}
             onChange={(e) => video.setCaption(e.currentTarget.value)}
             required
-            className="w-full rounded-sm bg-transparent px-2 font-raleway outline-none ring-1 ring-silver focus:ring-light-secondary dark:ring-gray"
+            className="w-full rounded-sm bg-transparent px-2 font-raleway outline-none ring-1 ring-silver focus:ring-l-s dark:ring-gray"
           />
         </label>
         <label className="space-y-2">
@@ -91,26 +91,26 @@ export function UserVideoPage() {
           <input
             value={video.tags}
             onChange={(e) => video.setTags(e.currentTarget.value)}
-            className="w-full rounded-sm bg-transparent px-2 font-raleway outline-none ring-1 ring-silver focus:ring-light-secondary dark:ring-gray"
+            className="w-full rounded-sm bg-transparent px-2 font-raleway outline-none ring-1 ring-silver focus:ring-l-s dark:ring-gray"
           />
         </label>
         <div className="mt-4 flex items-center justify-between">
           <button
-            className="rounded-md bg-light-error px-2 py-1 font-poppins text-sm text-white/90 shadow-md shadow-md dark:bg-dark-error"
+            className="rounded-md bg-l-err px-2 py-1 font-poppins text-sm text-white/90 shadow-md shadow-md dark:bg-d-err"
             type="button"
             onClick={handleDelete}
           >
             Delete
           </button>
           <button
-            className="rounded-md bg-light-secondary px-2 py-1 font-poppins text-sm text-black shadow-md shadow-md dark:bg-dark-secondary"
+            className="rounded-md bg-l-s px-2 py-1 font-poppins text-sm text-black shadow-md shadow-md dark:bg-d-s"
             type="submit"
           >
             Save
           </button>
         </div>
       </form>
-      <section className="hidden max-h-[12rem] min-h-[12rem] min-w-[12rem] max-w-[12rem] rounded-md border border-light-border bg-light-background-1 p-2 shadow-sm shadow-light-shadow dark:border-none dark:bg-dark-background-03dp dark:shadow-none md:block">
+      <section className="hidden max-h-[12rem] min-h-[12rem] min-w-[12rem] max-w-[12rem] rounded-md border border-l-brdr bg-l-bg-1 p-2 shadow-sm shadow-l-shdw dark:border-none dark:bg-d-bg-03dp dark:shadow-none md:block">
         <img
           src={video.video?.thumbnailUrl}
           className="h-full w-full rounded-md object-cover"

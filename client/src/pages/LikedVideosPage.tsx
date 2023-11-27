@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useUserVideos } from "../lib";
-import { LoadingCircle, PageIndicators, UserVideoCard } from "../components";
 import { Link } from "react-router-dom";
+import { LoadingCircle, PageIndicators, UserVideoCard } from "../components";
+import { useLikedVideos } from "../lib";
 
-export function ManageVideosPage() {
-  const { videos, isLoading, error } = useUserVideos();
+export function LikedVideosPage() {
+  const { videos, isLoading, error } = useLikedVideos();
   const [currentPage, setCurrentPage] = useState(0);
 
   if (isLoading) {
@@ -29,18 +29,17 @@ export function ManageVideosPage() {
     return (
       <main className="flex w-full flex-col items-center gap-y-4 rounded-md border border-l-brdr bg-l-bg-1 p-4 shadow-sm shadow-l-shdw dark:border-none dark:bg-d-bg-03dp dark:shadow-none">
         <h3 className="font-poppins text-gray dark:text-white/90">
-          Upload a video to get started!
+          Your liked videos will be displayed here!
         </h3>
         <Link
-          to="/upload"
+          to="/home"
           className="rounded-md bg-l-p p-2 font-poppins text-white/90 dark:bg-d-p"
         >
-          Upload
+          Browse Videos
         </Link>
       </main>
     );
   }
-
   return (
     <main className="flex w-full flex-col items-center gap-y-4 rounded-md border border-l-brdr bg-l-bg-1 p-4 shadow-sm shadow-l-shdw dark:border-none dark:bg-d-bg-03dp dark:shadow-none">
       {videos[currentPage] &&
@@ -48,7 +47,7 @@ export function ManageVideosPage() {
           <UserVideoCard
             key={n.videoId}
             video={n}
-            url={`/dashboard/manage-videos/${n.videoId}`}
+            url={`/watch/${n.videoId}`}
           />
         ))}
       <PageIndicators

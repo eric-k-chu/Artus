@@ -27,7 +27,7 @@ export function VideoDetails() {
   return (
     <div className="mt-10 flex h-[180px] w-[320px] flex-col items-center sm:h-[270px] sm:w-[480px] md:h-[405px] md:w-[720px] lg:h-[495px] lg:w-[880px]">
       <VideoPlayer videoUrl={video?.videoUrl} />
-      <VideoInfo video={video} />
+      <VideoInfo video={video} videoId={Number(videoId)} />
     </div>
   );
 }

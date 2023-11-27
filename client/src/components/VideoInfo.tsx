@@ -11,30 +11,32 @@ import { AppContext, ErrorNotice, LoadingCircle } from ".";
 
 type Props = {
   video: Video | undefined;
+  videoId: number;
 };
 
-export function VideoInfo({ video }: Props) {
+export function VideoInfo({ video, videoId }: Props) {
   const [likes, setLikes] = useState(video?.likes);
   const [isPending, setIsPending] = useState(false);
-  const [err, setErr] = useState<unknown>();
+  const [likeError, setLikeError] = useState<unknown>();
+  const { hasLiked, isLoading, error, setHasLiked } = useHasLiked(videoId);
   const { user } = useContext(AppContext);
-  const { hasLiked, isLoading, error } = useHasLiked(video?.videoId);
 
   async function handleLike(): Promise<void> {
-    if (!user || likes === undefined) return;
+    if (!user || likes === undefined || isPending) return;
     setIsPending(true);
     try {
       if (!hasLiked) {
-        await incrementLikes(video?.videoId);
+        await incrementLikes(videoId);
         setLikes(likes + 1);
       } else {
-        await decrementLikes(video?.videoId);
+        await decrementLikes(videoId);
         setLikes(likes - 1);
       }
     } catch (err) {
-      setErr(err);
+      setLikeError(err);
     } finally {
       setIsPending(false);
+      setHasLiked(!hasLiked);
     }
   }
 
@@ -46,8 +48,19 @@ export function VideoInfo({ video }: Props) {
     );
   }
 
-  if (err || error) {
-    return <ErrorNotice error={err} />;
+  if (likeError) {
+    return (
+      <div className="-mt-52">
+        <ErrorNotice error={likeError} />
+      </div>
+    );
+  }
+
+  // onMount loading error
+  if (error) {
+    <div className="-mt-52">
+      <ErrorNotice error={error} />
+    </div>;
   }
 
   return (

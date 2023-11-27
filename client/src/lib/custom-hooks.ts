@@ -127,5 +127,18 @@ export function useHasLiked(videoId: number | undefined) {
     }
     if (isLoading === undefined) load();
   });
-  return { hasLiked, isLoading, error };
+  return { hasLiked, isLoading, error, setHasLiked };
+}
+
+export function useDebouncedQuery(query: string, timeout = 300): string {
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, timeout);
+    return () => clearTimeout(timer);
+  }, [query, timeout]);
+
+  return debouncedQuery;
 }

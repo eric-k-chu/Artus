@@ -184,34 +184,36 @@ export async function deleteVideo(videoId: number): Promise<void> {
       Authorization: `Bearer ${getToken()}`,
     },
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(`${res.status}: ${err.error}`);
+  }
 }
 
-export async function incrementLikes(
-  videoId: number | undefined,
-): Promise<void> {
+export async function incrementLikes(videoId: number): Promise<void> {
   const res = await fetch(`/api/videos/${videoId}/inc`, {
     method: "PATCH",
     headers: {
       Authorization: `Bearer ${getToken()}`,
     },
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(`${res.status}: ${err.error}`);
+  }
 }
 
-export async function decrementLikes(
-  videoId: number | undefined,
-): Promise<void> {
+export async function decrementLikes(videoId: number): Promise<void> {
   const res = await fetch(`/api/videos/${videoId}/dec`, {
     method: "PATCH",
     headers: {
       Authorization: `Bearer ${getToken()}`,
     },
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(`${res.status}: ${err.error}`);
+  }
 }
 
 export async function isLiked(videoId: number | undefined): Promise<boolean> {
@@ -224,4 +226,15 @@ export async function isLiked(videoId: number | undefined): Promise<boolean> {
   const data = await res.json();
   if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
   return data;
+}
+
+export async function debounce<T extends (...args: T[]) => void>(
+  cb: T,
+  timeout = 200,
+) {
+  let timer: NodeJS.Timeout;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => cb(...args), timeout);
+  };
 }

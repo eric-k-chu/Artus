@@ -6,7 +6,7 @@ export function Logo() {
   return (
     <section
       className="flex items-center gap-x-2 hover:cursor-pointer"
-      onClick={() => navigate("/home")}
+      onClick={() => navigate("/")}
     >
       <svg
         viewBox="0 0 151 137"

@@ -1,13 +1,16 @@
+import { useParams } from "react-router-dom";
 import {
   Video,
   breakIntoSubArr,
   fetchUserLikedVideos,
+  fetchUserProfile,
   fetchUserVideos,
   fetchVideoById,
   fetchVideos,
   isLiked,
 } from ".";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useContext, useEffect, useLayoutEffect, useState } from "react";
+import { AppContext } from "../components";
 
 export function useTitle(title: string): void {
   useLayoutEffect(() => {
@@ -141,4 +144,34 @@ export function useDebouncedQuery(query: string, timeout = 300): string {
   }, [query, timeout]);
 
   return debouncedQuery;
+}
+
+export function useUserProfile() {
+  const { userId } = useParams();
+  const [username, setUsername] = useState("");
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>();
+  const [error, setError] = useState<unknown>();
+
+  useEffect(() => {
+    async function load() {
+      setIsLoading(true);
+      try {
+        const userProfile = await fetchUserProfile(Number(userId));
+        setUsername(userProfile.username);
+        setVideos(userProfile.videos);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    if (isLoading === undefined) load();
+  }, [isLoading, userId]);
+
+  return { username, videos, isLoading, error };
+}
+
+export function useApp() {
+  return useContext(AppContext);
 }

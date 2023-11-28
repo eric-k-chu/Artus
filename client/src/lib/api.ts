@@ -238,3 +238,15 @@ export async function debounce<T extends (...args: T[]) => void>(
     timer = setTimeout(() => cb(...args), timeout);
   };
 }
+
+interface UserProfile {
+  username: string;
+  videos: Video[];
+}
+
+export async function fetchUserProfile(userId: number): Promise<UserProfile> {
+  const res = await fetch(`/api/users/${userId}`);
+  const data = await res.json();
+  if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
+  return data;
+}

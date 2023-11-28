@@ -1,14 +1,15 @@
-import { AppContext, Logo } from "../components";
+import { Logo } from "../components";
 import { useNavigate } from "react-router-dom";
 import { signIn, signUp, useTitle, type Action } from "../lib";
-import { FormEvent, useContext, useState } from "react";
+import { FormEvent, useState } from "react";
+import { useApp } from "../lib";
 
 type Props = {
   action: Action;
 };
 
 export function AuthPage({ action }: Props) {
-  const { handleSignIn } = useContext(AppContext);
+  const { handleSignIn } = useApp();
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<unknown>();
@@ -22,7 +23,7 @@ export function AuthPage({ action }: Props) {
       if (action === "sign-in") {
         const auth = await signIn(username, password);
         if (auth.user && auth.token) handleSignIn(auth);
-        navigate("/home");
+        navigate("/");
       } else {
         await signUp(username, password);
         navigate("/sign-in");

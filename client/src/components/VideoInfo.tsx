@@ -6,8 +6,9 @@ import {
   useHasLiked,
   decrementLikes,
 } from "../lib";
-import { useContext, useState } from "react";
-import { AppContext, ErrorNotice, LoadingCircle } from ".";
+import { useState } from "react";
+import { ErrorNotice, LoadingCircle } from ".";
+import { useApp } from "../lib";
 
 type Props = {
   video: Video | undefined;
@@ -19,7 +20,7 @@ export function VideoInfo({ video, videoId }: Props) {
   const [isPending, setIsPending] = useState(false);
   const [likeError, setLikeError] = useState<unknown>();
   const { hasLiked, isLoading, error, setHasLiked } = useHasLiked(videoId);
-  const { user } = useContext(AppContext);
+  const { user } = useApp();
 
   async function handleLike(): Promise<void> {
     if (!user || likes === undefined || isPending) return;

@@ -24,7 +24,7 @@ export function UploadPage() {
 
   return (
     <form
-      className="container mt-8 flex h-[192px] w-[320px] items-center justify-center font-poppins md:h-[288px] md:w-[480px] lg:h-[576px] lg:w-[960px]"
+      className="container mt-16 flex h-[192px] w-[320px] items-center justify-center font-poppins md:h-[288px] md:w-[480px] lg:h-[576px] lg:w-[960px]"
       encType="multipart/form-data"
       onSubmit={handleSubmit}
     >

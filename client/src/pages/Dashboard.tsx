@@ -1,11 +1,10 @@
-import { useContext } from "react";
-import { AppContext } from "../components";
 import { getDate, useTitle } from "../lib";
 import { IoPerson } from "react-icons/io5";
 import { Link, Outlet, useLocation } from "react-router-dom";
+import { useApp } from "../lib";
 
 export function Dashboard() {
-  const { user } = useContext(AppContext);
+  const { user } = useApp();
   const loc = useLocation().pathname;
   useTitle("Dashboard");
 

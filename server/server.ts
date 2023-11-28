@@ -410,6 +410,36 @@ app.delete(
   },
 );
 
+// SELECT User videos no auth
+app.get('/api/users/:userId', async (req, res, next) => {
+  try {
+    const userId = Number(req.params.userId);
+    if (!Number.isInteger(userId)) {
+      throw new ClientError(401, 'userId must be a positive integer.');
+    }
+
+    const sql1 = `SELECT "username" FROM "users" WHERE "userId" = $1`;
+    const userResult = await db.query(sql1, [userId]);
+    if (!userResult.rows[0])
+      throw new ClientError(401, 'Specified userId does not exist.');
+
+    const sql2 = `SELECT *
+                  FROM "videos"
+                 WHERE "userId" = $1`;
+    const videosResult = await db.query(sql2, [userId]);
+    if (!videosResult.rows) {
+      throw new ClientError(401, 'specified userId does not exist.');
+    }
+    await db.query('COMMIT');
+    res.json({
+      username: userResult.rows[0].username,
+      videos: videosResult.rows,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 /**
  * Serves React's index.html if no api route matches.
  *

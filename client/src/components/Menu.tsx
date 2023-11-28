@@ -1,10 +1,9 @@
-import { MenuItem, AppContext, Logo } from "./";
+import { MenuItem, Logo, NavIcon } from "./";
 import { useNavigate } from "react-router-dom";
 import { GITHUB_LINK, LINKEDIN_LINK } from "../lib";
-import { useState, useContext, KeyboardEvent } from "react";
+import { useState, KeyboardEvent } from "react";
+import { useApp } from "../lib";
 import {
-  IoMoon,
-  IoSunny,
   IoPersonAdd,
   IoMenu,
   IoClose,
@@ -21,15 +20,13 @@ import {
 export function Menu() {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-  const { user, theme, handleSetTheme, handleSignOut } = useContext(AppContext);
+  const { user, handleSignOut } = useApp();
 
   function handleKeyDown(e: KeyboardEvent<HTMLDivElement>): void {
     if (e.key === "Escape") setIsOpen(false);
   }
 
-  function handleNavigate(
-    page: "/dashboard" | "/register" | "/sign-in" | "/",
-  ): void {
+  function handleNavigate(page: string): void {
     if (page === "/") {
       handleSignOut();
     }
@@ -39,11 +36,12 @@ export function Menu() {
 
   return (
     <section onKeyDown={handleKeyDown} tabIndex={0}>
-      <IoMenu
-        className="h-8 w-8 hover:cursor-pointer"
-        size={24}
-        onClick={() => setIsOpen(!isOpen)}
-      />
+      <NavIcon>
+        <IoMenu
+          className="h-6 w-6 lg:h-8 lg:w-8"
+          onClick={() => setIsOpen(!isOpen)}
+        />
+      </NavIcon>
       <div
         className={`fixed inset-0 z-50 ${
           isOpen
@@ -62,13 +60,25 @@ export function Menu() {
               key={0}
               className="flex items-center justify-between border-b border-silver p-6 dark:border-d-bg-12dp"
             >
-              <Logo />
-              <IoClose
-                className="h-7 w-7 hover:cursor-pointer"
-                onClick={() => setIsOpen(false)}
-              />
+              {user ? (
+                <section className="flex flex-col">
+                  <span className="font-poppins text-xs text-gray dark:text-white/60">
+                    Signed in as
+                  </span>
+                  <h2 className="font-poppins">{user.username}</h2>
+                </section>
+              ) : (
+                <Logo />
+              )}
+              <NavIcon>
+                <IoClose size={24} onClick={() => setIsOpen(false)} />
+              </NavIcon>
             </li>
-            <MenuItem key={1} show={user !== undefined}>
+            <MenuItem
+              key={1}
+              show={user !== undefined}
+              onClick={() => handleNavigate(`/users/${user?.userId}`)}
+            >
               <RiAccountBoxFill size={24} />
               <span>Profile</span>
             </MenuItem>
@@ -110,19 +120,6 @@ export function Menu() {
               <a href={LINKEDIN_LINK} target="_blank">
                 <IoLogoLinkedin size={24} />
               </a>
-              <button
-                type="button"
-                className="ml-auto"
-                onClick={() =>
-                  handleSetTheme(theme === "light" ? "dark" : "light")
-                }
-              >
-                {theme === "light" ? (
-                  <IoMoon size={24} />
-                ) : (
-                  <IoSunny size={24} />
-                )}
-              </button>
             </li>
           </menu>
         </div>

@@ -11,6 +11,7 @@ import {
   UserVideoPage,
   NotFound,
   LikedVideosPage,
+  UserProfilePage,
 } from "./pages";
 import {
   type Auth,
@@ -75,7 +76,6 @@ export default function App() {
         <Routes>
           <Route path="/" element={<NavBar />}>
             <Route index element={<HomePage />} />
-            <Route path="home" element={<HomePage />} />
             <Route path="watch/:videoId" element={<VideoDetails />} />
             <Route path="upload" element={<UploadPage />} />
             <Route path="dashboard/" element={<Dashboard />}>
@@ -84,9 +84,10 @@ export default function App() {
               <Route path="liked-videos" element={<LikedVideosPage />} />
             </Route>
             <Route
-              path="/dashboard/manage-videos/:videoId"
+              path="dashboard/manage-videos/:videoId"
               element={<UserVideoPage />}
             />
+            <Route path="users/:userId" element={<UserProfilePage />} />
           </Route>
           <Route path="/sign-in" element={<AuthPage action="sign-in" />} />
           <Route path="/register" element={<AuthPage action="register" />} />

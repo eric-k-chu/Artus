@@ -1,17 +1,12 @@
 import { useTitle, useVideos } from "../lib";
-import {
-  VideoCard,
-  ErrorNotice,
-  AppContext,
-  VideoCardLoading,
-} from "../components";
+import { VideoCard, ErrorNotice, VideoCardLoading } from "../components";
 import { TbFolderQuestion } from "react-icons/tb";
 import { Link } from "react-router-dom";
-import { useContext } from "react";
+import { useApp } from "../lib";
 
 export function HomePage() {
   const { videos, isLoading, error } = useVideos();
-  const { user } = useContext(AppContext);
+  const { user } = useApp();
   useTitle("Home");
 
   if (isLoading) {

@@ -12,3 +12,5 @@ export * from "./VideosContext";
 export * from "./ErrorNotice";
 export * from "./LoadingCircle";
 export * from "./SearchBar";
+export * from "./ThemeToggler";
+export * from "./NavIcon";

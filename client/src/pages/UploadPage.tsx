@@ -1,49 +1,64 @@
-import { FormEvent, useContext } from "react";
-import { AppContext } from "../components/AppContext";
-import { uploadVideos } from "../lib/api";
+import { FormEvent, useState } from "react";
+import { IoImage } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import { uploadVideos, useTitle } from "../lib";
 
 export function UploadPage() {
+  const [hasChanged, setHasChanged] = useState(false);
   const navigate = useNavigate();
-  const { user, token } = useContext(AppContext);
+  useTitle("Upload");
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
     try {
       console.log("Uploading now...");
-      const videos = await uploadVideos(form, user?.userId, token);
-      console.log(videos);
+      navigate("/dashboard");
+      await uploadVideos(form);
     } catch (err) {
       console.error(Error);
     } finally {
-      navigate("/dashboard");
+      setHasChanged(false);
     }
   }
 
   return (
     <form
-      className="container flex h-full w-full flex-col items-center justify-center"
+      className="container mt-8 flex h-[192px] w-[320px] items-center justify-center font-poppins md:h-[288px] md:w-[480px] lg:h-[576px] lg:w-[960px]"
+      encType="multipart/form-data"
       onSubmit={handleSubmit}
     >
-      <div className="flex h-4/5 w-4/5 flex-col items-center justify-center gap-y-8 rounded-md border-2 border-dotted border-silver dark:border-gray">
-        <label htmlFor="file-input" className="font-poppins">
-          Choose files to upload.
-        </label>
-        <input
-          className="rounded-md border-2 border-silver font-raleway dark:border-gray"
-          required
-          id="file-input"
-          type="file"
-          name="videos"
-          accept=".webm, .mp4, .mov, .avi, .gif"
-          multiple={true}
-        />
+      <div className="flex h-full w-full flex-col items-center justify-center rounded-md border-2 border-dashed border-silver dark:border-gray">
+        <IoImage className="text-gray/50" size={48} />
+        <div className="mb-2 mt-4 flex">
+          <label
+            htmlFor="file-input"
+            className="cursor-pointer rounded-md text-l-s focus-within:ring-offset-2 dark:text-d-s"
+          >
+            <span>Upload a file</span>
+            <input
+              className="sr-only"
+              required
+              id="file-input"
+              type="file"
+              name="videos"
+              accept=".webm, .mp4, .mov"
+              multiple={true}
+              onChange={() => setHasChanged(true)}
+            />
+          </label>
+          <p className="pl-1 text-gray">or drag and drop</p>
+        </div>
+        <p className="text-xs leading-5 text-gray">
+          WEBM, MP4, MOV up to 100MB
+        </p>
+
         <button
-          className="rounded-md bg-aquamarine p-2 text-black hover:cursor-pointer hover:bg-aquamarine/75"
-          type="submit"
+          className={`mt-4 rounded-md bg-l-p p-2 font-poppins text-white shadow-md dark:bg-d-p ${
+            hasChanged ? "visible" : "invisible"
+          }`}
         >
-          Upload
+          Submit
         </button>
       </div>
     </form>

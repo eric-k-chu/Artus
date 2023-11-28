@@ -14,7 +14,7 @@ title: 'Polish'
   - [ ] The site's brand (logo and/or text) should be visible and consistently placed on every page. Clicking the site's brand should navigate the user back to the home page.
   - [ ] A main heading (`<h1>`) should be visible near the top of every page. It should indicate which page the user is currently on. It should be consistently placed on every page (excluding the landing page, which may have it somewhere more prominent).
   - [ ] Site navigation links should be visible and consistently placed on every page of the site.
-  - [ ] Every page of the site should use a consistent color pallette consisting of 2-5 colors (excluding images and videos). All text should either be light-text-on-dark-background or dark-text-on-light-background to keep text readable.
+  - [ ] Every page of the site should use a consistent color pallette consisting of 2-5 colors (excluding images and videos). All text should either be light-text-on-d-bg or dark-text-on-light-background to keep text readable.
   - [ ] Check that every piece of the site is described obviously and accurately enough so a new user can figure out what it's for.
 - [ ] Verify the site's HTML has good semantics. For any changes to the HTML structure, update the CSS as-needed to prevent the UI from breaking.
   - Each tabular list of things should be in a well-structured table (`<table>`).

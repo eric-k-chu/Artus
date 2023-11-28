@@ -1,20 +1,26 @@
-import { NavBar } from "./components/NavBar";
-import { HomePage } from "./pages/HomePage";
-import { AuthPage } from "./pages/AuthPage";
-import { UploadPage } from "./pages/UploadPage";
-import { AppContext } from "./components/AppContext";
 import { Route, Routes } from "react-router-dom";
+import { NavBar, AppContext } from "./components";
 import { useEffect, useLayoutEffect, useState } from "react";
 import {
-  Auth,
-  Theme,
-  User,
+  HomePage,
+  AuthPage,
+  UploadPage,
+  Dashboard,
+  VideoDetails,
+  ManageVideosPage,
+  UserVideoPage,
+  NotFound,
+  LikedVideosPage,
+} from "./pages";
+import {
+  type Auth,
+  type Theme,
+  type User,
   readTheme,
   writeTheme,
   themeKey,
   tokenKey,
-} from "./lib/api";
-import { Dashboard } from "./pages/Dashboard";
+} from "./lib";
 
 export default function App() {
   const [user, setUser] = useState<User>();
@@ -65,17 +71,28 @@ export default function App() {
 
   return (
     <AppContext.Provider value={contextValue}>
-      <main className="flex h-screen w-screen flex-col items-center bg-cream text-black dark:bg-outer-space dark:text-white">
+      <div className="min-w-screen flex min-w-[330px] flex-col items-center">
         <Routes>
           <Route path="/" element={<NavBar />}>
             <Route index element={<HomePage />} />
+            <Route path="home" element={<HomePage />} />
+            <Route path="watch/:videoId" element={<VideoDetails />} />
             <Route path="upload" element={<UploadPage />} />
-            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="dashboard/" element={<Dashboard />}>
+              <Route index element={<ManageVideosPage />} />
+              <Route path="manage-videos" element={<ManageVideosPage />} />
+              <Route path="liked-videos" element={<LikedVideosPage />} />
+            </Route>
+            <Route
+              path="/dashboard/manage-videos/:videoId"
+              element={<UserVideoPage />}
+            />
           </Route>
           <Route path="/sign-in" element={<AuthPage action="sign-in" />} />
           <Route path="/register" element={<AuthPage action="register" />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
-      </main>
+      </div>
     </AppContext.Provider>
   );
 }

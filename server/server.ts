@@ -1,24 +1,22 @@
-/* eslint-disable @typescript-eslint/no-unused-vars -- Remove when used */
 import 'dotenv/config';
 import express from 'express';
 import pg from 'pg';
 import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
+import format from 'pg-format';
 import {
   ClientError,
   authMiddleware,
   errorMiddleware,
   uploadsMiddleware,
   convertVideos,
-  generateInsertUserVideosSql,
-  checkUserId,
-  validateUpdatedVideo,
-  validateTags,
-  removeExistingTags,
-  generateInsertTagsSql,
+  removeDuplicates,
+  validateVideoId,
   type Auth,
   type User,
-  type UpdatedVideo,
+  type VideoForm,
+  type ConvertedVideos,
+  type Tag,
   type Video,
 } from './lib/index.js';
 
@@ -37,49 +35,44 @@ const db = new pg.Pool({
 
 const app = express();
 
-// Create paths for static directories
 const reactStaticDir = new URL('../client/dist', import.meta.url).pathname;
 const uploadsStaticDir = new URL('public', import.meta.url).pathname;
 
 app.use(express.static(reactStaticDir));
-// Static directory for file uploads server/public/
 app.use(express.static(uploadsStaticDir));
 app.use(express.json());
 
+// INSERT User
 app.post('/api/auth/register', async (req, res, next) => {
   try {
     const { username, password } = req.body as Partial<Auth>;
     if (!username || !password) {
-      throw new ClientError(400, 'username and password are required fields.');
-    }
-
-    const checkSql = `SELECT *
-                        FROM "users"
-                       WHERE "username" = $1`;
-    const checkUser = await db.query<User>(checkSql, [username]);
-    if (checkUser.rows[0]) {
-      throw new ClientError(409, 'username already exists.');
+      throw new ClientError(400, 'Username and password are required fields.');
     }
 
     const hashedPassword = await argon2.hash(password);
     const sql = `
       INSERT INTO "users" ("username", "hashedPassword")
            VALUES ($1, $2)
+          ON CONFLICT ("username") DO NOTHING
            RETURNING "userId", "username"`;
     const result = await db.query<User>(sql, [username, hashedPassword]);
     const user = result.rows[0];
+    if (!user) throw new ClientError(409, 'This username already exists.');
     res.status(201).json(user);
   } catch (err) {
     next(err);
   }
 });
 
+// SELECT User
 app.post('/api/auth/sign-in', async (req, res, next) => {
   try {
     const { username, password } = req.body as Partial<Auth>;
     if (!username || !password) {
-      throw new ClientError(401, 'invalid login');
+      throw new ClientError(401, 'Invalid login.');
     }
+
     const sql = `
       SELECT "userId",
              "hashedPassword"
@@ -87,13 +80,14 @@ app.post('/api/auth/sign-in', async (req, res, next) => {
        WHERE "username" = $1
     `;
     const result = await db.query<User>(sql, [username]);
-    const user = result.rows[0];
 
-    if (!user) throw new ClientError(404, 'User does not exist.');
+    if (!result.rows[0]) {
+      throw new ClientError(404, 'These credentials do not match our records.');
+    }
 
-    const { userId, hashedPassword } = user;
+    const { userId, hashedPassword } = result.rows[0];
     if (!(await argon2.verify(hashedPassword, password))) {
-      throw new ClientError(401, 'invalid login');
+      throw new ClientError(401, 'Invalid login.');
     }
     const payload = { userId, username };
     const token = jwt.sign(payload, hashKey);
@@ -103,18 +97,140 @@ app.post('/api/auth/sign-in', async (req, res, next) => {
   }
 });
 
-app.get('/api/videos', async (req, res, next) => {
+// SELECT Videos
+app.get('/api/videos/all', async (req, res, next) => {
   try {
     const sql = 'SELECT * FROM "videos"';
-    const result = await db.query(sql);
-    res.status(201).json(result.rows);
+    const result = await db.query<Video>(sql);
+    res.json(result.rows);
   } catch (err) {
     next(err);
   }
 });
 
+// SELECT Video by ID
+app.get('/api/videos/:videoId', async (req, res, next) => {
+  try {
+    const videoId = Number(req.params.videoId);
+    if (validateVideoId(videoId)) {
+      throw new ClientError(400, 'videoId must be a positive integer.');
+    }
+    const sql = `SELECT
+                    "videoId",
+                    "likes",
+                    "caption",
+                    "uploadedAt",
+                    "videoUrl",
+                    "thumbnailUrl",
+                    "userId",
+                    "username",
+                    "name" as "tags"
+                   FROM "videos"
+              LEFT JOIN "videoTags" USING ("videoId")
+              LEFT JOIN "tags" USING ("tagId")
+                   JOIN "users" USING ("userId")
+                  WHERE "videoId" = $1`;
+    const result = await db.query(sql, [videoId]);
+    const video = result.rows[0];
+    if (!video) {
+      throw new ClientError(404, `Cannot find video with id: ${videoId}`);
+    }
+    video.tags = video.tags ? result.rows.map((n) => n.tags) : [];
+    res.json(video);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// SELECT User Videos
+app.get('/api/videos', authMiddleware, async (req, res, next) => {
+  try {
+    const sql = `SELECT
+                  "videoId",
+                  "likes",
+                  "caption",
+                  "uploadedAt",
+                  "videoUrl",
+                  "thumbnailUrl",
+                  "userId",
+                  "username",
+                  "name" as "tags"
+                   FROM "videos"
+              LEFT JOIN "videoTags" USING ("videoId")
+              LEFT JOIN "tags" USING ("tagId")
+                   JOIN "users" USING ("userId")
+                  WHERE "videos"."userId" = $1
+               ORDER BY "uploadedAt"`;
+    const result = await db.query(sql, [req.user?.userId]);
+    const videos = result.rows;
+
+    if (videos.length < 1) {
+      res.json(videos);
+    } else {
+      const formattedVideos = removeDuplicates(videos);
+      res.json(formattedVideos);
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
+// SELECT User Liked Videos
+app.get(
+  '/api/dashboard/liked-videos',
+  authMiddleware,
+  async (req, res, next) => {
+    try {
+      const sql = `SELECT
+                    "videos".*,
+                    "name" as "tags"
+                     FROM "videos"
+                LEFT JOIN "likedVideos" USING ("videoId")
+                LEFT JOIN "videoTags" USING ("videoId")
+                LEFT JOIN "tags" USING ("tagId")
+                    WHERE "likedVideos"."userId" = $1
+                ORDER BY "uploadedAt"`;
+      const result = await db.query(sql, [req.user?.userId]);
+      const videos = result.rows;
+
+      if (videos.length < 1) {
+        res.json(videos);
+      } else {
+        const formattedVideos = removeDuplicates(videos);
+        res.json(formattedVideos);
+      }
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+// SELECT video from likedVideos
+app.get(
+  '/api/videos/likes/:videoId',
+  authMiddleware,
+  async (req, res, next) => {
+    try {
+      const videoId = Number(req.params.videoId);
+      if (validateVideoId(videoId)) {
+        throw new ClientError(400, 'videoId must be a positive integer.');
+      }
+      const sql = `SELECT * FROM "likedVideos" WHERE "videoId" = $1 AND "userId" = $2`;
+      const result = await db.query(sql, [videoId, req.user?.userId]);
+      if (!result.rows[0]) {
+        res.json(false);
+      } else {
+        res.send(true);
+      }
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+// INSERT User Video
 app.post(
-  '/api/:userId/videos',
+  '/api/videos',
   authMiddleware,
   uploadsMiddleware.array('videos'),
   async (req, res, next) => {
@@ -122,69 +238,177 @@ app.post(
       if (!req.files) throw new ClientError(400, 'no file field in request');
 
       const files = req.files as Express.Multer.File[];
-      const userId = Number(req.params.userId);
-      const jwtUserId = req.user?.userId;
-      checkUserId(userId, jwtUserId);
+      const convertedVideos: ConvertedVideos[] = await convertVideos(files);
 
-      const convertedVideos = await convertVideos(files);
-
-      const videoQueries = [];
-      for (let i = 0; i < convertVideos.length; i++) {
-        const { videoUrl, thumbnailUrl, originalname } = convertedVideos[i];
-        const sql = `INSERT INTO
-                     "videos" ("userId", "likes", "caption", "videoUrl", "thumbnailUrl")
-                      VALUES ($1, $2, $3, $4, $5) RETURNING *;`;
-        const result = db.query<Video>(sql, [
-          userId,
+      console.log('Inserting into database...');
+      const values: (number | string | undefined)[][] = [];
+      for (const vids of convertedVideos) {
+        const { videoUrl, thumbnailUrl, originalname } = vids;
+        values.push([
+          req.user?.userId,
           0,
           originalname,
           videoUrl,
           thumbnailUrl,
         ]);
-
-        videoQueries.push(result);
       }
-      const result = await Promise.all(videoQueries);
-      const videos = result.forEach((n) => n.rows[0]);
-      res.status(201).json(videos);
+
+      const sql = format(
+        `INSERT INTO "videos" ("userId", "likes", "caption", "videoUrl", "thumbnailUrl")
+                               VALUES %L RETURNING *`,
+        values,
+      );
+      const result = await db.query<Video>(sql);
+      console.log('Sending to client...');
+      res.status(201).json(result.rows);
     } catch (err) {
       next(err);
     }
   },
 );
 
-app.put('/api/:userId/videos/:videoId', async (req, res, next) => {
-  try {
-    const { caption, tags } = req.body as UpdatedVideo;
-    const { userId, videoId } = req.params;
-    const jwtUserId = req.user?.userId;
-    checkUserId(Number(userId), jwtUserId);
+// UPDATE User video
+app.put(
+  '/api/dashboard/manage-videos/:videoId',
+  authMiddleware,
+  async (req, res, next) => {
+    console.log('Received PUT request');
+    try {
+      const videoId = Number(req.params.videoId);
+      const { caption, tags } = req.body as VideoForm;
+      if (validateVideoId(videoId)) {
+        throw new ClientError(400, 'videoId must be a positive integer.');
+      }
+      if (!caption) throw new ClientError(400, 'Caption cannot be empty.');
 
-    validateUpdatedVideo(Number(videoId), caption, tags);
+      await db.query('BEGIN');
 
-    const videoSql = `UPDATE "videos"
-                         SET "caption" = $1,
-                       WHERE "videoId" = $2
-                       RETURNING "videoId", "caption"`;
-    const result = await db.query(videoSql, [caption, videoId]);
-    const videoInfo = result.rows[0];
-    if (!videoInfo)
-      throw new ClientError(404, `video with ${videoId} not found`);
+      const sql = `UPDATE "videos"
+                    SET "caption" = $1
+                  WHERE "videoId" = $2
+                  RETURNING *`;
+      const result = await db.query<Video>(sql, [caption, videoId]);
+      const video = result.rows[0];
 
-    validateTags(tags);
+      if (!video) {
+        throw new ClientError(404, `Video with id ${videoId} does not exist.`);
+      }
 
-    let tagInfo;
-    if (tags) {
-      const tagsArr = await removeExistingTags(tags, db);
-      const tagsSql = generateInsertTagsSql(tagsArr);
-      const tagResult = await db.query(tagsSql);
-      tagInfo = tagResult.rows;
+      if (!tags) {
+        video.tags = [];
+        res.status(201).json(video);
+      } else {
+        const deleteSQL = `DELETE FROM "videoTags" WHERE "videoId" = $1`;
+        await db.query(deleteSQL, [videoId]);
+
+        const tagValues = tags.map((n) => [n]);
+        const insertSQL = format(
+          `INSERT INTO "tags" ("name") VALUES %L RETURNING *`,
+          tagValues,
+        );
+
+        const tagResult = await db.query(insertSQL);
+        const videoTags: Tag[] = tagResult.rows;
+
+        const vidTagValues = videoTags.map((n) => [videoId, n.tagId]);
+        const vidTagSql = format(
+          `INSERT INTO "videoTags" ("videoId", "tagId")
+          VALUES %L RETURNING *`,
+          vidTagValues,
+        );
+        await db.query(vidTagSql);
+        await db.query('COMMIT');
+        video.tags = videoTags.map((n) => n.name);
+        res.status(201).json(video);
+      }
+    } catch (err) {
+      await db.query('ROLLBACK');
+      next(err);
     }
-    res.status(201).json({ videoInfo, tagInfo });
-  } catch (err) {
-    next(err);
-  }
-});
+  },
+);
+
+// Increase likes
+app.patch(
+  '/api/videos/:videoId/inc',
+  authMiddleware,
+  async (req, res, next) => {
+    try {
+      const videoId = Number(req.params.videoId);
+      if (!Number.isInteger(videoId)) {
+        throw new ClientError(400, 'videoId must be a positive integer.');
+      }
+
+      await db.query('BEGIN');
+
+      const sql1 = `UPDATE "videos"
+                    SET "likes" = "likes" + 1
+                  WHERE "videoId" = $1`;
+      await db.query(sql1, [videoId]);
+
+      const sql2 = `INSERT INTO "likedVideos" ("userId", "videoId")
+                       VALUES ($1, $2)`;
+      await db.query(sql2, [req.user?.userId, videoId]);
+      await db.query('COMMIT');
+      res.sendStatus(204);
+    } catch (err) {
+      await db.query('ROLLBACK');
+      next(err);
+    }
+  },
+);
+
+// Decrease likes
+app.patch(
+  '/api/videos/:videoId/dec',
+  authMiddleware,
+  async (req, res, next) => {
+    try {
+      const videoId = Number(req.params.videoId);
+      if (!Number.isInteger(videoId)) {
+        throw new ClientError(400, 'videoId must be a positive integer.');
+      }
+
+      await db.query('BEGIN');
+
+      const sql1 = `UPDATE "videos"
+                    SET "likes" = "likes" - 1
+                  WHERE "videoId" = $1`;
+      await db.query(sql1, [videoId]);
+
+      const sql2 = `DELETE FROM "likedVideos" WHERE "videoId" = $1 AND "userId" = $2`;
+      await db.query(sql2, [videoId, req.user?.userId]);
+      await db.query('COMMIT');
+      res.sendStatus(204);
+    } catch (err) {
+      await db.query('ROLLBACK');
+      next(err);
+    }
+  },
+);
+
+// DELETE User video
+app.delete(
+  '/api/dashboard/manage-videos/:videoId',
+  authMiddleware,
+  async (req, res, next) => {
+    try {
+      const videoId = Number(req.params.videoId);
+      if (!Number.isInteger(videoId)) {
+        throw new ClientError(400, 'videoId must be a positive integer.');
+      }
+      const result = await db.query(
+        'DELETE FROM "videos" WHERE "videoId" = $1 RETURNING "videoUrl"',
+        [videoId],
+      );
+      const videoUrl = result.rows[0].videoUrl;
+      console.log('Delete video file once depoloyed', videoUrl);
+      res.sendStatus(204);
+    } catch (err) {
+      next(err);
+    }
+  },
+);
 
 /**
  * Serves React's index.html if no api route matches.

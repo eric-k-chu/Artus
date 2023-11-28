@@ -1,85 +1,132 @@
-import { IoPerson, IoMoon, IoSunny, IoPersonAdd } from "react-icons/io5";
-import { AppContext } from "./AppContext";
-import { useState, useContext } from "react";
+import { MenuItem, AppContext, Logo } from "./";
+import { useNavigate } from "react-router-dom";
+import { GITHUB_LINK, LINKEDIN_LINK } from "../lib";
+import { useState, useContext, KeyboardEvent } from "react";
+import {
+  IoMoon,
+  IoSunny,
+  IoPersonAdd,
+  IoMenu,
+  IoClose,
+  IoLogoGithub,
+  IoLogoLinkedin,
+} from "react-icons/io5";
 import {
   RiFolderVideoFill,
   RiAccountBoxFill,
   RiLogoutBoxFill,
   RiLoginBoxFill,
 } from "react-icons/ri";
-import { Link, useNavigate } from "react-router-dom";
 
 export function Menu() {
   const navigate = useNavigate();
-  const [showSideBar, setShowSideBar] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const { user, theme, handleSetTheme, handleSignOut } = useContext(AppContext);
 
-  function handleSignInOrOut(): void {
-    if (!user) navigate("/sign-in");
-    handleSignOut();
+  function handleKeyDown(e: KeyboardEvent<HTMLDivElement>): void {
+    if (e.key === "Escape") setIsOpen(false);
+  }
+
+  function handleNavigate(
+    page: "/dashboard" | "/register" | "/sign-in" | "/",
+  ): void {
+    if (page === "/") {
+      handleSignOut();
+    }
+    navigate(page);
+    setIsOpen(false);
   }
 
   return (
-    <div className="relative">
-      {!user ? (
-        <IoPersonAdd
-          className="animate-pulse hover:cursor-pointer"
-          size={24}
-          onClick={() => setShowSideBar(!showSideBar)}
-        />
-      ) : (
-        <IoPerson
-          className="text-green-400 hover:cursor-pointer"
-          size={24}
-          onClick={() => setShowSideBar(!showSideBar)}
-        />
-      )}
-      {showSideBar && (
-        <div className="absolute right-8 top-0 flex h-96 w-48 flex-col items-center rounded-xl bg-white py-3 shadow-2xl dark:bg-void">
-          {user && (
-            <div className="flex w-full basis-1/12 items-center gap-x-4 px-6 py-2 transition-none hover:cursor-pointer hover:bg-black/10">
+    <section onKeyDown={handleKeyDown} tabIndex={0}>
+      <IoMenu
+        className="h-8 w-8 hover:cursor-pointer"
+        size={24}
+        onClick={() => setIsOpen(!isOpen)}
+      />
+      <div
+        className={`fixed inset-0 z-50 ${
+          isOpen
+            ? "bg-slate-900/25 backdrop-blur-sm dark:bg-black/25"
+            : "pointer-events-none bg-transparent backdrop-blur-none"
+        } transition duration-[300ms] ease-in-out`}
+      >
+        <div
+          className={`flex h-full items-start justify-end transition-transform duration-[300ms] ease-in-out ${
+            isOpen ? "translate-x-0" : "translate-x-full"
+          }`}
+        >
+          <div className="min-h-full w-full" onClick={() => setIsOpen(false)} />
+          <menu className="flex min-h-full min-w-[20rem] flex-col bg-l-bg-1 shadow-lg dark:bg-d-bg-03dp">
+            <li
+              key={0}
+              className="flex items-center justify-between border-b border-silver p-6 dark:border-d-bg-12dp"
+            >
+              <Logo />
+              <IoClose
+                className="h-7 w-7 hover:cursor-pointer"
+                onClick={() => setIsOpen(false)}
+              />
+            </li>
+            <MenuItem key={1} show={user !== undefined}>
               <RiAccountBoxFill size={24} />
               <span>Profile</span>
-            </div>
-          )}
-          {user && (
-            <Link
-              to="/dashboard"
-              className="flex w-full basis-1/12 items-center gap-x-4 px-6 py-2 transition-none hover:cursor-pointer hover:bg-black/10"
+            </MenuItem>
+            <MenuItem
+              key={2}
+              show={user !== undefined}
+              onClick={() => handleNavigate("/dashboard")}
             >
               <RiFolderVideoFill size={24} />
               <span>Dashboard</span>
-            </Link>
-          )}
-          <div
-            className="flex w-full basis-1/12 items-center gap-x-4 px-6 py-2 transition-none hover:cursor-pointer hover:bg-black/10"
-            onClick={handleSignInOrOut}
-          >
-            {user ? (
-              <RiLogoutBoxFill size={24} />
-            ) : (
-              <RiLoginBoxFill size={24} />
-            )}
-            <span>{user ? "Sign Out" : "Sign In"}</span>
-          </div>
-          {!user && (
-            <div
-              className="flex w-full basis-1/12 items-center gap-x-4 px-6 py-2 transition-none hover:cursor-pointer hover:bg-black/10"
-              onClick={() => navigate("/register")}
+            </MenuItem>
+            <MenuItem
+              key={3}
+              show={true}
+              onClick={() => handleNavigate(user ? "/" : "/sign-in")}
+            >
+              {user ? (
+                <RiLogoutBoxFill size={24} />
+              ) : (
+                <RiLoginBoxFill size={24} />
+              )}
+              <span>{user ? "Sign Out" : "Sign In"}</span>
+            </MenuItem>
+            <MenuItem
+              key={4}
+              show={user === undefined}
+              onClick={() => handleNavigate("/register")}
             >
               <IoPersonAdd size={24} />
               <span>Register</span>
-            </div>
-          )}
-          <div
-            className="flex w-full basis-1/12 items-center gap-x-4 px-6 py-2 transition-none hover:cursor-pointer hover:bg-black/10"
-            onClick={() => handleSetTheme(theme === "light" ? "dark" : "light")}
-          >
-            {theme === "light" ? <IoMoon size={24} /> : <IoSunny size={24} />}
-            <span>{theme === "light" ? "Light" : "Dark"}</span>
-          </div>
+            </MenuItem>
+            <li
+              key={5}
+              className="mt-auto flex items-center gap-x-8 border-t border-silver p-6 dark:border-d-bg-12dp"
+            >
+              <a href={GITHUB_LINK} target="_blank">
+                <IoLogoGithub size={24} />
+              </a>
+              <a href={LINKEDIN_LINK} target="_blank">
+                <IoLogoLinkedin size={24} />
+              </a>
+              <button
+                type="button"
+                className="ml-auto"
+                onClick={() =>
+                  handleSetTheme(theme === "light" ? "dark" : "light")
+                }
+              >
+                {theme === "light" ? (
+                  <IoMoon size={24} />
+                ) : (
+                  <IoSunny size={24} />
+                )}
+              </button>
+            </li>
+          </menu>
         </div>
-      )}
-    </div>
+      </div>
+    </section>
   );
 }

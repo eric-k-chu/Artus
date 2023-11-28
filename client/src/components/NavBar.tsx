@@ -1,42 +1,33 @@
-import { Logo } from "./Logo";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Menu } from "./Menu";
+import { useContext } from "react";
+import { Logo, AppContext, Menu, SearchBar } from "./";
 import { RiVideoUploadFill } from "react-icons/ri";
-import { useContext, useEffect } from "react";
-import { AppContext } from "./AppContext";
+import { Outlet, useNavigate } from "react-router-dom";
 
 export function NavBar() {
   const navigate = useNavigate();
   const { user } = useContext(AppContext);
-  const { pathname } = useLocation();
-
-  useEffect(() => {
-    if (!user && pathname !== "/") navigate("/sign-in");
-  }, [user, navigate, pathname]);
 
   function handleVideoUploadClick(): void {
     if (user) navigate("/upload");
     else navigate("/sign-in");
   }
 
-  const iconHover =
-    "flex h-8 w-8 items-center justify-center rounded-md transition-none hover:cursor-pointer hover:bg-silver dark:hover:bg-void";
   return (
     <>
-      <div className="flex w-full basis-1/12 items-center justify-between border-b-thin border-silver px-4 dark:border-gray">
-        <Logo />
-        <div className="flex basis-1/2 items-center justify-end gap-x-2">
-          <div onClick={handleVideoUploadClick} className={iconHover}>
-            <RiVideoUploadFill
-              className="text-black dark:text-white"
-              size={24}
-            />
-          </div>
-          <div className={iconHover}>
-            <Menu />
-          </div>
+      <header className="flex w-full basis-1/12 items-center justify-between border border-l-brdr bg-l-bg-1 p-4 shadow-sm shadow-l-shdw dark:border-none dark:bg-d-bg-01dp dark:shadow-none">
+        <div className="basis-1/3">
+          <Logo />
         </div>
-      </div>
+        <SearchBar />
+        <div className="flex basis-1/3 items-center justify-end gap-x-2">
+          <RiVideoUploadFill
+            className="h-8 w-10 hover:cursor-pointer"
+            size={24}
+            onClick={handleVideoUploadClick}
+          />
+          <Menu />
+        </div>
+      </header>
       <Outlet />
     </>
   );

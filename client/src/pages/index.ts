@@ -8,3 +8,4 @@ export * from "./UserVideoPage";
 export * from "./NotFoundPage";
 export * from "./LikedVideosPage";
 export * from "./UserProfilePage";
+export * from "./PendingPage";

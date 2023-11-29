@@ -124,7 +124,7 @@ export async function fetchVideoById(videoId: number): Promise<Video> {
   return data;
 }
 
-export async function uploadVideos(form: FormData): Promise<Video> {
+export async function uploadVideos(form: FormData): Promise<Video[]> {
   const req = {
     method: "POST",
     headers: {

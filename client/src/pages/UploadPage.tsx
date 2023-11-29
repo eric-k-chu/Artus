@@ -1,25 +1,18 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useRef } from "react";
 import { IoImage } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-import { uploadVideos, useTitle } from "../lib";
+import { useApp, useTitle } from "../lib";
 
 export function UploadPage() {
-  const [hasChanged, setHasChanged] = useState(false);
+  const { handleSetForm } = useApp();
   const navigate = useNavigate();
+  const input = useRef<HTMLInputElement>(null);
   useTitle("Upload");
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
+  function handleSubmit(e: FormEvent<HTMLFormElement>): void {
     e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    try {
-      console.log("Uploading now...");
-      navigate("/dashboard");
-      await uploadVideos(form);
-    } catch (err) {
-      console.error(Error);
-    } finally {
-      setHasChanged(false);
-    }
+    handleSetForm(new FormData(e.currentTarget));
+    navigate("/dashboard/pending");
   }
 
   return (
@@ -37,6 +30,7 @@ export function UploadPage() {
           >
             <span>Upload a file</span>
             <input
+              ref={input}
               className="sr-only"
               required
               id="file-input"
@@ -44,7 +38,7 @@ export function UploadPage() {
               name="videos"
               accept=".webm, .mp4, .mov"
               multiple={true}
-              onChange={() => setHasChanged(true)}
+              onChange={() => input.current?.form?.requestSubmit()}
             />
           </label>
           <p className="pl-1 text-gray">or drag and drop</p>
@@ -52,14 +46,6 @@ export function UploadPage() {
         <p className="text-xs leading-5 text-gray">
           WEBM, MP4, MOV up to 100MB
         </p>
-
-        <button
-          className={`mt-4 rounded-md bg-l-p p-2 font-poppins text-white shadow-md dark:bg-d-p ${
-            hasChanged ? "visible" : "invisible"
-          }`}
-        >
-          Submit
-        </button>
       </div>
     </form>
   );

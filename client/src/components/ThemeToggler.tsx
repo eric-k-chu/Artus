@@ -26,15 +26,3 @@ export function ThemeToggler() {
     </button>
   );
 }
-/*
-  return (
-    <button
-      type="button"
-      className={className}
-      onClick={() => handleSetTheme(theme === "light" ? "dark" : "light")}
-    >
-      {theme === "light" ? <IoMoon size={22} /> : <IoSunny size={22} />}
-    </button>
-  );
-
-*/

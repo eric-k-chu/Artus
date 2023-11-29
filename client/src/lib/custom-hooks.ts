@@ -8,8 +8,15 @@ import {
   fetchVideoById,
   fetchVideos,
   isLiked,
+  uploadVideos,
 } from ".";
-import { useContext, useEffect, useLayoutEffect, useState } from "react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from "react";
 import { AppContext } from "../components";
 
 export function useTitle(title: string): void {
@@ -175,3 +182,32 @@ export function useUserProfile() {
 export function useApp() {
   return useContext(AppContext);
 }
+
+export function useUploadVideos() {
+  const { form, handleSetForm, isPending, handleIsPending } = useApp();
+  const [files, setFiles] = useState<File[]>([]);
+  const [error, setError] = useState<unknown>();
+  const setForm = useCallback(handleSetForm, [handleSetForm]);
+
+  useEffect(() => {
+    async function upload() {
+      if (form === undefined) return;
+
+      handleIsPending(true);
+      setFiles(form.getAll("videos") as File[]);
+      try {
+        await uploadVideos(form);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setForm(undefined);
+        handleIsPending(false);
+      }
+    }
+    if (isPending === undefined) upload();
+  }, [form, setForm, isPending, handleIsPending]);
+
+  return { files, isPending, error };
+}
+
+// Add form files to session storage

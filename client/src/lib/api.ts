@@ -250,3 +250,27 @@ export async function fetchUserProfile(userId: number): Promise<UserProfile> {
   if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
   return data;
 }
+
+interface SearchSuggestions {
+  users: string[];
+  videos: string[];
+  tags: string[];
+}
+
+export async function fetchSearchSuggestions(
+  query: string,
+): Promise<SearchSuggestions> {
+  const res = await fetch(`api/search/suggestions?q=${query}`);
+  const data = await res.json();
+  if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
+  return data;
+}
+
+export async function fetchSearchResults(
+  query: string,
+): Promise<Partial<SearchSuggestions>> {
+  const res = await fetch(`api/search/results?q=${query}`);
+  const data = await res.json();
+  if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
+  return data;
+}

@@ -440,6 +440,62 @@ app.get('/api/users/:userId', async (req, res, next) => {
   }
 });
 
+// Search suggestions
+app.get('/api/search/suggestions', async (req, res, next) => {
+  try {
+    const query = [`%${req.query.q}%`];
+    const sql1 = `SELECT
+                  "username"
+                 FROM "users"
+                WHERE "username" Ilike $1`;
+    const users = await db.query(sql1, query);
+
+    const sql2 = `SELECT
+                  "caption"
+                  FROM "videos"
+                 WHERE "caption" Ilike $1`;
+    const videos = await db.query(sql2, query);
+
+    const sql3 = `SELECT
+                  "name"
+                 FROM "tags"
+                WHERE "name" Ilike $1`;
+    const tags = await db.query(sql3, query);
+    res.json({
+      users: users.rows,
+      videos: videos.rows,
+      tags: tags.rows,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.get('/api/search/results', async (req, res, next) => {
+  try {
+    const query = [`${req.query.q}`];
+    const sql1 = `SELECT
+                  "username"
+                 FROM "users"
+                WHERE "username" Ilike $1`;
+    const users = await db.query(sql1, query);
+
+    const sql2 = `SELECT
+                    "videos".*
+                  FROM "videos"
+             LEFT JOIN "videoTags" USING ("videoId")
+             LEFT JOIN "tags" USING ("tagId")
+                 WHERE "caption" Ilike $1 OR "name" Ilike $1`;
+    const videos = await db.query(sql2, query);
+    res.json({
+      users: users.rows,
+      videos: videos.rows,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 /**
  * Serves React's index.html if no api route matches.
  *

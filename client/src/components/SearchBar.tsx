@@ -2,11 +2,13 @@ import { useEffect, useState, KeyboardEvent, useRef } from "react";
 import { IoSearch } from "react-icons/io5";
 import { useDebouncedQuery } from "../lib";
 import { NavIcon } from ".";
+// import { useNavigate } from "react-router-dom";
 
 export function SearchBar() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const fetchQuery = useDebouncedQuery(query);
+  const searchQuery = useDebouncedQuery(query);
+  // const navigate = useNavigate();
   const inputElement = useRef<HTMLInputElement>(null);
 
   function handleOpen() {
@@ -17,8 +19,11 @@ export function SearchBar() {
   }
 
   useEffect(() => {
-    fetchQuery && console.log(fetchQuery);
-  }, [fetchQuery]);
+    searchQuery && console.log(`/search?q=${searchQuery}`);
+
+    // in search page const[searchParams] = useSearchParams();
+    // const query = searchParams.get('q)
+  }, [searchQuery]);
 
   function handleKeyDown(e: KeyboardEvent<HTMLDivElement>): void {
     if (e.key === "Escape") setIsOpen(false);
@@ -54,7 +59,7 @@ export function SearchBar() {
           />
           <IoSearch
             className="text-gray"
-            onClick={() => console.log(fetchQuery)}
+            onClick={() => console.log(searchQuery)}
           />
         </div>
         <div className="h-full w-full" onClick={() => setIsOpen(false)} />

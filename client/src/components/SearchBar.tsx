@@ -1,14 +1,12 @@
-import { useEffect, useState, KeyboardEvent, useRef } from "react";
+import { useState, KeyboardEvent, useRef } from "react";
 import { IoSearch } from "react-icons/io5";
-import { useDebouncedQuery } from "../lib";
-import { NavIcon } from ".";
-// import { useNavigate } from "react-router-dom";
+import { useSearchSuggestions } from "../lib";
+import { NavIcon, SearcResult } from ".";
 
 export function SearchBar() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const searchQuery = useDebouncedQuery(query);
-  // const navigate = useNavigate();
+  const { suggestions, isEmpty } = useSearchSuggestions(query);
   const inputElement = useRef<HTMLInputElement>(null);
 
   function handleOpen() {
@@ -17,13 +15,8 @@ export function SearchBar() {
       setIsOpen(true);
     }
   }
-
-  useEffect(() => {
-    searchQuery && console.log(`/search?q=${searchQuery}`);
-
-    // in search page const[searchParams] = useSearchParams();
-    // const query = searchParams.get('q)
-  }, [searchQuery]);
+  // in search page const[searchParams] = useSearchParams();
+  // const query = searchParams.get('q)
 
   function handleKeyDown(e: KeyboardEvent<HTMLDivElement>): void {
     if (e.key === "Escape") setIsOpen(false);
@@ -37,18 +30,18 @@ export function SearchBar() {
         </button>
       </NavIcon>
       <div
-        className={`fixed inset-0 z-10 flex min-h-full w-full justify-center bg-slate-900/25 backdrop-blur transition-opacity dark:bg-black/25 ${
+        className={`fixed inset-0 z-10 flex min-h-full w-full flex-col items-center bg-slate-900/25 backdrop-blur transition-opacity dark:bg-black/25 ${
           isOpen
             ? "opacity-100"
             : "pointer-events-none opacity-0 duration-200 ease-in"
         }`}
       >
         <div
-          className={`absolute z-20 mt-4 flex w-1/2 transform items-center rounded-full bg-l-bg-2 pl-6 pr-4 shadow-md shadow-l-shdw transition-all focus-within:ring-2 focus-within:ring-blue-400 dark:border-none dark:bg-d-bg-03dp dark:shadow-none ${
+          className={`z-40 mt-4 flex w-1/2 transform items-center bg-l-bg-2 pl-6 pr-4 shadow-md shadow-l-shdw transition-all focus-within:ring-2 focus-within:ring-blue-400 dark:bg-d-bg-03dp dark:shadow-none ${
             isOpen
               ? "scale-100 opacity-100"
               : "scale-95 opacity-0 duration-200 ease-in"
-          }`}
+          } ${isEmpty() ? "rounded-md" : "rounded-t-md"}`}
         >
           <input
             value={query}
@@ -59,10 +52,28 @@ export function SearchBar() {
           />
           <IoSearch
             className="text-gray"
-            onClick={() => console.log(searchQuery)}
+            onClick={() => console.log(isEmpty())}
           />
         </div>
-        <div className="h-full w-full" onClick={() => setIsOpen(false)} />
+        {!isEmpty() && (
+          <article className="z-30 mt-0 flex w-1/2 flex-col rounded-b-md bg-l-bg-2 p-2 shadow-md shadow-l-shdw dark:bg-d-bg-03dp dark:shadow-none">
+            <ul className="list-none divide-y divide-l-brdr font-poppins text-sm empty:hidden dark:divide-d-bg-12dp lg:text-base">
+              {suggestions?.users.map((n, i) => (
+                <SearcResult key={i} result={n.username} type="Username" />
+              ))}
+              {suggestions?.videos.map((n, i) => (
+                <SearcResult key={i} result={n.caption} type="Captions" />
+              ))}
+              {suggestions?.tags.map((n, i) => (
+                <SearcResult key={i} result={n.name} type="Tags" />
+              ))}
+            </ul>
+          </article>
+        )}
+        <div
+          className="absolute z-20 h-full w-full"
+          onClick={() => setIsOpen(false)}
+        />
       </div>
     </div>
   );

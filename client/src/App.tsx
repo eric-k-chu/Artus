@@ -13,6 +13,7 @@ import {
   LikedVideosPage,
   UserProfilePage,
   PendingPage,
+  SearchPage,
 } from "./pages";
 import {
   type Auth,
@@ -103,6 +104,7 @@ export default function App() {
               element={<UserVideoPage />}
             />
             <Route path="users/:userId" element={<UserProfilePage />} />
+            <Route path="search/results?" element={<SearchPage />} />
           </Route>
           <Route path="/sign-in" element={<AuthPage action="sign-in" />} />
           <Route path="/register" element={<AuthPage action="register" />} />

@@ -445,27 +445,34 @@ app.get('/api/search/suggestions', async (req, res, next) => {
   try {
     const query = [`%${req.query.q}%`];
     const sql1 = `SELECT
-                  "username"
+                  "username" as "description"
                  FROM "users"
-                WHERE "username" Ilike $1`;
+                WHERE "username" Ilike $1
+                GROUP BY "username"`;
     const users = await db.query(sql1, query);
 
     const sql2 = `SELECT
-                  "caption"
+                  "caption" as "description"
                   FROM "videos"
-                 WHERE "caption" Ilike $1`;
+                 WHERE "caption" Ilike $1
+                 GROUP BY "caption"`;
     const videos = await db.query(sql2, query);
 
     const sql3 = `SELECT
-                  "name"
+                  "name" as "description"
                  FROM "tags"
-                WHERE "name" Ilike $1`;
+                WHERE "name" Ilike $1
+                GROUP BY "name"`;
     const tags = await db.query(sql3, query);
-    res.json({
-      users: users.rows,
-      videos: videos.rows,
-      tags: tags.rows,
-    });
+
+    const results = [...users.rows, ...videos.rows, ...tags.rows];
+
+    // const values: string[] = [];
+    // for (const obj of results) {
+    //   if ()
+    // }
+
+    res.json(results);
   } catch (err) {
     next(err);
   }
@@ -473,7 +480,7 @@ app.get('/api/search/suggestions', async (req, res, next) => {
 
 app.get('/api/search/results', async (req, res, next) => {
   try {
-    const query = [`${req.query.q}`];
+    const query = [`%${req.query.q}%`];
     const sql1 = `SELECT
                   "username"
                  FROM "users"
@@ -485,7 +492,8 @@ app.get('/api/search/results', async (req, res, next) => {
                   FROM "videos"
              LEFT JOIN "videoTags" USING ("videoId")
              LEFT JOIN "tags" USING ("tagId")
-                 WHERE "caption" Ilike $1 OR "name" Ilike $1`;
+                 WHERE "caption" Ilike $1 OR "name" Ilike $1
+              GROUP BY "videoId"`;
     const videos = await db.query(sql2, query);
     res.json({
       users: users.rows,

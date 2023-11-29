@@ -9,3 +9,4 @@ export * from "./NotFoundPage";
 export * from "./LikedVideosPage";
 export * from "./UserProfilePage";
 export * from "./PendingPage";
+export * from "./SearchPage";

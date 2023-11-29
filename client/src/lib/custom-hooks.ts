@@ -1,7 +1,11 @@
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import {
+  SearchSuggestions,
+  UserResult,
   Video,
   breakIntoSubArr,
+  fetchSearchResults,
+  fetchSearchSuggestions,
   fetchUserLikedVideos,
   fetchUserProfile,
   fetchUserVideos,
@@ -140,17 +144,31 @@ export function useHasLiked(videoId: number | undefined) {
   return { hasLiked, isLoading, error, setHasLiked };
 }
 
-export function useDebouncedQuery(query: string, timeout = 300): string {
-  const [debouncedQuery, setDebouncedQuery] = useState("");
+export function useSearchSuggestions(query: string, timeout = 300) {
+  const [suggestions, setSuggestions] = useState<SearchSuggestions>();
+
+  function isEmpty(): boolean | undefined {
+    if (!suggestions) return undefined;
+    return (
+      suggestions.tags.length < 1 &&
+      suggestions.users.length < 1 &&
+      suggestions.videos.length < 1
+    );
+  }
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedQuery(query);
+    const timer = setTimeout(async () => {
+      if (query) {
+        const res = await fetchSearchSuggestions(query);
+        setSuggestions(res);
+      } else {
+        setSuggestions({ users: [], videos: [], tags: [] });
+      }
     }, timeout);
     return () => clearTimeout(timer);
   }, [query, timeout]);
 
-  return debouncedQuery;
+  return { suggestions, isEmpty };
 }
 
 export function useUserProfile() {
@@ -211,3 +229,34 @@ export function useUploadVideos() {
 }
 
 // Add form files to session storage
+interface SearchResults {
+  users: UserResult[];
+  videos: Video[];
+}
+
+export function useSearchQuery() {
+  const [searchParams] = useSearchParams();
+  const [searchResults, setSearchResults] = useState<SearchResults>();
+  const [isLoading, setIsLoading] = useState<boolean>();
+  const [error, setError] = useState<unknown>();
+
+  useEffect(() => {
+    async function load() {
+      console.log(searchParams.get("q"));
+      const query = searchParams.get("q");
+      if (query === null) return;
+      setIsLoading(true);
+      try {
+        const res = await fetchSearchResults(query);
+        setSearchResults(res);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    if (isLoading === undefined) load();
+  }, [searchParams, isLoading]);
+
+  return { searchResults, isLoading, error };
+}

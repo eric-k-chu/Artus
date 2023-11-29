@@ -14,3 +14,4 @@ export * from "./LoadingCircle";
 export * from "./SearchBar";
 export * from "./ThemeToggler";
 export * from "./NavIcon";
+export * from "./SearchResult";

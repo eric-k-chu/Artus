@@ -251,16 +251,33 @@ export async function fetchUserProfile(userId: number): Promise<UserProfile> {
   return data;
 }
 
-interface SearchSuggestions {
-  users: string[];
-  videos: string[];
-  tags: string[];
+export type UserResult = {
+  username: string;
+};
+
+export type VideosResult = {
+  caption: string;
+};
+
+export type TagsResult = {
+  name: string;
+};
+
+export interface SearchSuggestions {
+  users: UserResult[];
+  videos: VideosResult[];
+  tags: TagsResult[];
+}
+
+export interface SearchResults {
+  users: UserResult[];
+  videos: Video[];
 }
 
 export async function fetchSearchSuggestions(
   query: string,
 ): Promise<SearchSuggestions> {
-  const res = await fetch(`api/search/suggestions?q=${query}`);
+  const res = await fetch(`/api/search/suggestions?q=${query}`);
   const data = await res.json();
   if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
   return data;
@@ -268,8 +285,8 @@ export async function fetchSearchSuggestions(
 
 export async function fetchSearchResults(
   query: string,
-): Promise<Partial<SearchSuggestions>> {
-  const res = await fetch(`api/search/results?q=${query}`);
+): Promise<SearchResults> {
+  const res = await fetch(`/api/search/results?q=${query}`);
   const data = await res.json();
   if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
   return data;

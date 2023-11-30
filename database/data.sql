@@ -4,38 +4,39 @@ INSERT INTO "users" ("username", "hashedPassword")
 
 
 INSERT INTO "videos" ("userId", "likes", "caption", "videoUrl", "thumbnailUrl", "uploadedAt")
-     VALUES (1, 0, 'The GOAT', '/videos/faker-azir.mp4','/videos/faker-azir.gif', NOW() + interval '1 week'),          --1
-            (1, 5, 'admin', '/videos/faker-azir-1.mp4','/videos/faker-azir-1.gif', NOW() + interval '2 week'),   --2
-            (1, 5, '4X', '/videos/faker-azir-2.mp4','/videos/faker-azir-2.gif', NOW() + interval '3 week'),            --3
-            (1, 5, 'T1 Dominance', '/videos/faker-azir-3.mp4','/videos/faker-azir-3.gif', NOW() + interval '4 week'),  --4
-            (1, 5, 'WTFFF', '/videos/faker-azir-4.mp4','/videos/faker-azir-4.gif', NOW() + interval '5 week'),         --5
-            (1, 5, 'GOAT', '/videos/faker-azir-5.mp4','/videos/faker-azir-5.gif', NOW() + interval '6 week'),          --6
-            (1, 5, 'IDK', '/videos/faker-azir-6.mp4','/videos/faker-azir-6.gif', NOW() + interval '7 week'),           --7
-            (1, 5, '2017 FLASHBACK', '/videos/faker-azir-7.mp4','/videos/faker-azir-7.gif', NOW() + interval '8 week'),--8
-            (1, 5, 'Admin', '/videos/faker-azir-8.mp4','/videos/faker-azir-8.gif', NOW() + interval '9 week');         --9
+     VALUES (1, 0, 'The GOAT', '/videos/faker-azir.mp4','/videos/faker-azir.gif', NOW() - interval '1 week'),          --1
+            (1, 5, 'PARKOUR', '/videos/test-1.mp4','/videos/test-1.gif', NOW() - interval '2 week'),   --2
+            (1, 5, 'GET OVERR HEREE', '/videos/test-2.mp4','/videos/test-2.gif', NOW() - interval '3 week'),            --3
+            (1, 5, 'Racers cornering in slow-mo', '/videos/test-3.mp4','/videos/test-3.gif', NOW() - interval '4 week'),  --4
+            (2, 5, 'Old Daigo Moment', '/videos/test-4.mp4','/videos/test-4.gif', NOW() - interval '5 week'),         --5
+            (2, 5, 'Bocchi Slayer', '/videos/test-5.mp4','/videos/test-5.gif', NOW() - interval '6 week'),          --6
+            (2, 5, 'Playing God', '/videos/test-6.mp4','/videos/test-6.gif', NOW() - interval '7 week'),           --7
+            (2, 5, 'Cute Cat', '/videos/test-7.mp4','/videos/test-7.gif', NOW() - interval '8 week'),--8
+            (2, 5, 'Oner destroys JDG', '/videos/test-8.mp4','/videos/test-8.gif', NOW() - interval '9 week');         --9
 
 INSERT INTO "tags" ("name")
      VALUES ('League of Legends'),          --1
             ('Faker'),                      --2
-            ('Worlds 2023'),                --3
-            ('T1'),                         --4
-            ('JDG'),                        --5
-            ('FRAUD'),                      --6
-            ('JDG VS T1'),                  --7
-            ('WOW'),                        --8
-            ('LOL'),                        --9
-            ('AZIR'),                       --10
-            ('OP'),                         --11
-            ('Delete Me');                  --12
+            ('Cat'),                --3
+            ('Parkour'),                         --4
+            ('APEX Legends'),                        --5
+            ('Daigo'),                      --6
+            ('Street Fighter'),                  --7
+            ('Bocchi'),                        --8
+            ('Demon Slayer'),                        --9
+            ('Oner'),                       --10
+            ('Rell'),                         --11
+            ('Polyphia');                  --12
 
 INSERT INTO "videoTags" ("videoId", "tagId")
-     VALUES (1, 1), (1, 2), (1, 3),
-            (2, 6), (2, 9), (2, 10),
-            (3, 12), (3, 11),
-            (4, 1),
-            (5, 4), (5, 5),
-            (7, 1), (7, 3), (7, 5),
-            (9, 8), (9, 11);
+     VALUES (1, 1), (1, 2),
+            (2, 4),
+            (3, 5),
+            (5, 6), (5, 7),
+            (6, 8), (6, 9),
+            (7, 12),
+            (8, 3),
+            (9, 10), (9, 1);
 
 INSERT INTO "likedVideos" ("videoId", "userId")
-     VALUES (3, 2);
+     VALUES (3, 2), (1, 2), (6, 1), (7, 1);

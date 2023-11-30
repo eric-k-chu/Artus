@@ -85,7 +85,7 @@ export function Menu() {
             <MenuItem
               key={2}
               show={user !== undefined}
-              onClick={() => handleNavigate("/dashboard/pending")}
+              onClick={() => handleNavigate("/dashboard/manage-videos")}
             >
               <RiFolderVideoFill size={24} />
               <span>Dashboard</span>

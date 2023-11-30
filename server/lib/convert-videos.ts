@@ -1,27 +1,10 @@
 import fs from 'node:fs';
 import ffmpeg from 'fluent-ffmpeg';
 import ffmpegStatic from 'ffmpeg-static';
-import ffprobeStatic from 'ffprobe-static';
 
 const ffmpegPath = ffmpegStatic ?? '';
-const ffprobePath = ffprobeStatic.path ?? '';
-if (!ffmpegPath && !ffprobePath) {
-  throw new Error(
-    'ffmpeg and ffprobe binaries are needed to run fluent-ffmpeg',
-  );
-}
-
-export async function logDuration(path: string) {
-  let duration: number | undefined;
-
-  ffmpeg(path)
-    .setFfprobePath(ffprobePath)
-    .ffprobe(async (err, metadata) => {
-      if (err) throw new Error(err);
-      duration = metadata.format.duration;
-      console.log(duration);
-    });
-  console.log(duration);
+if (!ffmpegPath) {
+  throw new Error('ffmpeg  binaries are needed to run fluent-ffmpeg');
 }
 
 export type ConvertedVideos = {

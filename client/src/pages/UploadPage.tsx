@@ -1,25 +1,31 @@
 import { FormEvent, useRef } from "react";
 import { IoImage } from "react-icons/io5";
-// import { useNavigate } from "react-router-dom";
-import { uploadVideos, useTitle } from "../lib"; //use App
+import { useNavigate } from "react-router-dom";
+import { useTitle, /*uploadPromise */ useApp } from "../lib"; //use App
 
 export function UploadPage() {
-  // const { handleSetForm } = useApp();
-  // const navigate = useNavigate();
+  const { handleSetForm } = useApp();
+  const navigate = useNavigate();
   const input = useRef<HTMLInputElement>(null);
   useTitle("Upload");
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
-    // handleSetForm(new FormData(e.currentTarget));
-    // navigate("/dashboard/pending");
-    try {
-      const form = new FormData(e.currentTarget);
-      const res = await uploadVideos(form);
-      console.log(res);
-    } catch (error) {
-      console.log(error);
-    }
+    handleSetForm(new FormData(e.currentTarget));
+    navigate("/dashboard/pending");
+
+    // const form = new FormData(e.currentTarget);
+    // uploadPromise(form)
+    //   .then((response) => {
+    //     return response.json();
+    //   })
+    //   .then((data) => {
+    //     console.log(data);
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   });
+    // console.log("uploaded");
   }
 
   return (

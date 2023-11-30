@@ -138,6 +138,16 @@ export async function uploadVideos(form: FormData): Promise<Video[]> {
   return data;
 }
 
+export function uploadPromise(form: FormData): Promise<Response> {
+  return fetch(`/api/videos`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: form,
+  });
+}
+
 export function getDate(ttz?: string): string {
   const date = ttz ? new Date(ttz) : new Date();
   return date.toLocaleString("default", {

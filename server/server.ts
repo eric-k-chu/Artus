@@ -4,6 +4,7 @@ import pg from 'pg';
 import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
 import format from 'pg-format';
+import fs from 'node:fs';
 import {
   ClientError,
   authMiddleware,
@@ -402,7 +403,7 @@ app.delete(
         [videoId],
       );
       const videoUrl = result.rows[0].videoUrl;
-      console.log('Delete video file once depoloyed', videoUrl);
+      fs.unlinkSync(videoUrl);
       res.sendStatus(204);
     } catch (err) {
       next(err);

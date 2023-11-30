@@ -403,7 +403,9 @@ app.delete(
         [videoId],
       );
       const videoUrl = result.rows[0].videoUrl;
+      const thumbnailUrl = result.rows[0].thumbnailUrl;
       fs.unlinkSync(videoUrl);
+      fs.unlinkSync(thumbnailUrl);
       res.sendStatus(204);
     } catch (err) {
       next(err);

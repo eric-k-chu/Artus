@@ -17,8 +17,10 @@ import { existsSync } from 'node:fs';
  * that is built and pushed by the GitHub deploy Action. If it detects that situation,
  * it sends a helpful message.
  */
-export function defaultMiddleware(reactStaticDir: string) {
-  function handleDefault(_req: Request, res: Response) {
+export function defaultMiddleware(
+  reactStaticDir: string,
+): (r: Request, res: Response) => void {
+  function handleDefault(_req: Request, res: Response): void {
     if (!existsSync(reactStaticDir)) {
       res.sendFile(new URL('./no-client.html', import.meta.url).pathname);
       return;

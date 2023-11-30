@@ -1,11 +1,11 @@
 import { FormEvent, useRef } from "react";
 import { IoImage } from "react-icons/io5";
-import { useNavigate } from "react-router-dom";
-import { uploadVideos, useApp, useTitle } from "../lib";
+// import { useNavigate } from "react-router-dom";
+import { uploadVideos, useTitle } from "../lib"; //use App
 
 export function UploadPage() {
-  const { handleSetForm } = useApp();
-  const navigate = useNavigate();
+  // const { handleSetForm } = useApp();
+  // const navigate = useNavigate();
   const input = useRef<HTMLInputElement>(null);
   useTitle("Upload");
 

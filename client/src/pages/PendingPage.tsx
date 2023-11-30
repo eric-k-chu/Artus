@@ -4,14 +4,6 @@ import { PendingVideoCard } from "../components/PendingVideoCard";
 export function PendingPage() {
   const { files, isPending, error } = useUploadVideos();
 
-  // useEffect(() => {
-  //   if (form) {
-  //     const ex = Array.from(form);
-  //     console.log("form", form.getAll("videos"));
-  //     console.log("array", ex);
-  //   }
-  // }, [form]);
-
   if (error) {
     return (
       <main className="flex w-full flex-col items-center gap-y-4 rounded-md border border-l-brdr bg-l-bg-1 p-4 shadow-sm shadow-l-shdw dark:border-none dark:bg-d-bg-03dp dark:shadow-none">

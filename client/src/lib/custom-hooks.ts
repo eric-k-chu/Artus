@@ -202,16 +202,17 @@ export function useApp() {
 }
 
 export function useUploadVideos() {
-  const { form, handleSetForm, isPending, handleIsPending } = useApp();
+  const { form, handleSetForm } = useApp();
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<unknown>();
+  const [isPending, setIsPending] = useState<boolean>();
   const setForm = useCallback(handleSetForm, [handleSetForm]);
 
   useEffect(() => {
     async function upload() {
       if (form === undefined) return;
 
-      handleIsPending(true);
+      setIsPending(true);
       setFiles(form.getAll("videos") as File[]);
       try {
         await uploadVideos(form);
@@ -219,11 +220,11 @@ export function useUploadVideos() {
         setError(err);
       } finally {
         setForm(undefined);
-        handleIsPending(false);
+        setIsPending(false);
       }
     }
     if (isPending === undefined) upload();
-  }, [form, setForm, isPending, handleIsPending]);
+  }, [form, setForm, isPending]);
 
   return { files, isPending, error };
 }

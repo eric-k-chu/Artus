@@ -30,7 +30,6 @@ export default function App() {
   const [token, setToken] = useState<string>();
   const [theme, setTheme] = useState<Theme>();
   const [form, setForm] = useState<FormData>();
-  const [isPending, setIsPending] = useState<boolean>();
 
   useLayoutEffect(() => {
     const th = readTheme();
@@ -69,17 +68,11 @@ export default function App() {
     setForm(form);
   }
 
-  function handleIsPending(bool: boolean): void {
-    setIsPending(bool);
-  }
-
   const contextValue = {
     user,
     token,
     theme,
     form,
-    isPending,
-    handleIsPending,
     handleSignIn,
     handleSignOut,
     handleSetTheme,

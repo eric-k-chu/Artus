@@ -6,8 +6,6 @@ type AppContextValues = {
   token: string | undefined;
   theme: Theme | undefined;
   form: FormData | undefined;
-  isPending: boolean | undefined;
-  handleIsPending: (bool: boolean) => void;
   handleSignIn: (auth: Auth) => void;
   handleSignOut: () => void;
   handleSetTheme: (theme: Theme) => void;
@@ -19,8 +17,6 @@ export const AppContext = createContext<AppContextValues>({
   token: undefined,
   theme: undefined,
   form: undefined,
-  isPending: undefined,
-  handleIsPending: () => undefined,
   handleSignIn: () => undefined,
   handleSignOut: () => undefined,
   handleSetTheme: () => undefined,

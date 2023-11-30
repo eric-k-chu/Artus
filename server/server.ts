@@ -43,9 +43,9 @@ app.use(express.static(reactStaticDir));
 app.use(express.static(uploadsStaticDir));
 app.use(express.json());
 
-app.get('/api/hello', (req, res) => {
-  res.json({ connection: connectionString, message: 'hello' });
-});
+// app.get('/api/hello', (req, res) => {
+//   res.json({ connection: connectionString, message: 'hello' });
+// });
 
 // INSERT User
 app.post('/api/auth/register', async (req, res, next) => {

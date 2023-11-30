@@ -76,6 +76,7 @@ async function convertToGifAndMp4(
   });
 }
 
+// Converts videos to gif and mp4
 export async function convertVideos(
   files: Express.Multer.File[],
 ): Promise<ConvertedVideos[]> {

@@ -1,7 +1,7 @@
 import { useState, KeyboardEvent, useRef } from "react";
 import { IoSearch } from "react-icons/io5";
 import { useSearchSuggestions } from "../lib";
-import { NavIcon, SearchResult } from ".";
+import { NavIcon, SearchSuggestion } from ".";
 
 export function SearchBar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -56,7 +56,7 @@ export function SearchBar() {
           <article className="z-30 mt-0 flex w-1/2 flex-col rounded-b-md bg-l-bg-2 p-2 shadow-md shadow-l-shdw dark:bg-d-bg-03dp dark:shadow-none">
             <ul className="list-none divide-y divide-l-brdr font-poppins text-sm empty:hidden dark:divide-d-bg-12dp lg:text-base">
               {suggestions.map((n, i) => (
-                <SearchResult
+                <SearchSuggestion
                   result={n}
                   key={i}
                   onClick={() => setIsOpen(false)}

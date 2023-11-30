@@ -5,20 +5,20 @@ type Props = {
   onClick: () => void;
 };
 
-export function SearchResult({ result, onClick }: Props) {
+export function SearchSuggestion({ result, onClick }: Props) {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   function handleSearch() {
     searchParams.set("q", result);
-    navigate(`/search/results?${searchParams.toString()}`);
+    navigate(`/v/search?${searchParams.toString()}`);
     onClick();
     // setSearchParams(searchParams);
   }
 
   return (
     <li
-      className="flex items-center p-4 font-raleway text-xs lg:text-base"
+      className="flex items-center rounded-md p-4 font-raleway text-xs hover:cursor-pointer hover:bg-l-bg-4 dark:hover:bg-d-bg-12dp lg:text-base"
       onClick={handleSearch}
     >
       <span>{result}</span>

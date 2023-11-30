@@ -481,10 +481,11 @@ app.get('/api/search/suggestions', async (req, res, next) => {
   }
 });
 
-app.get('/api/search/results', async (req, res, next) => {
+app.get('/api/v/search', async (req, res, next) => {
   try {
     const query = [`%${req.query.q}%`];
     const sql1 = `SELECT
+                  "userId",
                   "username"
                  FROM "users"
                 WHERE "username" Ilike $1`;
@@ -499,16 +500,8 @@ app.get('/api/search/results', async (req, res, next) => {
               GROUP BY "videoId"`;
     const videos = await db.query(sql2, query);
 
-    const unique = users.rows.reduce((acc, n) => {
-      const username = n.username.toLocaleLowerCase('en-US');
-      if (!acc.get(username)) {
-        acc.set(username, n);
-      }
-      return acc;
-    }, new Map());
-
     res.json({
-      users: Array.from(unique.keys()),
+      users: users.rows,
       videos: videos.rows,
     });
   } catch (err) {

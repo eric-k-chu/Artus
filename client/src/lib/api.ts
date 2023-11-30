@@ -266,7 +266,7 @@ export async function fetchSearchSuggestions(query: string): Promise<string[]> {
 export async function fetchSearchResults(
   query: string,
 ): Promise<SearchResults> {
-  const res = await fetch(`/api/search/results?q=${query}`);
+  const res = await fetch(`/api/v/search?q=${query}`);
   const data = await res.json();
   if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
   return data;

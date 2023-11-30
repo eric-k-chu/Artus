@@ -1,7 +1,6 @@
 import { useParams, useSearchParams } from "react-router-dom";
 import {
-  SearchSuggestions,
-  UserResult,
+  SearchResults,
   Video,
   breakIntoSubArr,
   fetchSearchResults,
@@ -145,30 +144,22 @@ export function useHasLiked(videoId: number | undefined) {
 }
 
 export function useSearchSuggestions(query: string, timeout = 300) {
-  const [suggestions, setSuggestions] = useState<SearchSuggestions>();
-
-  function isEmpty(): boolean | undefined {
-    if (!suggestions) return undefined;
-    return (
-      suggestions.tags.length < 1 &&
-      suggestions.users.length < 1 &&
-      suggestions.videos.length < 1
-    );
-  }
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   useEffect(() => {
     const timer = setTimeout(async () => {
       if (query) {
+        query.replace(/\+/g, " ");
         const res = await fetchSearchSuggestions(query);
         setSuggestions(res);
       } else {
-        setSuggestions({ users: [], videos: [], tags: [] });
+        setSuggestions([]);
       }
     }, timeout);
     return () => clearTimeout(timer);
   }, [query, timeout]);
 
-  return { suggestions, isEmpty };
+  return { suggestions };
 }
 
 export function useUserProfile() {
@@ -230,10 +221,6 @@ export function useUploadVideos() {
 }
 
 // Add form files to session storage
-interface SearchResults {
-  users: UserResult[];
-  videos: Video[];
-}
 
 export function useSearchQuery() {
   const [searchParams] = useSearchParams();

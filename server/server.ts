@@ -467,12 +467,15 @@ app.get('/api/search/suggestions', async (req, res, next) => {
 
     const results = [...users.rows, ...videos.rows, ...tags.rows];
 
-    // const values: string[] = [];
-    // for (const obj of results) {
-    //   if ()
-    // }
+    const unique = results.reduce((acc, n) => {
+      const desc = n.description.toLocaleLowerCase('en-US');
+      if (!acc.get(desc)) {
+        acc.set(desc, n);
+      }
+      return acc;
+    }, new Map());
 
-    res.json(results);
+    res.json(Array.from(unique.keys()));
   } catch (err) {
     next(err);
   }
@@ -495,8 +498,17 @@ app.get('/api/search/results', async (req, res, next) => {
                  WHERE "caption" Ilike $1 OR "name" Ilike $1
               GROUP BY "videoId"`;
     const videos = await db.query(sql2, query);
+
+    const unique = users.rows.reduce((acc, n) => {
+      const username = n.username.toLocaleLowerCase('en-US');
+      if (!acc.get(username)) {
+        acc.set(username, n);
+      }
+      return acc;
+    }, new Map());
+
     res.json({
-      users: users.rows,
+      users: Array.from(unique.keys()),
       videos: videos.rows,
     });
   } catch (err) {

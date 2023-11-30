@@ -1,12 +1,12 @@
 import { useState, KeyboardEvent, useRef } from "react";
 import { IoSearch } from "react-icons/io5";
 import { useSearchSuggestions } from "../lib";
-import { NavIcon, SearcResult } from ".";
+import { NavIcon, SearchResult } from ".";
 
 export function SearchBar() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const { suggestions, isEmpty } = useSearchSuggestions(query);
+  const { suggestions } = useSearchSuggestions(query);
   const inputElement = useRef<HTMLInputElement>(null);
 
   function handleOpen() {
@@ -41,7 +41,7 @@ export function SearchBar() {
             isOpen
               ? "scale-100 opacity-100"
               : "scale-95 opacity-0 duration-200 ease-in"
-          } ${isEmpty() ? "rounded-md" : "rounded-t-md"}`}
+          } ${suggestions.length < 1 ? "rounded-md" : "rounded-t-md"}`}
         >
           <input
             value={query}
@@ -50,22 +50,17 @@ export function SearchBar() {
             className="w-full bg-transparent leading-10 outline-none"
             placeholder="Search for videos..."
           />
-          <IoSearch
-            className="text-gray"
-            onClick={() => console.log(isEmpty())}
-          />
+          <IoSearch className="text-gray" />
         </div>
-        {!isEmpty() && (
+        {suggestions.length > 1 && (
           <article className="z-30 mt-0 flex w-1/2 flex-col rounded-b-md bg-l-bg-2 p-2 shadow-md shadow-l-shdw dark:bg-d-bg-03dp dark:shadow-none">
             <ul className="list-none divide-y divide-l-brdr font-poppins text-sm empty:hidden dark:divide-d-bg-12dp lg:text-base">
-              {suggestions?.users.map((n, i) => (
-                <SearcResult key={i} result={n.username} type="Username" />
-              ))}
-              {suggestions?.videos.map((n, i) => (
-                <SearcResult key={i} result={n.caption} type="Captions" />
-              ))}
-              {suggestions?.tags.map((n, i) => (
-                <SearcResult key={i} result={n.name} type="Tags" />
+              {suggestions.map((n, i) => (
+                <SearchResult
+                  result={n}
+                  key={i}
+                  onClick={() => setIsOpen(false)}
+                />
               ))}
             </ul>
           </article>

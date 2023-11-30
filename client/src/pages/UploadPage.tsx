@@ -1,7 +1,7 @@
 import { FormEvent, useRef } from "react";
 import { IoImage } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-import { useApp, useTitle } from "../lib";
+import { uploadVideos, useApp, useTitle } from "../lib";
 
 export function UploadPage() {
   const { handleSetForm } = useApp();
@@ -9,10 +9,17 @@ export function UploadPage() {
   const input = useRef<HTMLInputElement>(null);
   useTitle("Upload");
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>): void {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
-    handleSetForm(new FormData(e.currentTarget));
-    navigate("/dashboard/pending");
+    // handleSetForm(new FormData(e.currentTarget));
+    // navigate("/dashboard/pending");
+    try {
+      const form = new FormData(e.currentTarget);
+      const res = await uploadVideos(form);
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (

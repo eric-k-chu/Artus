@@ -77,7 +77,7 @@ async function convertToGifAndMp4(
 }
 
 // Converts videos to gif and mp4
-export async function convertVideos(
+export function convertVideos(
   files: Express.Multer.File[],
 ): Promise<ConvertedVideos[]> {
   console.log('Converion starting now...');
@@ -86,5 +86,5 @@ export async function convertVideos(
     const { filename, path, originalname } = files[i];
     convertedVideos.push(convertToGifAndMp4(filename, path, originalname));
   }
-  return await Promise.all(convertedVideos);
+  return Promise.all(convertedVideos);
 }

@@ -5,6 +5,7 @@ import {
   breakIntoSubArr,
   fetchSearchResults,
   fetchSearchSuggestions,
+  fetchStatus,
   fetchUserLikedVideos,
   fetchUserProfile,
   fetchUserVideos,
@@ -218,6 +219,30 @@ export function useUploadVideos() {
   }, [form, setForm, isPending]);
 
   return { files, isPending, error };
+}
+
+export function useUploadFiles() {
+  const { files, handleSetFiles } = useApp();
+  const [statuses, setStatuses] = useState<boolean[]>([]);
+
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (files === undefined) return;
+      try {
+        console.log(files);
+        const fileStatuses = await fetchStatus(files);
+        setStatuses(fileStatuses);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        handleSetFiles([]);
+      }
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [files, handleSetFiles]);
+
+  return { statuses, files };
 }
 
 // Add form files to session storage

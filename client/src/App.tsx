@@ -30,6 +30,7 @@ export default function App() {
   const [token, setToken] = useState<string>();
   const [theme, setTheme] = useState<Theme>();
   const [form, setForm] = useState<FormData>();
+  const [files, setFiles] = useState<any[]>();
 
   useLayoutEffect(() => {
     const th = readTheme();
@@ -68,11 +69,17 @@ export default function App() {
     setForm(form);
   }
 
+  function handleSetFiles(files: any[]): void {
+    setFiles(files);
+  }
+
   const contextValue = {
     user,
     token,
     theme,
     form,
+    files,
+    handleSetFiles,
     handleSignIn,
     handleSignOut,
     handleSetTheme,

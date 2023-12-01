@@ -6,6 +6,8 @@ type AppContextValues = {
   token: string | undefined;
   theme: Theme | undefined;
   form: FormData | undefined;
+  files: any;
+  handleSetFiles: (files: any[]) => void;
   handleSignIn: (auth: Auth) => void;
   handleSignOut: () => void;
   handleSetTheme: (theme: Theme) => void;
@@ -17,6 +19,8 @@ export const AppContext = createContext<AppContextValues>({
   token: undefined,
   theme: undefined,
   form: undefined,
+  files: undefined,
+  handleSetFiles: () => undefined,
   handleSignIn: () => undefined,
   handleSignOut: () => undefined,
   handleSetTheme: () => undefined,

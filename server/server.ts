@@ -516,6 +516,58 @@ app.get('/api/v/search', async (req, res, next) => {
   }
 });
 
+app.post(
+  '/api/upload/videos',
+  authMiddleware,
+  uploadsMiddleware.array('videos'),
+  async (req, res, next) => {
+    if (!req.files) throw new ClientError(400, 'no file field in request');
+
+    console.log('Received!');
+    res.json(req.files);
+
+    const files = req.files as Express.Multer.File[];
+    convertVideos(files)
+      .then((videos) => {
+        console.log('finished conversion');
+        const values: (number | string | undefined)[][] = [];
+        for (const video of videos) {
+          const { videoUrl, thumbnailUrl, originalname } = video;
+          values.push([
+            req.user?.userId,
+            0,
+            originalname,
+            videoUrl,
+            thumbnailUrl,
+          ]);
+        }
+
+        const sql = format(
+          `INSERT INTO "videos" ("userId", "likes", "caption", "videoUrl", "thumbnailUrl")
+                               VALUES %L RETURNING *`,
+          values,
+        );
+        db.query<Video>(sql)
+          .then(() => console.log('inserted into db'))
+          .catch((err) => next(err));
+      })
+      .catch((err) => next(err));
+  },
+);
+
+app.post('/api/videos/compressed', authMiddleware, async (req, res, next) => {
+  try {
+    const { files } = req.body;
+    const pending: boolean[] = [];
+    for (const file of files) {
+      pending.push(fs.existsSync(file.path));
+    }
+    res.json(pending);
+  } catch (err) {
+    next(err);
+  }
+});
+
 /**
  * Serves React's index.html if no api route matches.
  *

@@ -139,13 +139,27 @@ export async function uploadVideos(form: FormData): Promise<Video[]> {
 }
 
 export function uploadPromise(form: FormData): Promise<Response> {
-  return fetch(`/api/videos`, {
+  return fetch(`/api/upload/videos`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${getToken()}`,
     },
     body: form,
   });
+}
+
+export async function fetchStatus(files: any[]): Promise<boolean[]> {
+  const res = await fetch("/api/videos/compressed", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ files: files }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
+  return data;
 }
 
 export function getDate(ttz?: string): string {

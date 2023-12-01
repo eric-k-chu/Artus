@@ -165,7 +165,7 @@ app.get('/api/videos', authMiddleware, async (req, res, next) => {
               LEFT JOIN "tags" USING ("tagId")
                    JOIN "users" USING ("userId")
                   WHERE "videos"."userId" = $1
-               ORDER BY "uploadedAt"`;
+               ORDER BY "uploadedAt" DESC`;
     const result = await db.query(sql, [req.user?.userId]);
     const videos = result.rows;
 

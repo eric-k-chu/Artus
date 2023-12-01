@@ -54,7 +54,7 @@ export function UploadPage() {
               onChange={() => input.current?.form?.requestSubmit()}
             />
           </label>
-          <p className="pl-1 text-gray">or drag and drop</p>
+          <p className="pl-1 text-gray">or files</p>
         </div>
         <p className="text-xs leading-5 text-gray">
           WEBM, MP4, MOV up to 100MB

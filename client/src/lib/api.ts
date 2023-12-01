@@ -56,6 +56,17 @@ export function writeTheme(theme: Theme): void {
   localStorage.setItem(themeKey, theme);
 }
 
+async function checkResponse(res: Response): Promise<void> {
+  if (!res.ok) {
+    if (res.status >= 500) {
+      throw new Error(`An unexpected error occured: ${res.status}`);
+    } else {
+      const data = await res.json();
+      throw new Error(`${data.error}`);
+    }
+  }
+}
+
 export async function signIn(
   username: string,
   password: string,
@@ -83,16 +94,14 @@ async function signUpOrIn(
     body: JSON.stringify({ username, password }),
   };
   const res = await fetch(`/api/auth/${action}`, req);
-  const data = await res.json();
-  if (!res.ok) throw new Error(`${data.error}`);
-  return data;
+  await checkResponse(res);
+  return await res.json();
 }
 
 export async function fetchVideos(): Promise<Video[]> {
   const res = await fetch("/api/videos/all");
-  const data = await res.json();
-  if (!res.ok) throw new Error(`${data.error}`);
-  return data;
+  await checkResponse(res);
+  return await res.json();
 }
 
 export async function fetchUserVideos(): Promise<Video[]> {
@@ -101,9 +110,8 @@ export async function fetchUserVideos(): Promise<Video[]> {
       Authorization: `Bearer ${getToken()}`,
     },
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
-  return data;
+  await checkResponse(res);
+  return await res.json();
 }
 
 export async function fetchUserLikedVideos(): Promise<Video[]> {
@@ -112,30 +120,26 @@ export async function fetchUserLikedVideos(): Promise<Video[]> {
       Authorization: `Bearer ${getToken()}`,
     },
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
-  return data;
+  await checkResponse(res);
+  return await res.json();
 }
 
 export async function fetchVideoById(videoId: number): Promise<Video> {
   const res = await fetch(`/api/videos/${videoId}`);
-  const data = await res.json();
-  if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
-  return data;
+  await checkResponse(res);
+  return await res.json();
 }
 
 export async function uploadVideos(form: FormData): Promise<Video[]> {
-  const req = {
+  const res = await fetch(`/api/videos`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${getToken()}`,
     },
     body: form,
-  };
-  const res = await fetch(`/api/videos`, req);
-  const data = await res.json();
-  if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
-  return data;
+  });
+  await checkResponse(res);
+  return await res.json();
 }
 
 export function uploadPromise(form: FormData): Promise<Response> {
@@ -173,9 +177,8 @@ export async function updateVideo(
       tags: tags ? tags.split(",") : [],
     }),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
-  return data;
+  await checkResponse(res);
+  return await res.json();
 }
 
 export function breakIntoSubArr<T>(chunkSize: number, arr: T[]): T[][] {
@@ -194,10 +197,7 @@ export async function deleteVideo(videoId: number): Promise<void> {
       Authorization: `Bearer ${getToken()}`,
     },
   });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(`${res.status}: ${err.error}`);
-  }
+  await checkResponse(res);
 }
 
 export async function incrementLikes(videoId: number): Promise<void> {
@@ -207,10 +207,7 @@ export async function incrementLikes(videoId: number): Promise<void> {
       Authorization: `Bearer ${getToken()}`,
     },
   });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(`${res.status}: ${err.error}`);
-  }
+  await checkResponse(res);
 }
 
 export async function decrementLikes(videoId: number): Promise<void> {
@@ -220,10 +217,7 @@ export async function decrementLikes(videoId: number): Promise<void> {
       Authorization: `Bearer ${getToken()}`,
     },
   });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(`${res.status}: ${err.error}`);
-  }
+  await checkResponse(res);
 }
 
 export async function isLiked(videoId: number | undefined): Promise<boolean> {
@@ -233,9 +227,8 @@ export async function isLiked(videoId: number | undefined): Promise<boolean> {
       Authorization: `Bearer ${getToken()}`,
     },
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
-  return data;
+  await checkResponse(res);
+  return await res.json();
 }
 
 export async function debounce<T extends (...args: T[]) => void>(
@@ -256,9 +249,8 @@ interface UserProfile {
 
 export async function fetchUserProfile(userId: number): Promise<UserProfile> {
   const res = await fetch(`/api/users/${userId}`);
-  const data = await res.json();
-  if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
-  return data;
+  await checkResponse(res);
+  return await res.json();
 }
 
 export interface SearchResults {
@@ -268,16 +260,14 @@ export interface SearchResults {
 
 export async function fetchSearchSuggestions(query: string): Promise<string[]> {
   const res = await fetch(`/api/search/suggestions?q=${query}`);
-  const data = await res.json();
-  if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
-  return data;
+  await checkResponse(res);
+  return await res.json();
 }
 
 export async function fetchSearchResults(
   query: string,
 ): Promise<SearchResults> {
   const res = await fetch(`/api/v/search?q=${query}`);
-  const data = await res.json();
-  if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
-  return data;
+  await checkResponse(res);
+  return await res.json();
 }

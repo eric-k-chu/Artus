@@ -1,4 +1,3 @@
-import fs from 'node:fs';
 import ffmpeg from 'fluent-ffmpeg';
 import ffmpegStatic from 'ffmpeg-static';
 
@@ -63,7 +62,6 @@ async function convertToGifAndMp4(
           .on('start', () => console.log('Converting to mp4...'))
           .on('error', (err) => reject(err))
           .on('end', () => {
-            fs.unlinkSync(path);
             resolve({
               thumbnailUrl: `/videos/${filename.split('.')[0]}.gif`,
               videoUrl: `/videos/${filename.split('.')[0]}.mp4`,

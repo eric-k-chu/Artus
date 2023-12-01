@@ -529,7 +529,7 @@ app.post(
     const files = req.files as Express.Multer.File[];
     convertVideos(files)
       .then((videos) => {
-        console.log('finished conversion');
+        console.log('finished conversion, inserting into db');
         const values: (number | string | undefined)[][] = [];
         for (const video of videos) {
           const { videoUrl, thumbnailUrl, originalname } = video;
@@ -548,7 +548,12 @@ app.post(
           values,
         );
         db.query<Video>(sql)
-          .then(() => console.log('inserted into db'))
+          .then(() => {
+            console.log('Finished inserting into db');
+            for (const file of files) {
+              fs.unlinkSync(file.path);
+            }
+          })
           .catch((err) => next(err));
       })
       .catch((err) => next(err));

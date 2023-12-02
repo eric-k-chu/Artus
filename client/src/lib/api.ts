@@ -161,9 +161,8 @@ export async function fetchStatus(files: any[]): Promise<boolean[]> {
     },
     body: JSON.stringify({ files: files }),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(`${res.status}: ${data.error}`);
-  return data;
+  checkResponse(res);
+  return await res.json();
 }
 
 export function getDate(ttz?: string): string {

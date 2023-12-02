@@ -1,4 +1,3 @@
-import fs from 'node:fs';
 import ffmpeg from 'fluent-ffmpeg';
 import ffmpegStatic from 'ffmpeg-static';
 
@@ -63,7 +62,6 @@ async function convertToGifAndMp4(
           .on('start', () => console.log('Converting to mp4...'))
           .on('error', (err) => reject(err))
           .on('end', () => {
-            fs.unlinkSync(path);
             resolve({
               thumbnailUrl: `/videos/${filename.split('.')[0]}.gif`,
               videoUrl: `/videos/${filename.split('.')[0]}.mp4`,
@@ -77,7 +75,7 @@ async function convertToGifAndMp4(
 }
 
 // Converts videos to gif and mp4
-export async function convertVideos(
+export function convertVideos(
   files: Express.Multer.File[],
 ): Promise<ConvertedVideos[]> {
   console.log('Converion starting now...');
@@ -86,5 +84,5 @@ export async function convertVideos(
     const { filename, path, originalname } = files[i];
     convertedVideos.push(convertToGifAndMp4(filename, path, originalname));
   }
-  return await Promise.all(convertedVideos);
+  return Promise.all(convertedVideos);
 }

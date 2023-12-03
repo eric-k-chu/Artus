@@ -1,36 +1,82 @@
-import { FormEvent, useRef } from "react";
-import { IoImage } from "react-icons/io5";
+import { FormEvent, useRef, useState } from "react";
+import { IoCheckmark, IoImage } from "react-icons/io5";
+import { useTitle, PendingFile, uploadVideos, fetchUploadStatus } from "../lib";
+import { ErrorNotice, LoadingCircle } from "../components";
 import { useNavigate } from "react-router-dom";
-import { useTitle, uploadPromise, useApp } from "../lib"; //use App
 
 export function UploadPage() {
-  const { handleSetFiles } = useApp();
-  const navigate = useNavigate();
+  const [files, setFiles] = useState<PendingFile[]>();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<unknown>();
   const input = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
   useTitle("Upload");
 
+  async function checkFileStatus(files: PendingFile[]) {
+    const intervalId = setInterval(async () => {
+      try {
+        if (!files) return;
+        const statuses = await fetchUploadStatus(files);
+        setFiles(statuses);
+        const isFinished = statuses.every((file) => file.status === "Finished");
+        if (isFinished) {
+          clearInterval(intervalId);
+          navigate("/dashboard/manage-videos");
+        }
+      } catch (err) {
+        setError(err);
+      }
+    }, 3000);
+  }
+
+  // Multer hangs more with async await vs then catch
   async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
-    // handleSetForm(new FormData(e.currentTarget));
-    // navigate("/dashboard/pending");
-
     const form = new FormData(e.currentTarget);
-    uploadPromise(form)
-      .then((response) => {
-        return response.json();
+    setIsLoading(true);
+    uploadVideos(form)
+      .then((res) => res.json())
+      .then((files) => {
+        console.log(files);
+        setFiles(files);
+        checkFileStatus(files);
       })
-      .then((data) => {
-        // set file objects to app context data.
-        console.log(data);
-        handleSetFiles(data);
-      })
-      .then(() => {
-        navigate("/dashboard/pending");
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    console.log("uploaded");
+      .catch((err) => setError(err))
+      .finally(() => setIsLoading(false));
+  }
+
+  if (isLoading) {
+    return (
+      <main className="mt-60 flex justify-center">
+        <LoadingCircle />
+      </main>
+    );
+  }
+
+  if (error) {
+    return <ErrorNotice error={error} />;
+  }
+
+  if (files) {
+    return (
+      <ul className="mt-10 flex w-1/2 flex-col gap-y-2 p-4">
+        {files.map((n, i) => (
+          <li
+            key={i}
+            className="flex w-full items-center rounded-md bg-l-bg-4 p-4 dark:bg-d-bg-12dp"
+          >
+            <p className="font-gray truncate font-poppins">{n.filename}</p>
+            <div className="ml-auto">
+              {n.status === "Pending" ? (
+                <LoadingCircle size="sm" />
+              ) : (
+                <IoCheckmark className="text-green-400" />
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
+    );
   }
 
   return (

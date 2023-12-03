@@ -3,12 +3,6 @@ export type Auth = {
   password: string;
 };
 
-export type User = {
-  userId: number;
-  username: string;
-  hashedPassword: string;
-};
-
 export type Tag = {
   tagId: number;
   name: string;

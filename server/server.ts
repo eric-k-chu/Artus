@@ -14,7 +14,6 @@ import {
   removeDuplicates,
   validateVideoId,
   type Auth,
-  type User,
   type VideoForm,
   type ConvertedVideos,
   type Tag,
@@ -43,10 +42,6 @@ app.use(express.static(reactStaticDir));
 app.use(express.static(uploadsStaticDir));
 app.use(express.json());
 
-// app.get('/api/hello', (req, res) => {
-//   res.json({ connection: connectionString, message: 'hello' });
-// });
-
 // INSERT User
 app.post('/api/auth/register', async (req, res, next) => {
   try {
@@ -61,7 +56,7 @@ app.post('/api/auth/register', async (req, res, next) => {
            VALUES ($1, $2)
           ON CONFLICT ("username") DO NOTHING
            RETURNING "userId", "username"`;
-    const result = await db.query<User>(sql, [username, hashedPassword]);
+    const result = await db.query(sql, [username, hashedPassword]);
     const user = result.rows[0];
     if (!user) throw new ClientError(409, 'This username already exists.');
     res.status(201).json(user);
@@ -84,7 +79,7 @@ app.post('/api/auth/sign-in', async (req, res, next) => {
         FROM "users"
        WHERE "username" = $1
     `;
-    const result = await db.query<User>(sql, [username]);
+    const result = await db.query(sql, [username]);
 
     if (!result.rows[0]) {
       throw new ClientError(404, 'These credentials do not match our records.');
@@ -507,17 +502,29 @@ app.get('/api/v/search', async (req, res, next) => {
   }
 });
 
+// Upload Videos
 app.post(
   '/api/upload/videos',
   authMiddleware,
   uploadsMiddleware.array('videos'),
-  async (req, res, next) => {
-    if (!req.files) throw new ClientError(400, 'no file field in request');
-
-    console.log('Received!');
-    res.json(req.files);
-
+  (req, res, next) => {
     const files = req.files as Express.Multer.File[];
+    if (!files) throw new ClientError(400, 'no file field in request');
+
+    const pending: {
+      filename: string;
+      path: string;
+      status: 'Pending' | 'Finished';
+    }[] = [];
+    for (const file of files) {
+      pending.push({
+        filename: file.originalname,
+        path: file.path,
+        status: 'Pending',
+      });
+    }
+    res.json(pending);
+
     convertVideos(files)
       .then((videos) => {
         console.log('finished conversion, inserting into db');
@@ -551,17 +558,21 @@ app.post(
   },
 );
 
-app.post('/api/videos/compressed', authMiddleware, async (req, res, next) => {
-  try {
-    const { files } = req.body;
-    const pending: boolean[] = [];
-    for (const file of files) {
-      pending.push(fs.existsSync(file.path));
-    }
-    res.json(pending);
-  } catch (err) {
-    next(err);
+app.post('/api/videos/compressed', authMiddleware, (req, res) => {
+  const { files } = req.body;
+  const pending: {
+    filename: string;
+    path: string;
+    status: 'Pending' | 'Finished';
+  }[] = [];
+  for (const file of files) {
+    pending.push({
+      filename: file.filename,
+      path: file.path,
+      status: fs.existsSync(file.path) ? 'Pending' : 'Finished',
+    });
   }
+  res.json(pending);
 });
 
 /**

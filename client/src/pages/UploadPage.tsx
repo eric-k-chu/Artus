@@ -1,4 +1,4 @@
-import { FormEvent, useRef, useState } from "react";
+import { ChangeEvent, FormEvent, useRef, useState } from "react";
 import { IoCheckmark, IoImage } from "react-icons/io5";
 import { useTitle, PendingFile, uploadVideos, fetchUploadStatus } from "../lib";
 import { ErrorNotice, LoadingCircle } from "../components";
@@ -45,6 +45,27 @@ export function UploadPage() {
       .finally(() => setIsLoading(false));
   }
 
+  function handleFileValidation(e: ChangeEvent<HTMLInputElement>): void {
+    const files = e.currentTarget.files;
+    if (!files) return;
+    let sum = 0;
+    for (const file of files) {
+      console.log(file.size);
+      if (file.size > 5 * 1024 * 1024) {
+        setError(new Error("File size exceeds 5 mb limit."));
+        return;
+      } else {
+        sum += file.size;
+      }
+    }
+    if (sum > 5 * 1024 * 1024) {
+      setError(new Error("Total filze size exceeds 5 mb limit."));
+      return;
+    }
+
+    input.current?.form?.requestSubmit();
+  }
+
   if (isLoading) {
     return (
       <main className="mt-60 flex justify-center">
@@ -54,7 +75,17 @@ export function UploadPage() {
   }
 
   if (error) {
-    return <ErrorNotice error={error} />;
+    return (
+      <main className="flex w-full flex-col items-center justify-center">
+        <ErrorNotice error={error} />
+        <button
+          className="mt-2 rounded-md bg-l-p p-2 font-poppins dark:bg-d-p"
+          onClick={() => setError(undefined)}
+        >
+          Try Again
+        </button>
+      </main>
+    );
   }
 
   if (files) {
@@ -102,7 +133,7 @@ export function UploadPage() {
               name="videos"
               accept=".webm, .mp4, .mov"
               multiple={true}
-              onChange={() => input.current?.form?.requestSubmit()}
+              onChange={handleFileValidation}
             />
           </label>
           <p className="pl-1 text-gray">or files</p>

@@ -5,22 +5,14 @@ import {
   breakIntoSubArr,
   fetchSearchResults,
   fetchSearchSuggestions,
-  fetchStatus,
   fetchUserLikedVideos,
   fetchUserProfile,
   fetchUserVideos,
   fetchVideoById,
   fetchVideos,
   isLiked,
-  uploadVideos,
 } from ".";
-import {
-  useCallback,
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from "react";
+import { useContext, useEffect, useLayoutEffect, useState } from "react";
 import { AppContext } from "../components";
 
 export function useTitle(title: string): void {
@@ -193,59 +185,71 @@ export function useApp() {
   return useContext(AppContext);
 }
 
-export function useUploadVideos() {
-  const { form, handleSetForm } = useApp();
-  const [files, setFiles] = useState<File[]>([]);
-  const [error, setError] = useState<unknown>();
-  const [isPending, setIsPending] = useState<boolean>();
-  const setForm = useCallback(handleSetForm, [handleSetForm]);
+// export function useUploadVideos() {
+//   const { form, handleSetForm } = useApp();
+//   const [files, setFiles] = useState<File[]>([]);
+//   const [error, setError] = useState<unknown>();
+//   const [isPending, setIsPending] = useState<boolean>();
+//   const setForm = useCallback(handleSetForm, [handleSetForm]);
 
-  useEffect(() => {
-    async function upload() {
-      if (form === undefined) return;
+//   useEffect(() => {
+//     async function upload() {
+//       if (form === undefined) return;
 
-      setIsPending(true);
-      setFiles(form.getAll("videos") as File[]);
-      try {
-        await uploadVideos(form);
-      } catch (err) {
-        setError(err);
-      } finally {
-        setForm(undefined);
-        setIsPending(false);
-      }
-    }
-    if (isPending === undefined) upload();
-  }, [form, setForm, isPending]);
+//       setIsPending(true);
+//       setFiles(form.getAll("videos") as File[]);
+//       try {
+//         await uploadVideos(form);
+//       } catch (err) {
+//         setError(err);
+//       } finally {
+//         setForm(undefined);
+//         setIsPending(false);
+//       }
+//     }
+//     if (isPending === undefined) upload();
+//   }, [form, setForm, isPending]);
 
-  return { files, isPending, error };
-}
+//   return { files, isPending, error };
+// }
 
-export function useUploadFiles() {
-  const { files, handleSetFiles } = useApp();
-  const [statuses, setStatuses] = useState<boolean[]>([]);
+// export function usePendingFiles() {
+//   const { files } = useApp();
+//   const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
+//   const [error, setError] = useState<unknown>();
+//   const getFileStatus = useCallback(getStatus, [getStatus]);
+//   const intervalId = useRef<NodeJS.Timeout>();
 
-  useEffect(() => {
-    const timer = setTimeout(async () => {
-      if (files === undefined) return;
-      try {
-        console.log(files);
-        const fileStatuses = await fetchStatus(files);
-        setStatuses(fileStatuses);
-      } catch (err) {
-        console.log(err);
-      } finally {
-        handleSetFiles([]);
-      }
-    }, 5000);
+//   // if file status is true, that means the file is still pending
+//   function checkFileStatuses(files: PendingFile[]): boolean {
+//     for (const file of files) {
+//       if (file.status) return false;
+//     }
+//     return true;
+//   }
 
-    return () => clearTimeout(timer);
-  }, [files, handleSetFiles]);
+//   async function getStatus(): Promise<void> {
+//     try {
+//       console.log("running")
+//       setPendingFiles((prev) => {
+//         if (prev.length < 1) clearInterval(intervalId.current);
+//         const res = await fetchStatus(files);
 
-  return { statuses, files };
-}
+//       })
+//     } catch (err) {
+//       setError(err);
+//       clearInterval(intervalId.current);
+//     }
+//   }
 
-// Add form files to session storage
+//   useEffect(() => {
+//     intervalId.current = setInterval(getFileStatus, 1000);
+
+//     return () => clearInterval(intervalId.current);
+//   }, [getFileStatus]);
+
+//   return { pendingFiles, error };
+// }
 
 export function useSearchQuery() {
   const [searchParams] = useSearchParams();

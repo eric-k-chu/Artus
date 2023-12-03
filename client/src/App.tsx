@@ -12,7 +12,6 @@ import {
   NotFound,
   LikedVideosPage,
   UserProfilePage,
-  PendingPage,
   SearchPage,
 } from "./pages";
 import {
@@ -29,8 +28,6 @@ export default function App() {
   const [user, setUser] = useState<User>();
   const [token, setToken] = useState<string>();
   const [theme, setTheme] = useState<Theme>();
-  const [form, setForm] = useState<FormData>();
-  const [files, setFiles] = useState<any[]>();
 
   useLayoutEffect(() => {
     const th = readTheme();
@@ -65,25 +62,13 @@ export default function App() {
     writeTheme(theme);
   }
 
-  function handleSetForm(form: FormData | undefined): void {
-    setForm(form);
-  }
-
-  function handleSetFiles(files: any[]): void {
-    setFiles(files);
-  }
-
   const contextValue = {
     user,
     token,
     theme,
-    form,
-    files,
-    handleSetFiles,
     handleSignIn,
     handleSignOut,
     handleSetTheme,
-    handleSetForm,
   };
 
   return (
@@ -95,7 +80,6 @@ export default function App() {
             <Route path="watch/:videoId" element={<VideoDetails />} />
             <Route path="upload" element={<UploadPage />} />
             <Route path="dashboard/" element={<Dashboard />}>
-              <Route path="pending" element={<PendingPage />} />
               <Route path="manage-videos" element={<ManageVideosPage />} />
               <Route path="liked-videos" element={<LikedVideosPage />} />
             </Route>

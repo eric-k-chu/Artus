@@ -25,14 +25,6 @@ export type Video = User & {
   userId: number;
   username: string;
 };
-export type Tag = {
-  tagId: number;
-  tagName: string;
-};
-export type UpdateForm = {
-  caption: string;
-  tags: string;
-};
 
 function getToken() {
   const tokenJSON = localStorage.getItem(tokenKey);
@@ -130,19 +122,7 @@ export async function fetchVideoById(videoId: number): Promise<Video> {
   return await res.json();
 }
 
-export async function uploadVideos(form: FormData): Promise<Video[]> {
-  const res = await fetch(`/api/videos`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${getToken()}`,
-    },
-    body: form,
-  });
-  await checkResponse(res);
-  return await res.json();
-}
-
-export function uploadPromise(form: FormData): Promise<Response> {
+export function uploadVideos(form: FormData): Promise<Response> {
   return fetch(`/api/upload/videos`, {
     method: "POST",
     headers: {
@@ -152,7 +132,13 @@ export function uploadPromise(form: FormData): Promise<Response> {
   });
 }
 
-export async function fetchStatus(files: any[]): Promise<boolean[]> {
+export interface PendingFile {
+  filename: string;
+  path: string;
+  status: "Pending" | "Finished";
+}
+
+export async function fetchUploadStatus(files: any[]): Promise<PendingFile[]> {
   const res = await fetch("/api/videos/compressed", {
     method: "POST",
     headers: {

@@ -28,18 +28,6 @@ export function Dashboard() {
         <nav className="flex h-12 w-full select-none items-center gap-x-4 rounded-md border border-l-brdr bg-l-bg-1 px-4 font-poppins text-sm shadow-sm shadow-l-shdw dark:border-none dark:bg-d-bg-03dp dark:shadow-none">
           <Link
             className={`flex h-full cursor-pointer items-center border-b-2 ${
-              loc.endsWith("/pending") ||
-              loc.endsWith("dashboard/") ||
-              loc.endsWith("dashboard")
-                ? "border-l-s text-black dark:border-d-s dark:text-white/90"
-                : "border-transparent text-gray hover:text-black dark:text-white/60 dark:hover:text-white/90"
-            }`}
-            to={"/dashboard/pending"}
-          >
-            <span>Pending</span>
-          </Link>
-          <Link
-            className={`flex h-full cursor-pointer items-center border-b-2 ${
               loc.endsWith("/manage-videos")
                 ? "border-l-s text-black dark:border-d-s dark:text-white/90"
                 : "border-transparent text-gray hover:text-black dark:text-white/60 dark:hover:text-white/90"

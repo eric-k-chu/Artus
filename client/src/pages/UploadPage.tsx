@@ -107,9 +107,7 @@ export function UploadPage() {
           </label>
           <p className="pl-1 text-gray">or files</p>
         </div>
-        <p className="text-xs leading-5 text-gray">
-          WEBM, MP4, MOV up to 100MB
-        </p>
+        <p className="text-xs leading-5 text-gray">WEBM, MP4, MOV up to 5 mb</p>
       </div>
     </form>
   );

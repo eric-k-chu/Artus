@@ -17,8 +17,11 @@ const storage = multer.diskStorage({
 
 export const uploadsMiddleware = multer({
   storage,
-  limits: { fileSize: 100 * 1024 * 1024 },
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
+    if (file.size > 5 * 1024 * 1024) {
+      return cb(null, false);
+    }
     cb(null, true);
   },
 });

@@ -1,8 +1,9 @@
-import { Logo, Menu, SearchBar } from "./";
+import { Logo, Menu, NavIcon } from "./";
 import { Outlet, useNavigate } from "react-router-dom";
 import { RiVideoAddLine } from "react-icons/ri";
 import { ThemeToggler } from "./";
 import { useApp } from "../lib";
+import { IoSearch } from "react-icons/io5";
 
 export function NavBar() {
   const navigate = useNavigate();
@@ -27,7 +28,9 @@ export function NavBar() {
           </button>
         </div>
         <div className="flex basis-1/2 items-center justify-end gap-x-2 lg:gap-x-6">
-          <SearchBar />
+          <NavIcon onClick={() => navigate("/search")}>
+            <IoSearch className="h-4 w-4 lg:h-6 lg:w-6" />
+          </NavIcon>
           <ThemeToggler />
           <Menu />
         </div>

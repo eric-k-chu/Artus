@@ -88,7 +88,7 @@ export default function App() {
               element={<UserVideoPage />}
             />
             <Route path="users/:userId" element={<UserProfilePage />} />
-            <Route path="v/search?" element={<SearchPage />} />
+            <Route path="search" element={<SearchPage />} />
           </Route>
           <Route path="/sign-in" element={<AuthPage action="sign-in" />} />
           <Route path="/register" element={<AuthPage action="register" />} />

@@ -1,10 +1,7 @@
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
-  SearchResults,
   Video,
   breakIntoSubArr,
-  fetchSearchResults,
-  fetchSearchSuggestions,
   fetchUserLikedVideos,
   fetchUserProfile,
   fetchUserVideos,
@@ -136,25 +133,6 @@ export function useHasLiked(videoId: number | undefined) {
   return { hasLiked, isLoading, error, setHasLiked };
 }
 
-export function useSearchSuggestions(query: string, timeout = 300) {
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-
-  useEffect(() => {
-    const timer = setTimeout(async () => {
-      if (query) {
-        query.replace(/\+/g, " ");
-        const res = await fetchSearchSuggestions(query);
-        setSuggestions(res);
-      } else {
-        setSuggestions([]);
-      }
-    }, timeout);
-    return () => clearTimeout(timer);
-  }, [query, timeout]);
-
-  return { suggestions };
-}
-
 export function useUserProfile() {
   const { userId } = useParams();
   const [username, setUsername] = useState("");
@@ -183,31 +161,4 @@ export function useUserProfile() {
 
 export function useApp() {
   return useContext(AppContext);
-}
-
-export function useSearchQuery() {
-  const [searchParams] = useSearchParams();
-  const [searchResults, setSearchResults] = useState<SearchResults>();
-  const [isLoading, setIsLoading] = useState<boolean>();
-  const [error, setError] = useState<unknown>();
-
-  useEffect(() => {
-    async function load() {
-      console.log(searchParams.get("q"));
-      const query = searchParams.get("q");
-      if (query === null) return;
-      setIsLoading(true);
-      try {
-        const res = await fetchSearchResults(query);
-        setSearchResults(res);
-      } catch (err) {
-        setError(err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    if (isLoading === undefined) load();
-  }, [searchParams, isLoading]);
-
-  return { searchResults, isLoading, error };
 }

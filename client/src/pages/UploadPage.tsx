@@ -30,7 +30,7 @@ export function UploadPage() {
   }
 
   // Multer hangs more with async await vs then catch
-  async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
+  function handleSubmit(e: FormEvent<HTMLFormElement>): void {
     e.preventDefault();
 
     const form = new FormData(e.currentTarget);

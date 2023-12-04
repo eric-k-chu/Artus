@@ -433,47 +433,6 @@ app.get('/api/users/:userId', async (req, res, next) => {
   }
 });
 
-// Search suggestions
-app.get('/api/search/suggestions', async (req, res, next) => {
-  try {
-    const query = [`%${req.query.q}%`];
-    const sql1 = `SELECT
-                  "username" as "description"
-                 FROM "users"
-                WHERE "username" Ilike $1
-                GROUP BY "username"`;
-    const users = await db.query(sql1, query);
-
-    const sql2 = `SELECT
-                  "caption" as "description"
-                  FROM "videos"
-                 WHERE "caption" Ilike $1
-                 GROUP BY "caption"`;
-    const videos = await db.query(sql2, query);
-
-    const sql3 = `SELECT
-                  "name" as "description"
-                 FROM "tags"
-                WHERE "name" Ilike $1
-                GROUP BY "name"`;
-    const tags = await db.query(sql3, query);
-
-    const results = [...users.rows, ...videos.rows, ...tags.rows];
-
-    const unique = results.reduce((acc, n) => {
-      const desc = n.description.toLocaleLowerCase('en-US');
-      if (!acc.get(desc)) {
-        acc.set(desc, n);
-      }
-      return acc;
-    }, new Map());
-
-    res.json(Array.from(unique.keys()));
-  } catch (err) {
-    next(err);
-  }
-});
-
 app.get('/api/v/search', async (req, res, next) => {
   try {
     const query = [`%${req.query.q}%`];

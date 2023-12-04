@@ -249,12 +249,12 @@ export async function fetchUserProfile(userId: number): Promise<UserProfile> {
 }
 
 export type SearchResults = {
-  users: string[];
+  users: User[];
   videos: Video[];
 };
 
-export async function fetchSearchSuggestions(query: string): Promise<string[]> {
-  const res = await fetch(`/api/search/suggestions?q=${query}`);
+export async function fetchSearchSuggestions(): Promise<string[]> {
+  const res = await fetch("/api/search/suggestions");
   await checkResponse(res);
   return await res.json();
 }

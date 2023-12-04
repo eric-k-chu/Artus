@@ -32,8 +32,10 @@ export function UploadPage() {
   // Multer hangs more with async await vs then catch
   async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
+
     const form = new FormData(e.currentTarget);
     setIsLoading(true);
+
     uploadVideos(form)
       .then((res) => res.json())
       .then((files) => {
@@ -48,9 +50,9 @@ export function UploadPage() {
   function handleFileValidation(e: ChangeEvent<HTMLInputElement>): void {
     const files = e.currentTarget.files;
     if (!files) return;
+
     let sum = 0;
     for (const file of files) {
-      console.log(file.size);
       if (file.size > 5 * 1024 * 1024) {
         setError(new Error("File size exceeds 5 mb limit."));
         return;
@@ -58,6 +60,7 @@ export function UploadPage() {
         sum += file.size;
       }
     }
+
     if (sum > 5 * 1024 * 1024) {
       setError(new Error("Total filze size exceeds 5 mb limit."));
       return;

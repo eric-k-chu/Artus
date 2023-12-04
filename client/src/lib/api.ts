@@ -10,10 +10,12 @@ export type User = {
   userId: number;
   username: string;
 };
+
 export type Auth = {
   user: User;
   token: string;
 };
+
 export type Video = User & {
   videoId: number;
   caption: string;
@@ -34,14 +36,8 @@ function getToken() {
 }
 
 export function readTheme(): Theme {
-  let theme: Theme;
-  const localTheme = localStorage.getItem(themeKey);
-  if (localTheme) {
-    theme = localTheme as Theme;
-  } else {
-    theme = "light";
-  }
-  return theme;
+  const localTheme = localStorage.getItem(themeKey) as Theme;
+  return localTheme ? localTheme : "light";
 }
 
 export function writeTheme(theme: Theme): void {
@@ -132,11 +128,11 @@ export function uploadVideos(form: FormData): Promise<Response> {
   });
 }
 
-export interface PendingFile {
+export type PendingFile = {
   filename: string;
   path: string;
   status: "Pending" | "Finished";
-}
+};
 
 export async function fetchUploadStatus(files: any[]): Promise<PendingFile[]> {
   const res = await fetch("/api/videos/compressed", {
@@ -241,10 +237,10 @@ export async function debounce<T extends (...args: T[]) => void>(
   };
 }
 
-interface UserProfile {
+type UserProfile = {
   username: string;
   videos: Video[];
-}
+};
 
 export async function fetchUserProfile(userId: number): Promise<UserProfile> {
   const res = await fetch(`/api/users/${userId}`);
@@ -252,10 +248,10 @@ export async function fetchUserProfile(userId: number): Promise<UserProfile> {
   return await res.json();
 }
 
-export interface SearchResults {
+export type SearchResults = {
   users: string[];
   videos: Video[];
-}
+};
 
 export async function fetchSearchSuggestions(query: string): Promise<string[]> {
   const res = await fetch(`/api/search/suggestions?q=${query}`);

@@ -325,11 +325,9 @@ app.put(
   },
 );
 
-// Increase likes
-app.patch(
-  '/api/videos/:videoId/inc',
-  authMiddleware,
-  async (req, res, next) => {
+app
+  .route('/api/videos/:videoId/rating')
+  .patch(authMiddleware, async (req, res, next) => {
     try {
       const videoId = Number(req.params.videoId);
       if (!Number.isInteger(videoId)) {
@@ -349,14 +347,8 @@ app.patch(
     } catch (err) {
       next(err);
     }
-  },
-);
-
-// Decrease likes
-app.patch(
-  '/api/videos/:videoId/dec',
-  authMiddleware,
-  async (req, res, next) => {
+  })
+  .delete(authMiddleware, async (req, res, next) => {
     try {
       const videoId = Number(req.params.videoId);
       if (!Number.isInteger(videoId)) {
@@ -375,8 +367,7 @@ app.patch(
     } catch (err) {
       next(err);
     }
-  },
-);
+  });
 
 // DELETE User video
 app.delete(

@@ -1,11 +1,5 @@
 import { IoPerson, IoHeartOutline, IoHeart } from "react-icons/io5";
-import {
-  type Video,
-  getDate,
-  incrementLikes,
-  useHasLiked,
-  decrementLikes,
-} from "../lib";
+import { type Video, getDate, useHasLiked, toggleLike } from "../lib";
 import { useState } from "react";
 import { ErrorNotice, LoadingCircle } from ".";
 import { useApp } from "../lib";
@@ -16,23 +10,19 @@ type Props = {
 };
 
 export function VideoInfo({ video, videoId }: Props) {
-  const [likes, setLikes] = useState(video?.likes);
+  const [likes, setLikes] = useState(video?.likes ?? 0);
   const [isPending, setIsPending] = useState(false);
   const [likeError, setLikeError] = useState<unknown>();
   const { hasLiked, isLoading, error, setHasLiked } = useHasLiked(videoId);
   const { user } = useApp();
 
   async function handleLike(): Promise<void> {
-    if (!user || likes === undefined || isPending) return;
+    if (!user || likes === undefined || isPending || hasLiked === undefined)
+      return;
     setIsPending(true);
     try {
-      if (!hasLiked) {
-        await incrementLikes(videoId);
-        setLikes(likes + 1);
-      } else {
-        await decrementLikes(videoId);
-        setLikes(likes - 1);
-      }
+      await toggleLike(videoId, hasLiked);
+      setLikes(hasLiked ? likes - 1 : likes + 1);
     } catch (err) {
       setLikeError(err);
     } finally {

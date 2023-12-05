@@ -119,6 +119,7 @@ export function useHasLiked(videoId: number | undefined) {
 
   useEffect(() => {
     async function load() {
+      if (videoId === undefined) return;
       try {
         const bool = await isLiked(videoId);
         setHasLiked(bool);

@@ -195,9 +195,12 @@ export async function deleteVideo(videoId: number): Promise<void> {
   await checkResponse(res);
 }
 
-export async function incrementLikes(videoId: number): Promise<void> {
-  const res = await fetch(`/api/videos/${videoId}/inc`, {
-    method: "PATCH",
+export async function toggleLike(
+  videoId: number,
+  isLiked: boolean,
+): Promise<void> {
+  const res = await fetch(`/api/videos/${videoId}/rating`, {
+    method: isLiked ? "DELETE" : "PATCH",
     headers: {
       Authorization: `Bearer ${getToken()}`,
     },
@@ -205,17 +208,7 @@ export async function incrementLikes(videoId: number): Promise<void> {
   await checkResponse(res);
 }
 
-export async function decrementLikes(videoId: number): Promise<void> {
-  const res = await fetch(`/api/videos/${videoId}/dec`, {
-    method: "PATCH",
-    headers: {
-      Authorization: `Bearer ${getToken()}`,
-    },
-  });
-  await checkResponse(res);
-}
-
-export async function isLiked(videoId: number | undefined): Promise<boolean> {
+export async function isLiked(videoId: number): Promise<boolean> {
   const res = await fetch(`/api/videos/likes/${videoId}`, {
     method: "GET",
     headers: {
@@ -224,17 +217,6 @@ export async function isLiked(videoId: number | undefined): Promise<boolean> {
   });
   await checkResponse(res);
   return await res.json();
-}
-
-export async function debounce<T extends (...args: T[]) => void>(
-  cb: T,
-  timeout = 200,
-) {
-  let timer: NodeJS.Timeout;
-  return (...args: Parameters<T>) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => cb(...args), timeout);
-  };
 }
 
 type UserProfile = {

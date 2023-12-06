@@ -1,4 +1,4 @@
-import { Logo, Menu, NavIcon } from "./";
+import { AdminSignIn, Logo, Menu, NavIcon } from "./";
 import { Outlet, useNavigate } from "react-router-dom";
 import { RiVideoAddLine } from "react-icons/ri";
 import { ThemeToggler } from "./";
@@ -28,6 +28,7 @@ export function NavBar() {
           </button>
         </div>
         <div className="flex basis-1/2 items-center justify-end gap-x-2 lg:gap-x-6">
+          {!user && <AdminSignIn />}
           <NavIcon onClick={() => navigate("/search")}>
             <IoSearch className="h-4 w-4 lg:h-6 lg:w-6" />
           </NavIcon>

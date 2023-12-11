@@ -1,4 +1,4 @@
-import { MenuItem, Logo, NavIcon } from "./";
+import { MenuItem, Logo, NavIcon, AdminSignIn } from "./";
 import { useNavigate } from "react-router-dom";
 import { GITHUB_LINK, LINKEDIN_LINK } from "../lib";
 import { useState, KeyboardEvent } from "react";
@@ -110,8 +110,13 @@ export function Menu() {
               <IoPersonAdd size={24} />
               <span>Register</span>
             </MenuItem>
+            {!user && (
+              <li className="flex items-center gap-x-2 px-6 py-4" key={5}>
+                <AdminSignIn isMobile={true} />
+              </li>
+            )}
             <li
-              key={5}
+              key={6}
               className="mt-auto flex items-center gap-x-8 border-t border-silver p-6 dark:border-d-bg-12dp"
             >
               <a href={GITHUB_LINK} target="_blank">
